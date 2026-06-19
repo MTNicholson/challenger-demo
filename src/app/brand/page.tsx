@@ -47,6 +47,10 @@ export default function BrandDashboardPage() {
         variant="dark"
       />
 
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+        Демо-сценарий бренда
+      </p>
+
       <section className="grid gap-4 md:grid-cols-3">
         {metrics.map((metric) => (
           <BrandMetricCard key={metric.label} {...metric} />

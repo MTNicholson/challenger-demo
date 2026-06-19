@@ -141,21 +141,27 @@ const brandValues = [
 const demoRoutes = [
   {
     href: routes.user.home,
-    title: "Мобильное приложение",
+    title: "Пользовательское демо",
     description:
-      "Пройдите путь пользователя: главная, каталог, активный челлендж и QR-награда.",
+      "Пользователь находит челлендж, выполняет прогресс и получает QR-награду.",
+    cta: "Открыть пользовательский сценарий",
+    path: "/app → /app/challenges → /app/active-challenge → /app/reward",
     icon: Smartphone,
   },
   {
     href: routes.brand.dashboard,
     title: "Кабинет бренда",
-    description: "Управление механиками, наградами, участниками и аналитикой кампаний.",
+    description: "Бренд создаёт челлендж, смотрит аналитику и управляет наградами.",
+    cta: "Открыть кабинет бренда",
+    path: "/brand → /brand/challenges → /brand/analytics → /brand/rewards",
     icon: Building2,
   },
   {
     href: routes.brand.scanner,
-    title: "QR-сканер",
-    description: "Точка подтверждения выдачи награды и связи офлайн-визита с прогрессом.",
+    title: "Staff scanner",
+    description: "Сотрудник проверяет QR-награду гостя.",
+    cta: "Открыть сканер",
+    path: "/brand/scanner → /brand/scan-result",
     icon: QrCode,
   },
 ];
@@ -203,7 +209,7 @@ export default function Home() {
         <section className="grid min-h-[calc(100vh-88px)] items-center gap-10 py-12 lg:grid-cols-[1.02fr_0.98fr] lg:py-16">
           <div className="max-w-3xl">
             <Badge className="bg-white/80 px-4 py-2 text-slate-700 shadow-sm">
-              Investor demo v0
+              Investor demo · frontend prototype
             </Badge>
             <h1 className="mt-6 text-4xl font-black leading-[1.04] text-slate-950 sm:text-6xl lg:text-7xl">
               Городские челленджи, монетки и награды для вовлечения гостей бренда
@@ -381,8 +387,9 @@ export default function Home() {
 
         <MarketingSection
           id="demo"
-          eyebrow="Демо"
-          title="Три маршрута для показа инвестору"
+          eyebrow="Демо-сценарии"
+          title="Выберите маршрут для показа инвестору"
+          description="Каждый сценарий открывается с готовой стартовой точки и последовательно показывает одну сторону продукта."
         >
           <div className="grid gap-4 lg:grid-cols-3">
             {demoRoutes.map((item) => (
@@ -399,6 +406,13 @@ export default function Home() {
                 </div>
                 <h3 className="mt-7 text-2xl font-black">{item.title}</h3>
                 <p className="mt-3 text-sm leading-6 text-slate-600">{item.description}</p>
+                <p className="mt-5 font-mono text-xs leading-5 text-slate-400">
+                  {item.path}
+                </p>
+                <div className="mt-6 flex items-center gap-2 text-sm font-black text-slate-950">
+                  {item.cta}
+                  <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+                </div>
               </Link>
             ))}
           </div>

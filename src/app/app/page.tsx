@@ -43,6 +43,10 @@ export default function UserHomePage() {
         </Link>
       </header>
 
+      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+        Демо-сценарий пользователя
+      </p>
+
       <CoinBalanceCard href={routes.user.coins} coins={demoUser.coins} />
 
       <Link
