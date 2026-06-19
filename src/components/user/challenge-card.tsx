@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { MapPin } from "lucide-react";
+import { CheckCircle2, Clock3, MapPin, Sparkles } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { formatCoins } from "@/lib/format";
 import { Badge } from "@/components/ui/badge";
+import { ProgressBar } from "@/components/ui/progress-bar";
 
 type ChallengeCardProps = {
   href: string;
@@ -12,6 +13,15 @@ type ChallengeCardProps = {
   emoji?: string;
   distance?: string;
   description?: string;
+  category?: string;
+  status?: string;
+  featured?: boolean;
+  rewardText?: string;
+  progress?: {
+    current: number;
+    total: number;
+    label: string;
+  };
   variant?: "tile" | "compact";
   className?: string;
 };
@@ -24,6 +34,11 @@ export function ChallengeCard({
   emoji = "✨",
   distance,
   description,
+  category,
+  status,
+  featured = false,
+  rewardText,
+  progress,
   variant = "tile",
   className,
 }: ChallengeCardProps) {
@@ -68,16 +83,61 @@ export function ChallengeCard({
       href={href}
       className={cn(
         "relative min-h-48 overflow-hidden rounded-[30px] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg",
+        featured && "ring-2 ring-amber-300/80",
         className,
       )}
     >
       <div className="absolute -right-5 -top-5 h-24 w-24 rounded-full bg-white/25" />
       <div className="relative flex h-full flex-col">
-        <div className="text-4xl">{emoji}</div>
-        <div className="mt-auto pt-8">
-          <p className="text-xs font-bold opacity-60">{brand}</p>
+        <div className="flex items-start justify-between gap-2">
+          <div className="text-4xl">{emoji}</div>
+          <div className="flex flex-col items-end gap-1">
+            {featured ? (
+              <Badge className="bg-white/75 text-slate-950">
+                <Sparkles className="mr-1 h-3 w-3" />
+                Хит
+              </Badge>
+            ) : null}
+            {status ? (
+              <Badge
+                variant={progress ? "success" : "neutral"}
+                className="bg-white/75 text-slate-950"
+              >
+                {progress ? <CheckCircle2 className="mr-1 h-3 w-3" /> : null}
+                {status}
+              </Badge>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="mt-auto pt-6">
+          <div className="flex flex-wrap items-center gap-1.5 text-xs font-bold opacity-70">
+            {category ? <span>{category}</span> : null}
+            {category ? <span>•</span> : null}
+            <span>{brand}</span>
+          </div>
           <h2 className="mt-1 text-lg font-black leading-5">{title}</h2>
-          <Badge variant="coin" className="mt-4 bg-white/70 text-slate-950">
+          {rewardText ? (
+            <p className="mt-2 line-clamp-2 text-xs font-bold leading-4 opacity-75">
+              {rewardText}
+            </p>
+          ) : null}
+          {progress ? (
+            <div className="mt-3">
+              <div className="mb-1 flex items-center justify-between gap-2 text-xs font-black opacity-75">
+                <span>{progress.label}</span>
+                <Clock3 className="h-3.5 w-3.5 shrink-0" />
+              </div>
+              <ProgressBar
+                value={progress.current}
+                max={progress.total}
+                size="sm"
+                className="bg-white/30"
+                indicatorClassName="bg-emerald-300"
+              />
+            </div>
+          ) : null}
+          <Badge variant="coin" className="mt-3 bg-white/75 text-slate-950">
             {rewardLabel}
           </Badge>
         </div>
