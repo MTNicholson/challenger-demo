@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { BarChart3, Boxes, QrCode, ScanLine } from "lucide-react";
+import { BarChart3, Boxes, Gift, QrCode, ScanLine, TrendingUp } from "lucide-react";
 import { companyBrand } from "@/data/brands";
 import { rewards } from "@/data/rewards";
+import { rewardAnalytics } from "@/data/analytics";
 import { routes } from "@/lib/routes";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -17,6 +18,13 @@ export default function BrandRewardsPage() {
   return (
     <main className="space-y-6">
       <BrandPageHeader eyebrow="Награды Coffee Place" title="Выдача и остатки" description="Награды связаны с текущими кампаниями: отслеживайте активации и переходите к проверке QR." />
+      <Link href={routes.brand.analytics} className="group block rounded-[30px] bg-slate-950 p-5 text-white shadow-xl shadow-slate-900/10">
+        <div className="grid gap-4 sm:grid-cols-[auto_1fr_auto] sm:items-center">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-400 text-slate-950"><Gift className="h-6 w-6"/></div>
+          <div><div className="flex flex-wrap items-center gap-3"><h2 className="text-xl font-black">{rewardAnalytics.activations} активации наград</h2><span className="inline-flex items-center gap-1 text-xs font-bold text-emerald-300"><TrendingUp className="h-3.5 w-3.5"/>+{rewardAnalytics.activationGrowthPercent}%</span></div><p className="mt-1 text-sm text-white/55">Чаще всего используют: {rewardAnalytics.mostUsedReward}</p></div>
+          <div className="inline-flex items-center gap-2 text-sm font-black">Открыть аналитику <BarChart3 className="h-4 w-4"/></div>
+        </div>
+      </Link>
       <section className="grid gap-4">
         {brandRewards.map((reward) => {
           const stats = rewardStats[reward.id] ?? { activations: 0, stock: "—" };

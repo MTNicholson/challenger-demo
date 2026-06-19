@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { BarChart3, Eye, Gift, PlusCircle, QrCode, Target, Users } from "lucide-react";
+import { ArrowRight, BarChart3, Eye, Gift, PlusCircle, QrCode, Repeat2, Target, TrendingUp, Users } from "lucide-react";
 import { companyAnalytics } from "@/data/analytics";
 import { companyBrand } from "@/data/brands";
 import { getBrandChallenges } from "@/data/challenges";
@@ -62,7 +62,7 @@ export default function BrandDashboardPage() {
           <Target className="h-5 w-5" />
           Все челленджи
         </Link>
-        <Link href={routes.brand.analytics} className={buttonClasses({ variant: "secondary", size: "lg" })}>
+        <Link href={routes.brand.analytics} className={buttonClasses({ variant: "dark", size: "lg" })}>
           <BarChart3 className="h-5 w-5" />
           Смотреть аналитику
         </Link>
@@ -71,6 +71,18 @@ export default function BrandDashboardPage() {
           Открыть сканер
         </Link>
       </section>
+
+      <Link href={routes.brand.analytics} className="group block rounded-[30px] bg-emerald-50 p-5 transition hover:bg-emerald-100/80">
+        <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+          <div><div className="flex items-center gap-2 text-sm font-bold text-emerald-700"><BarChart3 className="h-4 w-4" />Аналитика за неделю</div><h2 className="mt-2 text-2xl font-black text-emerald-950">Челленджи увеличили визиты на {companyAnalytics.visitsGrowthPercent}%</h2></div>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="rounded-2xl bg-white/70 px-4 py-3"><Repeat2 className="h-4 w-4 text-emerald-600"/><div className="mt-2 text-xl font-black">{companyAnalytics.repeatVisitsPercent}%</div><div className="text-xs text-slate-500">повторных визитов</div></div>
+            <div className="rounded-2xl bg-white/70 px-4 py-3"><Gift className="h-4 w-4 text-emerald-600"/><div className="mt-2 text-xl font-black">{companyAnalytics.issuedRewards}</div><div className="text-xs text-slate-500">наград выдано</div></div>
+            <div className="hidden rounded-2xl bg-white/70 px-4 py-3 sm:block"><TrendingUp className="h-4 w-4 text-emerald-600"/><div className="mt-2 text-xl font-black">{companyAnalytics.rewardConversionPercent}%</div><div className="text-xs text-slate-500">конверсия</div></div>
+          </div>
+          <div className="inline-flex items-center gap-2 font-black text-emerald-900">Подробнее <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1"/></div>
+        </div>
+      </Link>
 
       <Card className="p-5">
         <SectionTitle
