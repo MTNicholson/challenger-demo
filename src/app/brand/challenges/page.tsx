@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BarChart3, Eye, PlusCircle, Settings2 } from "lucide-react";
 import { companyBrand } from "@/data/brands";
 import { getBrandChallenges } from "@/data/challenges";
+import { companyAnalytics } from "@/data/analytics";
 import { routes } from "@/lib/routes";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -9,9 +10,7 @@ import { BrandPageHeader } from "@/components/brand/brand-page-header";
 import { buttonClasses } from "@/components/ui/button";
 
 export default function BrandChallengesPage() {
-  const challenges = getBrandChallenges(companyBrand.id).filter(
-    (challenge) => challenge.isActive,
-  );
+  const challenges = getBrandChallenges(companyBrand.id);
 
   return (
     <main className="space-y-6">
@@ -19,7 +18,7 @@ export default function BrandChallengesPage() {
         actionHref={routes.brand.newChallenge}
         actionIcon={PlusCircle}
         actionLabel="Создать челлендж"
-        description="Активные кампании Coffee Place: настройте механику, проверьте вид для гостя и перейдите к результатам."
+        description="Управляйте кампаниями Coffee Place: настраивайте механику, проверяйте вид для гостя и следите за результатами."
         eyebrow="Механики"
         title="Челленджи бренда"
       />
@@ -44,16 +43,16 @@ export default function BrandChallengesPage() {
             </p>
             <div className="mt-5 grid grid-cols-3 gap-2 text-center text-sm">
               <div className="rounded-2xl bg-slate-50 p-3">
-                <div className="font-black">+{challenge.coinsReward}</div>
-                <div className="text-xs text-slate-400">монет</div>
+                <div className="font-black">{challenge.participants}</div>
+                <div className="text-xs text-slate-400">участников</div>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-3">
+                <div className="font-black">{challenge.isActive ? Math.round(challenge.participants * 0.27) : 0}</div>
+                <div className="text-xs text-slate-400">активаций</div>
               </div>
               <div className="rounded-2xl bg-slate-50 p-3">
                 <div className="font-black">{challenge.daysLeft}</div>
                 <div className="text-xs text-slate-400">дней</div>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-3">
-                <div className="font-black">{challenge.participants}</div>
-                <div className="text-xs text-slate-400">гостей</div>
               </div>
             </div>
             <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
@@ -70,6 +69,8 @@ export default function BrandChallengesPage() {
           </Card>
         ))}
       </section>
+
+      <p className="text-xs text-slate-400">Всего активаций наград Coffee Place: {companyAnalytics.rewardActivations.toLocaleString("ru-RU")}</p>
     </main>
   );
 }
