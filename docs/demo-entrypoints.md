@@ -10,24 +10,26 @@
 
 - `/app` — главная пользовательского приложения.
 - `/app/challenges` — каталог челленджей.
+- `/app/challenges/coffee-route` — детальная страница основного демо-челленджа.
 - `/app/active-challenge` — прогресс активного челленджа.
 - `/app/reward` — QR-награда пользователя.
 
-Рекомендуемый маршрут: `/app → /app/challenges → /app/active-challenge → /app/reward`.
+Рекомендуемый маршрут: `/app` → `/app/challenges` → `/app/challenges/coffee-route` → `/app/active-challenge` → `/app/reward`.
 
 ## Сценарий бренда
 
 - `/brand` — дашборд бренда.
+- `/brand/challenges` — список челленджей бренда.
 - `/brand/challenges/new` — конструктор челленджа.
 - `/brand/preview` — пользовательское превью механики.
 - `/brand/analytics` — аналитика кампаний.
 - `/brand/rewards` — управление наградами.
 
-Рекомендуемый маршрут: `/brand → /brand/challenges/new → /brand/preview → /brand/analytics → /brand/rewards`.
+Рекомендуемый маршрут: `/brand` → `/brand/challenges` → `/brand/challenges/new` → `/brand/preview` → `/brand/analytics` → `/brand/rewards`.
 
 ## Сценарий сотрудника
 
 - `/brand/scanner` — проверка QR-награды.
 - `/brand/scan-result` — результат проверки.
 
-Рекомендуемый маршрут: `/brand/scanner → /brand/scan-result`.
+Рекомендуемый маршрут: `/brand/scanner` → `/brand/scan-result`.
