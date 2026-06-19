@@ -32,7 +32,7 @@ export const activityEvents: ActivityEvent[] = [
     id: "steps",
     title: "10 000 шагов",
     date: "15 июня",
-    amount: 200,
+    amount: 120,
     type: "coins_in",
   },
   {

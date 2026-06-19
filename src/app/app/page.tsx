@@ -1,7 +1,6 @@
 import Link from "next/link";
 import {
   ArrowRight,
-  Bell,
   Coffee,
   Flame,
   Sparkles,
@@ -26,21 +25,22 @@ export default function UserHomePage() {
   return (
     <main className="space-y-5">
       <header className="flex items-center justify-between">
-        <div>
+        <Link href={routes.user.profile}>
           <p className="text-sm font-semibold text-slate-400">
             {demoUser.district}
           </p>
           <h1 className="mt-1 text-3xl font-black">
             Привет, {demoUser.name}! 👋
           </h1>
-        </div>
-        <span
+        </Link>
+        <Link
+          href={routes.user.profile}
           className="relative grid h-12 w-12 place-items-center rounded-full bg-white text-slate-700 shadow-sm"
-          aria-label="Уведомления"
+          aria-label="Профиль"
         >
-          <Bell className="h-5 w-5" />
-          <span className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white" />
-        </span>
+          <span className="text-base font-black">{demoUser.initials}</span>
+          <span className="absolute right-2 top-2 h-2.5 w-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
+        </Link>
       </header>
 
       <CoinBalanceCard href={routes.user.coins} coins={demoUser.coins} />

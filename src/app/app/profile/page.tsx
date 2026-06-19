@@ -1,12 +1,14 @@
 import Link from "next/link";
 import {
+  Activity,
   Award,
   ChevronRight,
+  Coins,
+  Flame,
   Heart,
-  History,
-  LifeBuoy,
   MapPin,
-  Settings,
+  MapPinned,
+  Star,
   Trophy,
   WalletCards,
 } from "lucide-react";
@@ -18,7 +20,7 @@ const achievements = [
     label: "Достижения",
     value: String(demoUser.achievementsCount),
     icon: Trophy,
-    href: routes.user.activeChallenge,
+    href: routes.user.challenges,
   },
   {
     label: "Награды",
@@ -26,29 +28,65 @@ const achievements = [
     icon: Award,
     href: routes.user.reward,
   },
-  { label: "Любимые", value: String(demoUser.favoritePlacesCount), icon: Heart },
+  {
+    label: "Любимые",
+    value: String(demoUser.favoritePlacesCount),
+    icon: Heart,
+    href: routes.user.map,
+  },
 ];
 
 const menu = [
-  { label: "Мои челленджи", icon: Trophy, href: routes.user.activeChallenge },
+  { label: "Мои челленджи", icon: Trophy, href: routes.user.challenges },
+  { label: "Активный челлендж", icon: Flame, href: routes.user.activeChallenge },
+  { label: "Баланс монеток", icon: Coins, href: routes.user.coins },
+  { label: "Мои награды", icon: Award, href: routes.user.reward },
   { label: "Любимые места", icon: Heart, href: routes.user.map },
-  { label: "История визитов", icon: History, href: routes.user.activeChallenge },
-  { label: "Настройки", icon: Settings },
-  { label: "Поддержка", icon: LifeBuoy },
+];
+
+const stats = [
+  {
+    label: "челленджей завершено",
+    value: demoUser.completedChallengesCount,
+    icon: Trophy,
+  },
+  {
+    label: "активных челленджа",
+    value: demoUser.activeChallengesCount,
+    icon: Activity,
+  },
+  {
+    label: "награды доступны",
+    value: demoUser.availableRewardsCount,
+    icon: Award,
+  },
+  {
+    label: "любимых мест",
+    value: demoUser.favoritePlacesCount,
+    icon: MapPinned,
+  },
 ];
 
 export default function UserProfilePage() {
   return (
     <main className="space-y-5">
-      <section className="rounded-[34px] bg-white p-5 text-center shadow-sm">
-        <div className="mx-auto grid h-24 w-24 place-items-center rounded-[34px] bg-[linear-gradient(145deg,#111827,#475569)] text-4xl font-black text-white">
-          {demoUser.initials}
+      <section className="overflow-hidden rounded-[34px] bg-white p-5 shadow-sm">
+        <div className="flex items-center gap-4">
+          <div className="grid h-24 w-24 shrink-0 place-items-center rounded-[34px] bg-[linear-gradient(145deg,#111827,#475569)] text-4xl font-black text-white">
+            {demoUser.initials}
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">
+              <Star className="h-3.5 w-3.5" />
+              Уровень: исследователь
+            </div>
+            <h1 className="mt-3 text-3xl font-black">{demoUser.name}</h1>
+            <p className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-slate-500">
+              <MapPin className="h-4 w-4" />
+              {demoUser.city}, {demoUser.district}
+            </p>
+          </div>
         </div>
-        <h1 className="mt-4 text-3xl font-black">{demoUser.name}</h1>
-        <p className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-slate-500">
-          <MapPin className="h-4 w-4" />
-          {demoUser.city}
-        </p>
       </section>
 
       <Link
@@ -61,6 +99,9 @@ export default function UserProfilePage() {
             <p className="text-sm font-bold text-amber-700">Монетки</p>
             <p className="text-2xl font-black">
               {demoUser.coins.toLocaleString("ru-RU")}
+            </p>
+            <p className="text-xs font-semibold text-amber-800/70">
+              Можно обменять на награды
             </p>
           </div>
         </div>
@@ -85,24 +126,20 @@ export default function UserProfilePage() {
       </section>
 
       <section className="rounded-[30px] bg-slate-950 p-5 text-white shadow-xl shadow-slate-900/10">
-        <h2 className="text-xl font-black">Активность</h2>
-        <div className="mt-4 grid grid-cols-3 gap-3">
-          <div className="rounded-2xl bg-white/10 p-3">
-            <p className="text-2xl font-black">
-              {demoUser.completedChallengesCount}
-            </p>
-            <p className="text-xs font-semibold text-white/55">завершено</p>
-          </div>
-          <div className="rounded-2xl bg-white/10 p-3">
-            <p className="text-2xl font-black">
-              {demoUser.activeChallengesCount}
-            </p>
-            <p className="text-xs font-semibold text-white/55">активно</p>
-          </div>
-          <div className="rounded-2xl bg-white/10 p-3">
-            <p className="text-2xl font-black">{demoUser.visitsCount}</p>
-            <p className="text-xs font-semibold text-white/55">визитов</p>
-          </div>
+        <h2 className="text-xl font-black">Личный прогресс</h2>
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          {stats.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.label} className="rounded-2xl bg-white/10 p-3">
+                <Icon className="h-5 w-5 text-white/45" />
+                <p className="mt-3 text-2xl font-black">{item.value}</p>
+                <p className="text-xs font-semibold leading-4 text-white/55">
+                  {item.label}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </section>
 
@@ -129,14 +166,7 @@ export default function UserProfilePage() {
             >
               {rowContent}
             </Link>
-          ) : (
-            <div
-              key={item.label}
-              className="flex w-full items-center gap-3 border-b border-slate-100 px-5 py-4 text-left last:border-b-0"
-            >
-              {rowContent}
-            </div>
-          );
+          ) : null;
         })}
       </section>
     </main>

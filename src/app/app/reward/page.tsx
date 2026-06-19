@@ -2,13 +2,15 @@ import Link from "next/link";
 import {
   ArrowLeft,
   CheckCircle2,
+  Coins,
   Clock,
-  Copy,
   Gift,
   Map,
   ShieldCheck,
 } from "lucide-react";
+import { getChallengeById } from "@/data/challenges";
 import { getAvailableRewards } from "@/data/rewards";
+import { demoUser } from "@/data/user";
 import { routes } from "@/lib/routes";
 import { buttonClasses } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +24,10 @@ const qrCells = [
 ];
 
 export default function UserRewardPage() {
-  const reward = getAvailableRewards()[0];
+  const availableRewards = getAvailableRewards();
+  const reward = availableRewards[0];
+  const otherRewards = availableRewards.slice(1, 3);
+  const challenge = getChallengeById("coffee-route")!;
   const rules = [
     "Покажите QR-код сотруднику на кассе.",
     "Награда действует только один раз.",
@@ -38,7 +43,8 @@ export default function UserRewardPage() {
         </Badge>
         <h1 className="mt-3 text-3xl font-black">Ваша награда</h1>
         <p className="mt-2 text-sm leading-6 text-slate-500">
-          {reward.brandName} подготовил QR-код для получения на кассе.
+          Награда закреплена за профилем {demoUser.name}. {reward.brandName} подготовил
+          QR-код для получения на кассе.
         </p>
       </header>
 
@@ -49,7 +55,7 @@ export default function UserRewardPage() {
           </div>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-bold text-slate-400">
-              {reward.brandName}
+              {reward.brandName} · {challenge.title}
             </p>
             <h2 className="mt-1 text-2xl font-black">{reward.title}</h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
@@ -87,11 +93,8 @@ export default function UserRewardPage() {
                 {reward.code}
               </p>
             </div>
-            <span
-              className="grid h-11 w-11 place-items-center rounded-full bg-white text-slate-950"
-              aria-label="Скопировать код"
-            >
-              <Copy className="h-5 w-5" />
+            <span className="rounded-full bg-white px-4 py-2 text-sm font-black text-slate-950">
+              {reward.type}
             </span>
           </div>
         </div>
@@ -125,6 +128,27 @@ export default function UserRewardPage() {
         </ul>
       </section>
 
+      {otherRewards.length > 0 ? (
+        <section className="rounded-[30px] bg-white p-5 shadow-sm">
+          <h2 className="text-xl font-black">Другие доступные награды</h2>
+          <div className="mt-4 space-y-3">
+            {otherRewards.map((item) => (
+              <div key={item.id} className="flex items-center gap-3">
+                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-50 text-2xl">
+                  {item.emoji}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-bold">{item.title}</p>
+                  <p className="text-sm text-slate-500">
+                    {item.brandName} · до {item.expiresAt}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
       <section className="space-y-3">
         <Link
           href={routes.user.activeChallenge}
@@ -136,6 +160,17 @@ export default function UserRewardPage() {
         >
           <ArrowLeft className="h-5 w-5" />
           Вернуться к прогрессу
+        </Link>
+        <Link
+          href={routes.user.coins}
+          className={buttonClasses({
+            variant: "secondary",
+            size: "lg",
+            className: "w-full",
+          })}
+        >
+          <Coins className="h-5 w-5" />
+          Баланс монеток
         </Link>
         <Link
           href={routes.user.map}

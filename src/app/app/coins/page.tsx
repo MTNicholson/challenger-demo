@@ -2,9 +2,11 @@ import Link from "next/link";
 import {
   ArrowDownLeft,
   ArrowUpRight,
+  BadgePercent,
   Coffee,
   Gift,
   Info,
+  MapPinned,
   ReceiptText,
   WalletCards,
 } from "lucide-react";
@@ -28,8 +30,14 @@ const earnWays = [
   {
     title: "Посещать новые места",
     caption: "+30 монет",
-    icon: WalletCards,
+    icon: MapPinned,
     href: routes.user.map,
+  },
+  {
+    title: "Получать бонусы от брендов",
+    caption: "Промо и сезонные задания",
+    icon: BadgePercent,
+    href: routes.user.reward,
   },
 ];
 
@@ -54,14 +62,12 @@ export default function UserCoinsPage() {
           {demoUser.coins.toLocaleString("ru-RU")}
         </h1>
         <p className="mt-3 text-sm font-semibold text-amber-900/70">
-          Тратьте на награды, закрытые челленджи и бонусы у партнеров.
+          Монетки начисляются за активность в городе: челленджи, ежедневные
+          задачи, новые места и бонусы от партнеров.
         </p>
       </section>
 
-      <Link
-        href="#operations"
-        className="flex w-full items-center gap-3 rounded-[28px] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
-      >
+      <section className="flex w-full items-center gap-3 rounded-[28px] bg-white p-4 text-left shadow-sm">
         <div className="grid h-12 w-12 place-items-center rounded-2xl bg-slate-50">
           <ReceiptText className="h-6 w-6 text-slate-600" />
         </div>
@@ -69,7 +75,7 @@ export default function UserCoinsPage() {
           <p className="font-black">История начислений</p>
           <p className="text-sm text-slate-500">Все операции за месяц</p>
         </div>
-      </Link>
+      </section>
 
       <section>
         <h2 className="mb-3 text-xl font-black">Как заработать монетки</h2>
@@ -124,6 +130,23 @@ export default function UserCoinsPage() {
             );
           })}
         </div>
+      </section>
+
+      <section className="grid grid-cols-2 gap-3">
+        <Link
+          href={routes.user.challenges}
+          className="rounded-[26px] bg-slate-950 p-4 text-white shadow-xl shadow-slate-900/10"
+        >
+          <Gift className="h-6 w-6 text-emerald-300" />
+          <p className="mt-4 text-base font-black">Найти челленджи</p>
+        </Link>
+        <Link
+          href={routes.user.reward}
+          className="rounded-[26px] bg-white p-4 shadow-sm"
+        >
+          <WalletCards className="h-6 w-6 text-amber-600" />
+          <p className="mt-4 text-base font-black">Посмотреть награды</p>
+        </Link>
       </section>
 
       <section className="flex gap-3 rounded-[26px] bg-slate-950 p-4 text-white shadow-xl shadow-slate-900/10">
