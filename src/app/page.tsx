@@ -170,14 +170,14 @@ export default function Home() {
   const featuredChallenges = getFeaturedChallenges().slice(0, 4);
 
   return (
-    <main className="min-h-screen bg-[#f7f2ea] text-slate-950">
+    <main className="min-h-screen overflow-x-clip bg-[#f7f2ea] text-slate-950">
       <div className="mx-auto w-full max-w-7xl px-5 sm:px-8 lg:px-10">
         <header className="sticky top-4 z-20 flex items-center justify-between gap-4 rounded-full border border-white/80 bg-white/85 px-4 py-3 shadow-sm shadow-slate-900/5 backdrop-blur">
           <Link href={routes.marketing.home} className="flex items-center gap-2">
             <span className="grid h-10 w-10 place-items-center rounded-full bg-slate-950 text-base font-black text-white">
               Ч
             </span>
-            <span className="text-lg font-black">Челленджер</span>
+            <span className="hidden text-lg font-black sm:inline">Челленджер</span>
           </Link>
           <nav className="hidden items-center gap-6 text-sm font-bold text-slate-500 lg:flex">
             {navItems.map((item) => (
