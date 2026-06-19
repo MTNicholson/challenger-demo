@@ -1,35 +1,30 @@
 import { BarChart3, TrendingUp, Users } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { BrandMetricCard } from "@/components/brand/brand-metric-card";
+import { BrandPageHeader } from "@/components/brand/brand-page-header";
 
 const bars = [42, 64, 58, 78, 86, 73, 92];
 
 export default function BrandAnalyticsPage() {
   return (
     <main className="space-y-6">
-      <section>
-        <div className="text-sm font-semibold text-slate-400">Аналитика</div>
-        <h1 className="mt-1 text-3xl font-black">Динамика кампаний</h1>
-        <p className="mt-2 text-sm leading-6 text-slate-500">
-          Легкий демо-срез по участникам, визитам и выдаче наград.
-        </p>
-      </section>
+      <BrandPageHeader
+        description="Легкий демо-срез по участникам, визитам и выдаче наград."
+        eyebrow="Аналитика"
+        title="Динамика кампаний"
+      />
 
       <section className="grid gap-4 md:grid-cols-3">
         {[
-          ["Новые участники", "248", Users],
-          ["Повторные визиты", "41%", TrendingUp],
-          ["Сканов QR", "612", BarChart3],
-        ].map(([label, value, Icon]) => (
-          <div key={label as string} className="rounded-[28px] bg-white p-5 shadow-sm">
-            <Icon className="h-6 w-6 text-slate-500" />
-            <div className="mt-5 text-3xl font-black">{value as string}</div>
-            <div className="mt-1 text-sm font-semibold text-slate-500">
-              {label as string}
-            </div>
-          </div>
+          { label: "Новые участники", value: "248", icon: Users },
+          { label: "Повторные визиты", value: "41%", icon: TrendingUp },
+          { label: "Сканов QR", value: "612", icon: BarChart3 },
+        ].map((metric) => (
+          <BrandMetricCard key={metric.label} {...metric} />
         ))}
       </section>
 
-      <section className="rounded-[32px] bg-white p-6 shadow-sm">
+      <Card className="p-6">
         <h2 className="text-2xl font-black">Активность за неделю</h2>
         <div className="mt-8 flex h-64 items-end gap-3">
           {bars.map((height, index) => (
@@ -44,7 +39,7 @@ export default function BrandAnalyticsPage() {
             </div>
           ))}
         </div>
-      </section>
+      </Card>
     </main>
   );
 }

@@ -1,6 +1,8 @@
-import Link from "next/link";
 import { Filter, Search } from "lucide-react";
 import { routes } from "@/lib/routes";
+import { buttonClasses } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { ChallengeCard } from "@/components/user/challenge-card";
 
 const categories = ["Все", "Кофе", "Еда", "Фитнес", "Beauty"];
 
@@ -67,10 +69,7 @@ export default function UserChallengesPage() {
       <div className="flex gap-3">
         <label className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-white px-4 py-3 text-slate-400 shadow-sm">
           <Search className="h-5 w-5" />
-          <input
-            className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-slate-700 outline-none placeholder:text-slate-400"
-            placeholder="Найти челлендж"
-          />
+          <Input placeholder="Найти челлендж" />
         </label>
         <button
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-slate-950 text-white shadow-lg shadow-slate-900/10"
@@ -84,11 +83,11 @@ export default function UserChallengesPage() {
         {categories.map((category, index) => (
           <button
             key={category}
-            className={
-              index === 0
-                ? "shrink-0 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white"
-                : "shrink-0 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-600 shadow-sm"
-            }
+            className={buttonClasses({
+              variant: index === 0 ? "dark" : "secondary",
+              size: "sm",
+              className: index === 0 ? "shrink-0" : "shrink-0 font-bold text-slate-600",
+            })}
           >
             {category}
           </button>
@@ -97,25 +96,15 @@ export default function UserChallengesPage() {
 
       <section className="grid grid-cols-2 gap-3">
         {tiles.map((tile, index) => (
-          <Link
+          <ChallengeCard
             key={`${tile.title}-${index}`}
             href={routes.user.challengeDetail(tile.id)}
-            className={`relative overflow-hidden rounded-[30px] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg ${tile.className}`}
-          >
-            <div className="absolute -right-5 -top-5 h-24 w-24 rounded-full bg-white/25" />
-            <div className="relative flex h-full flex-col">
-              <div className="text-4xl">{tile.emoji}</div>
-              <div className="mt-auto pt-8">
-                <p className="text-xs font-bold opacity-60">{tile.brand}</p>
-                <h2 className="mt-1 text-lg font-black leading-5">
-                  {tile.title}
-                </h2>
-                <div className="mt-4 inline-flex rounded-full bg-white/70 px-3 py-1 text-sm font-black text-slate-950">
-                  +{tile.reward}
-                </div>
-              </div>
-            </div>
-          </Link>
+            title={tile.title}
+            brand={tile.brand}
+            reward={`+${tile.reward}`}
+            emoji={tile.emoji}
+            className={tile.className}
+          />
         ))}
       </section>
     </main>

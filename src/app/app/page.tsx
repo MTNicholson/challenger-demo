@@ -1,15 +1,16 @@
 import Link from "next/link";
 import {
   Bell,
-  ChevronRight,
   Coffee,
-  Coins,
   Flame,
-  Gift,
-  MapPin,
   Sparkles,
 } from "lucide-react";
 import { routes } from "@/lib/routes";
+import { Badge } from "@/components/ui/badge";
+import { ProgressBar } from "@/components/ui/progress-bar";
+import { SectionTitle } from "@/components/ui/section-title";
+import { ChallengeCard } from "@/components/user/challenge-card";
+import { CoinBalanceCard } from "@/components/user/coin-balance-card";
 
 const recommendations = [
   {
@@ -45,21 +46,7 @@ export default function UserHomePage() {
         </button>
       </header>
 
-      <Link
-        href={routes.user.coins}
-        className="flex items-center justify-between rounded-[28px] bg-white p-4 shadow-sm"
-      >
-        <div className="flex items-center gap-3">
-          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-amber-100 text-amber-800">
-            <Coins className="h-6 w-6" />
-          </div>
-          <div>
-            <p className="text-sm font-semibold text-slate-400">Баланс</p>
-            <p className="text-2xl font-black">1 250 монет</p>
-          </div>
-        </div>
-        <ChevronRight className="h-5 w-5 text-slate-300" />
-      </Link>
+      <CoinBalanceCard href={routes.user.coins} coins={1250} />
 
       <Link
         href={routes.user.activeChallenge}
@@ -69,9 +56,9 @@ export default function UserHomePage() {
           <div className="absolute left-5 top-5 grid h-16 w-16 place-items-center rounded-[24px] bg-white/15 text-4xl backdrop-blur">
             ☕
           </div>
-          <div className="absolute bottom-5 right-5 rounded-full bg-white/15 px-4 py-2 text-sm font-black backdrop-blur">
+          <Badge className="absolute bottom-5 right-5 bg-white/15 px-4 py-2 text-sm text-white backdrop-blur">
             +200 монет
-          </div>
+          </Badge>
         </div>
         <div className="p-5">
           <div className="flex items-start justify-between gap-4">
@@ -87,9 +74,12 @@ export default function UserHomePage() {
             <span>Прогресс 3/5</span>
             <span>2 визита осталось</span>
           </div>
-          <div className="mt-3 h-3 rounded-full bg-white/15">
-            <div className="h-3 w-3/5 rounded-full bg-emerald-300" />
-          </div>
+          <ProgressBar
+            value={3}
+            max={5}
+            className="mt-3 bg-white/15"
+            indicatorClassName="bg-emerald-300"
+          />
         </div>
       </Link>
 
@@ -111,49 +101,37 @@ export default function UserHomePage() {
       </section>
 
       <section>
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-xl font-black">Рекомендации</h2>
-          <Link href={routes.user.challenges} className="text-sm font-black">
-            Все
-          </Link>
-        </div>
+        <SectionTitle
+          actionHref={routes.user.challenges}
+          actionLabel="Все"
+          className="mb-3"
+          title="Рекомендации"
+        />
         <div className="grid grid-cols-2 gap-3">
           {recommendations.map((item) => (
-            <Link
+            <ChallengeCard
               key={item.title}
               href={routes.user.challenges}
-              className={`min-h-40 rounded-[28px] p-4 shadow-sm ${item.tone}`}
-            >
-              <div className="text-3xl">{item.icon}</div>
-              <h3 className="mt-5 text-lg font-black leading-5">{item.title}</h3>
-              <p className="mt-1 text-sm opacity-70">{item.brand}</p>
-              <p className="mt-4 inline-flex rounded-full bg-white/70 px-3 py-1 text-sm font-black">
-                {item.reward} монет
-              </p>
-            </Link>
+              title={item.title}
+              brand={item.brand}
+              reward={`${item.reward} монет`}
+              emoji={item.icon}
+              className={`min-h-40 rounded-[28px] ${item.tone}`}
+            />
           ))}
         </div>
       </section>
 
-      <Link
+      <ChallengeCard
         href={routes.user.challengeDetail("coffee-week")}
-        className="flex items-center gap-4 rounded-[30px] bg-white p-4 shadow-sm"
-      >
-        <div className="grid h-16 w-16 shrink-0 place-items-center rounded-[24px] bg-amber-100 text-3xl">
-          ☕
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1 text-sm font-bold text-slate-400">
-            <MapPin className="h-4 w-4" />
-            450 м от вас
-          </div>
-          <h3 className="mt-1 text-lg font-black">Кофе на Невском</h3>
-          <p className="mt-1 text-sm text-slate-500">
-            Зайди сегодня и получи отметку маршрута.
-          </p>
-        </div>
-        <Gift className="h-5 w-5 text-emerald-500" />
-      </Link>
+        title="Кофе на Невском"
+        brand="Coffee Place"
+        reward="+отметка"
+        emoji="☕"
+        distance="450 м от вас"
+        description="Зайди сегодня и получи отметку маршрута."
+        variant="compact"
+      />
 
       <div className="rounded-[24px] bg-white/70 p-4 text-sm leading-6 text-slate-500">
         <Sparkles className="mb-2 h-5 w-5 text-amber-500" />

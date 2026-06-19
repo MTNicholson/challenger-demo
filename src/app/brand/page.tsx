@@ -1,7 +1,11 @@
-import Link from "next/link";
-import { ArrowUpRight, Coffee, Eye, Gift, Target, Users } from "lucide-react";
+import { Eye, Gift, Target, Users } from "lucide-react";
 import { challenges } from "@/data/challenges";
 import { routes } from "@/lib/routes";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { SectionTitle } from "@/components/ui/section-title";
+import { BrandMetricCard } from "@/components/brand/brand-metric-card";
+import { BrandPageHeader } from "@/components/brand/brand-page-header";
 
 const metrics = [
   { label: "Участников", value: "1 284", delta: "+14%", icon: Users },
@@ -12,61 +16,29 @@ const metrics = [
 export default function BrandDashboardPage() {
   return (
     <main className="space-y-6">
-      <section className="rounded-[32px] bg-slate-950 p-6 text-white shadow-2xl shadow-slate-900/10">
-        <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
-          <div>
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-2 text-sm font-semibold text-white/70">
-              <Coffee className="h-4 w-4" />
-              Coffee Place
-            </div>
-            <h1 className="mt-5 text-4xl font-black">Обзор бренда</h1>
-            <p className="mt-3 max-w-2xl text-sm leading-6 text-white/65">
-              Демо-кабинет показывает, как бренд управляет челленджами,
-              вовлечением гостей и наградами без лишней сложности.
-            </p>
-          </div>
-          <Link
-            href={routes.brand.preview}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-5 py-3 text-sm font-black text-slate-950"
-          >
-            <Eye className="h-4 w-4" />
-            Превью гостя
-          </Link>
-        </div>
-      </section>
+      <BrandPageHeader
+        actionHref={routes.brand.preview}
+        actionIcon={Eye}
+        actionLabel="Превью гостя"
+        brandName="Coffee Place"
+        description="Демо-кабинет показывает, как бренд управляет челленджами, вовлечением гостей и наградами без лишней сложности."
+        title="Обзор бренда"
+        variant="dark"
+      />
 
       <section className="grid gap-4 md:grid-cols-3">
-        {metrics.map((metric) => {
-          const Icon = metric.icon;
-          return (
-            <div key={metric.label} className="rounded-[28px] bg-white p-5 shadow-sm">
-              <div className="flex items-center justify-between">
-                <div className="grid h-11 w-11 place-items-center rounded-2xl bg-slate-50">
-                  <Icon className="h-5 w-5 text-slate-600" />
-                </div>
-                <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-black text-emerald-700">
-                  {metric.delta}
-                </span>
-              </div>
-              <div className="mt-5 text-3xl font-black">{metric.value}</div>
-              <div className="mt-1 text-sm font-semibold text-slate-500">
-                {metric.label}
-              </div>
-            </div>
-          );
-        })}
+        {metrics.map((metric) => (
+          <BrandMetricCard key={metric.label} {...metric} />
+        ))}
       </section>
 
-      <section className="rounded-[30px] bg-white p-5 shadow-sm">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className="text-2xl font-black">Запущенные механики</h2>
-          <Link
-            href={routes.brand.challenges}
-            className="inline-flex items-center gap-1 text-sm font-black"
-          >
-            Все <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        </div>
+      <Card className="p-5">
+        <SectionTitle
+          actionHref={routes.brand.challenges}
+          actionLabel="Все"
+          title="Запущенные механики"
+          titleClassName="text-2xl"
+        />
         <div className="mt-5 grid gap-3 lg:grid-cols-2">
           {challenges.slice(0, 4).map((challenge) => (
             <div key={challenge.id} className="rounded-[24px] bg-slate-50 p-4">
@@ -77,14 +49,14 @@ export default function BrandDashboardPage() {
                     {challenge.condition}
                   </p>
                 </div>
-                <span className="rounded-full bg-white px-3 py-1 text-xs font-black text-slate-600">
+                <Badge className="bg-white text-slate-600">
                   {challenge.daysLeft} дн.
-                </span>
+                </Badge>
               </div>
             </div>
           ))}
         </div>
-      </section>
+      </Card>
     </main>
   );
 }
