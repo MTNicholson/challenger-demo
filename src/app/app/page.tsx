@@ -43,7 +43,7 @@ export default function UserHomePage() {
         </Link>
       </header>
 
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+      <p className="w-fit rounded-full border border-slate-200/70 bg-white/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
         Демо-сценарий пользователя
       </p>
 
@@ -51,7 +51,7 @@ export default function UserHomePage() {
 
       <Link
         href={routes.user.activeChallenge}
-        className="block overflow-hidden rounded-[34px] bg-slate-950 text-white shadow-2xl shadow-slate-900/15"
+        className="block overflow-hidden rounded-[30px] bg-slate-950 text-white shadow-xl shadow-slate-900/15"
       >
         <div className="relative h-40 overflow-hidden bg-[radial-gradient(circle_at_20%_20%,#facc15,transparent_24%),radial-gradient(circle_at_78%_25%,#34d399,transparent_22%),linear-gradient(135deg,#1e293b,#020617)]">
           <div className="absolute left-5 top-5 grid h-16 w-16 place-items-center rounded-[24px] bg-white/15 text-4xl backdrop-blur">
@@ -96,7 +96,7 @@ export default function UserHomePage() {
 
       <Link
         href={routes.user.map}
-        className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-[28px] bg-emerald-50 p-4 text-emerald-950 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+        className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-[28px] border border-emerald-100 bg-emerald-50 p-4 text-emerald-950 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md"
       >
         <div className="flex items-center gap-3">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white">

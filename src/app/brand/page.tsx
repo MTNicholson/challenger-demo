@@ -47,7 +47,7 @@ export default function BrandDashboardPage() {
         variant="dark"
       />
 
-      <p className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+      <p className="w-fit rounded-full border border-slate-200/70 bg-white/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
         Демо-сценарий бренда
       </p>
 
@@ -66,7 +66,7 @@ export default function BrandDashboardPage() {
           <Target className="h-5 w-5" />
           Все челленджи
         </Link>
-        <Link href={routes.brand.analytics} className={buttonClasses({ variant: "dark", size: "lg" })}>
+        <Link href={routes.brand.analytics} className={buttonClasses({ variant: "secondary", size: "lg" })}>
           <BarChart3 className="h-5 w-5" />
           Смотреть аналитику
         </Link>
@@ -76,7 +76,7 @@ export default function BrandDashboardPage() {
         </Link>
       </section>
 
-      <Link href={routes.brand.analytics} className="group block rounded-[30px] bg-emerald-50 p-5 transition hover:bg-emerald-100/80">
+      <Link href={routes.brand.analytics} className="group block rounded-[28px] border border-emerald-100 bg-emerald-50 p-5 shadow-sm shadow-slate-900/5 transition hover:bg-emerald-100/80">
         <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div><div className="flex items-center gap-2 text-sm font-bold text-emerald-700"><BarChart3 className="h-4 w-4" />Аналитика за неделю</div><h2 className="mt-2 text-2xl font-black text-emerald-950">Челленджи увеличили визиты на {companyAnalytics.visitsGrowthPercent}%</h2></div>
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">

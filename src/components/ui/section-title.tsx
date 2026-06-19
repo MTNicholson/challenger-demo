@@ -19,11 +19,11 @@ export function SectionTitle({
 }: SectionTitleProps) {
   return (
     <div className={cn("flex items-center justify-between gap-4", className)}>
-      <h2 className={cn("text-xl font-black", titleClassName)}>{title}</h2>
+      <h2 className={cn("text-xl font-black leading-tight", titleClassName)}>{title}</h2>
       {actionLabel && actionHref ? (
         <Link
           href={actionHref}
-          className="inline-flex items-center gap-1 text-sm font-black"
+          className="inline-flex items-center gap-1 text-sm font-bold text-slate-600 transition hover:text-slate-950"
         >
           {actionLabel}
           <ArrowUpRight className="h-4 w-4" />

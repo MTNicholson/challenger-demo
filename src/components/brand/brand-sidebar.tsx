@@ -66,8 +66,8 @@ export function BrandSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden min-h-screen w-72 shrink-0 border-r border-slate-200 bg-white px-4 py-5 lg:block">
-      <div className="mb-8 rounded-3xl bg-slate-950 p-4 text-white">
+    <aside className="sticky top-0 hidden h-screen w-72 shrink-0 border-r border-slate-200 bg-white px-4 py-5 lg:block">
+      <div className="mb-7 rounded-[28px] bg-slate-950 p-4 text-white">
         <div className="text-sm font-semibold text-white/60">Челленджер</div>
         <div className="mt-1 text-xl font-bold">Coffee Place</div>
         <div className="mt-3 text-xs text-white/55">Кабинет бренда · демо</div>
@@ -97,9 +97,9 @@ export function BrandSidebar() {
         })}
       </nav>
 
-      <div className="mt-8 rounded-3xl bg-emerald-50 p-4 text-sm text-emerald-950">
+      <div className="mt-7 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3 text-xs text-emerald-950">
         <div className="font-semibold">Демо-режим</div>
-        <p className="mt-1 text-emerald-800/80">
+        <p className="mt-1 leading-5 text-emerald-800/75">
           Данные моковые, но сценарии связаны в единый кабинет бренда.
         </p>
       </div>

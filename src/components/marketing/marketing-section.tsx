@@ -19,8 +19,8 @@ export function MarketingSection({
   className,
 }: MarketingSectionProps) {
   return (
-    <section id={id} className={cn("py-14 sm:py-18", className)}>
-      <div className="mb-8 max-w-3xl">
+    <section id={id} className={cn("py-14 sm:py-16", className)}>
+      <div className="mb-8 max-w-3xl sm:mb-10">
         {eyebrow ? (
           <p className="text-sm font-black uppercase tracking-[0.18em] text-emerald-700">
             {eyebrow}

@@ -24,7 +24,7 @@ export function ValueCard({
   tone = "emerald",
 }: ValueCardProps) {
   return (
-    <article className="rounded-[28px] border border-white/80 bg-white/85 p-5 shadow-sm shadow-slate-900/5">
+    <article className="rounded-[28px] border border-slate-200/60 bg-white/85 p-5 shadow-sm shadow-slate-900/5">
       <div
         className={cn(
           "grid h-12 w-12 place-items-center rounded-2xl",

@@ -20,7 +20,7 @@ export function CoinBalanceCard({
     <Link
       href={href}
       className={cn(
-        "flex items-center justify-between rounded-[28px] p-4 shadow-sm",
+        "flex items-center justify-between rounded-[28px] border border-slate-200/70 p-4 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md",
         tone === "amber" ? "bg-amber-100 text-amber-950" : "bg-white",
         className,
       )}

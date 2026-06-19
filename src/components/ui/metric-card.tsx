@@ -24,8 +24,9 @@ export function MetricCard({
 
   return (
     <Card
+      bordered={!dark}
       className={cn(
-        "p-5",
+        "p-5 sm:p-6",
         dark && "bg-slate-950 text-white shadow-xl shadow-slate-900/10",
         tone === "amber" && "bg-amber-100 text-amber-950",
         className,
@@ -52,12 +53,12 @@ export function MetricCard({
           <span />
         )}
         {delta ? (
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-black text-emerald-700">
+          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
             {delta}
           </span>
         ) : null}
       </div>
-      <div className="mt-5 text-3xl font-black">{value}</div>
+      <div className="mt-5 text-3xl font-black tracking-tight">{value}</div>
       <div
         className={cn(
           "mt-1 text-sm font-semibold",

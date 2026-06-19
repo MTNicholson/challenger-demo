@@ -8,16 +8,16 @@ type CardProps = HTMLAttributes<HTMLDivElement> & {
 
 export function Card({
   className,
-  bordered = false,
+  bordered = true,
   shadow = true,
   ...props
 }: CardProps) {
   return (
     <div
       className={cn(
-        "rounded-[30px] bg-white",
-        shadow && "shadow-sm",
-        bordered && "border border-slate-100",
+        "rounded-[28px] bg-white",
+        shadow && "shadow-sm shadow-slate-900/5",
+        bordered && "border border-slate-200/70",
         className,
       )}
       {...props}

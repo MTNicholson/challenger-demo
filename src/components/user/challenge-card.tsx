@@ -50,7 +50,7 @@ export function ChallengeCard({
       <Link
         href={href}
         className={cn(
-          "flex items-center gap-4 rounded-[30px] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg",
+          "flex items-center gap-4 rounded-[28px] border border-slate-200/70 bg-white p-4 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md",
           className,
         )}
       >
@@ -82,7 +82,7 @@ export function ChallengeCard({
     <Link
       href={href}
       className={cn(
-        "relative min-h-48 overflow-hidden rounded-[30px] p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg",
+        "relative min-h-48 overflow-hidden rounded-[28px] border border-white/60 p-4 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md",
         featured && "ring-2 ring-amber-300/80",
         className,
       )}

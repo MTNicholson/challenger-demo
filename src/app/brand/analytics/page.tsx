@@ -35,7 +35,7 @@ export default function BrandAnalyticsPage() {
         <ChartCard title="Активации наград" caption="Устойчивый рост за последние 4 недели"><RewardActivationsChart /></ChartCard>
       </section>
 
-      <Card className="overflow-hidden bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/10">
+      <Card className="overflow-hidden border-slate-800 bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/10">
         <div className="grid gap-8 xl:grid-cols-[1.15fr_1fr] xl:items-center">
           <div>
             <div className="flex flex-wrap items-center gap-3"><Badge variant="success">Кампания активна</Badge><span className="text-sm text-white/50">Осталось 4 дня</span></div>

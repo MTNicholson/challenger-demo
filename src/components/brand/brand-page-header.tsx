@@ -54,7 +54,7 @@ export function BrandPageHeader({
         ) : eyebrow ? (
           <div className="text-sm font-semibold text-slate-400">{eyebrow}</div>
         ) : null}
-        <h1 className={cn("mt-1 text-3xl font-black", dark && "mt-5 text-4xl")}>
+        <h1 className={cn("mt-1 text-3xl font-black leading-tight tracking-tight", dark && "mt-5 text-4xl")}>
           {title}
         </h1>
         {description ? (
@@ -76,7 +76,7 @@ export function BrandPageHeader({
     return (
       <section
         className={cn(
-          "rounded-[32px] bg-slate-950 p-6 text-white shadow-2xl shadow-slate-900/10",
+          "rounded-[30px] bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/10 sm:p-7",
           className,
         )}
       >

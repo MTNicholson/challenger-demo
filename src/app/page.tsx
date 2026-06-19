@@ -195,21 +195,21 @@ export default function Home() {
                 className: "hidden sm:inline-flex",
               })}
             >
-              /app
+              Демо для гостя
             </Link>
             <Link
               href={routes.brand.dashboard}
               className={buttonClasses({ variant: "dark", size: "sm" })}
             >
-              /brand
+              Кабинет бренда
             </Link>
           </div>
         </header>
 
         <section className="grid min-h-[calc(100vh-88px)] items-center gap-10 py-12 lg:grid-cols-[1.02fr_0.98fr] lg:py-16">
           <div className="max-w-3xl">
-            <Badge className="bg-white/80 px-4 py-2 text-slate-700 shadow-sm">
-              Investor demo · frontend prototype
+            <Badge className="border border-slate-200/70 bg-white/65 px-3 py-1 text-slate-500">
+              Инвесторское демо · frontend-прототип
             </Badge>
             <h1 className="mt-6 text-4xl font-black leading-[1.04] text-slate-950 sm:text-6xl lg:text-7xl">
               Городские челленджи, монетки и награды для вовлечения гостей бренда
@@ -418,13 +418,13 @@ export default function Home() {
           </div>
         </MarketingSection>
 
-        <section className="py-14">
+        <section className="py-14 sm:py-16">
           <div className="overflow-hidden rounded-[36px] bg-slate-950 p-6 text-white shadow-2xl shadow-slate-900/20 sm:p-10">
             <div className="grid items-center gap-8 lg:grid-cols-[1fr_auto]">
               <div>
                 <div className="flex items-center gap-2 text-sm font-black uppercase tracking-[0.18em] text-emerald-300">
                   <CheckCircle2 className="h-4 w-4" />
-                  investor demo prototype
+                  Инвесторский демо-прототип
                 </div>
                 <h2 className="mt-4 max-w-3xl text-3xl font-black leading-tight sm:text-5xl">
                   Публичная витрина показывает, как Челленджер превращает офлайн-визиты в измеримое вовлечение

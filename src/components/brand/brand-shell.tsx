@@ -15,11 +15,11 @@ export function BrandShell({ children }: BrandShellProps) {
         <BrandSidebar />
 
         <main className="min-w-0 flex-1">
-          <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/85 px-5 py-4 backdrop-blur-xl">
-            <div className="flex items-center justify-between gap-4">
+          <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 px-5 py-4 backdrop-blur-xl lg:px-8">
+            <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Кабинет бренда
+                  Демо-кабинет бренда
                 </div>
                 <div className="mt-1 flex items-center gap-2 text-lg font-bold">
                   <Building2 className="h-5 w-5" />
@@ -37,7 +37,7 @@ export function BrandShell({ children }: BrandShellProps) {
             </div>
           </header>
 
-          <div className="px-5 py-6 lg:px-8">
+          <div className="mx-auto w-full max-w-[1440px] px-5 py-6 lg:px-8 lg:py-8">
             {children}
           </div>
         </main>

@@ -163,7 +163,7 @@ export default function UserMapPage() {
 
         <Link
           href={routes.user.activeChallenge}
-          className="absolute bottom-6 left-5 right-5 z-30 rounded-[32px] bg-white p-5 shadow-2xl shadow-slate-900/18 transition hover:-translate-y-0.5"
+          className="absolute bottom-6 left-5 right-5 z-30 rounded-[28px] border border-slate-200/70 bg-white p-5 shadow-xl shadow-slate-900/15 transition hover:-translate-y-0.5"
         >
           <div className="flex items-start gap-4">
             <div className="grid h-16 w-16 shrink-0 place-items-center rounded-[24px] bg-amber-100 text-3xl">
@@ -222,7 +222,7 @@ export default function UserMapPage() {
               <Link
                 key={point.brandId}
                 href={point.brandId === "coffee-place" ? routes.user.activeChallenge : routes.user.challenges}
-                className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[24px] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+                className="grid grid-cols-[auto_1fr_auto] items-center gap-3 rounded-[24px] border border-slate-200/70 bg-white p-4 shadow-sm shadow-slate-900/5 transition hover:-translate-y-0.5 hover:shadow-md"
               >
                 <div className={`grid h-12 w-12 place-items-center rounded-2xl ${point.className}`}>
                   <Icon className="h-5 w-5" />
