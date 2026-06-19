@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Челленджер",
-  description: "Демо платформы челленджей для городских брендов.",
+  title: "Челленджер — демо прототип",
+  description:
+    "Фронтенд-прототип платформы городских челленджей для пользователей и брендов.",
 };
 
 export default function RootLayout({
