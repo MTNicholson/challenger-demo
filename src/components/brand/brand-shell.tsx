@@ -17,7 +17,7 @@ export function BrandShell({ children }: BrandShellProps) {
             <div className="flex items-center justify-between gap-4">
               <div>
                 <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
-                  Brand cabinet
+                  Кабинет бренда
                 </div>
                 <div className="mt-1 flex items-center gap-2 text-lg font-bold">
                   <Building2 className="h-5 w-5" />
