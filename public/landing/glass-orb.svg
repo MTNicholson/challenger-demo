@@ -1,0 +1,4 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs><radialGradient id="a" cx="0" cy="0" r="1" gradientTransform="translate(61 46) rotate(48) scale(138)"><stop stop-color="#fff"/><stop offset=".28" stop-color="#DDF5FF" stop-opacity=".9"/><stop offset=".65" stop-color="#8EABFF" stop-opacity=".55"/><stop offset="1" stop-color="#A990FF" stop-opacity=".18"/></radialGradient><filter id="b" x="8" y="13" width="164" height="164"><feGaussianBlur stdDeviation="7"/></filter></defs>
+  <circle cx="90" cy="90" r="68" fill="#6D72D9" fill-opacity=".18" filter="url(#b)"/><circle cx="90" cy="84" r="66" fill="url(#a)" stroke="white" stroke-opacity=".8" stroke-width="2"/><ellipse cx="64" cy="51" rx="19" ry="11" fill="white" fill-opacity=".75" transform="rotate(-26 64 51)"/>
+</svg>
