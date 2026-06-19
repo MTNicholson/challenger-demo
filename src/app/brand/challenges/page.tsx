@@ -1,21 +1,25 @@
-import { PlusCircle } from "lucide-react";
+import Link from "next/link";
+import { BarChart3, Eye, PlusCircle, Settings2 } from "lucide-react";
 import { companyBrand } from "@/data/brands";
 import { getBrandChallenges } from "@/data/challenges";
 import { routes } from "@/lib/routes";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { BrandPageHeader } from "@/components/brand/brand-page-header";
+import { buttonClasses } from "@/components/ui/button";
 
 export default function BrandChallengesPage() {
-  const challenges = getBrandChallenges(companyBrand.id);
+  const challenges = getBrandChallenges(companyBrand.id).filter(
+    (challenge) => challenge.isActive,
+  );
 
   return (
     <main className="space-y-6">
       <BrandPageHeader
         actionHref={routes.brand.newChallenge}
         actionIcon={PlusCircle}
-        actionLabel="Создать"
-        description="Простая витрина текущих кампаний для демо-кабинета Coffee Place."
+        actionLabel="Создать челлендж"
+        description="Активные кампании Coffee Place: настройте механику, проверьте вид для гостя и перейдите к результатам."
         eyebrow="Механики"
         title="Челленджи бренда"
       />
@@ -51,6 +55,17 @@ export default function BrandChallengesPage() {
                 <div className="font-black">{challenge.participants}</div>
                 <div className="text-xs text-slate-400">гостей</div>
               </div>
+            </div>
+            <div className="mt-5 flex flex-wrap gap-2 border-t border-slate-100 pt-4">
+              <Link href={routes.brand.newChallenge} className={buttonClasses({ variant: "ghost", size: "sm" })}>
+                <Settings2 className="h-4 w-4" /> Настроить
+              </Link>
+              <Link href={routes.brand.preview} className={buttonClasses({ variant: "secondary", size: "sm" })}>
+                <Eye className="h-4 w-4" /> Превью
+              </Link>
+              <Link href={routes.brand.analytics} className={buttonClasses({ variant: "dark", size: "sm" })}>
+                <BarChart3 className="h-4 w-4" /> Аналитика
+              </Link>
             </div>
           </Card>
         ))}

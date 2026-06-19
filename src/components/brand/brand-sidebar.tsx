@@ -52,6 +52,16 @@ const items = [
   },
 ];
 
+function isItemActive(pathname: string, href: string) {
+  if (href === routes.brand.dashboard) return pathname === href;
+  if (href === routes.brand.challenges) return pathname === href;
+  if (href === routes.brand.scanner) {
+    return pathname === href || pathname === routes.brand.scanResult;
+  }
+
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
+
 export function BrandSidebar() {
   const pathname = usePathname();
 
@@ -66,10 +76,7 @@ export function BrandSidebar() {
       <nav className="space-y-1">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive =
-            item.href === routes.brand.dashboard
-              ? pathname === item.href
-              : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive = isItemActive(pathname, item.href);
 
           return (
             <Link

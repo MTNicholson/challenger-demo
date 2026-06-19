@@ -1,4 +1,5 @@
-import { Eye, Gift, Target, Users } from "lucide-react";
+import Link from "next/link";
+import { BarChart3, Eye, Gift, PlusCircle, QrCode, Target, Users } from "lucide-react";
 import { companyAnalytics } from "@/data/analytics";
 import { companyBrand } from "@/data/brands";
 import { getBrandChallenges } from "@/data/challenges";
@@ -8,6 +9,7 @@ import { Card } from "@/components/ui/card";
 import { SectionTitle } from "@/components/ui/section-title";
 import { BrandMetricCard } from "@/components/brand/brand-metric-card";
 import { BrandPageHeader } from "@/components/brand/brand-page-header";
+import { buttonClasses } from "@/components/ui/button";
 
 const brandChallenges = getBrandChallenges(companyBrand.id);
 
@@ -51,15 +53,34 @@ export default function BrandDashboardPage() {
         ))}
       </section>
 
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Link href={routes.brand.newChallenge} className={buttonClasses({ variant: "primary", size: "lg" })}>
+          <PlusCircle className="h-5 w-5" />
+          Создать челлендж
+        </Link>
+        <Link href={routes.brand.challenges} className={buttonClasses({ variant: "secondary", size: "lg" })}>
+          <Target className="h-5 w-5" />
+          Все челленджи
+        </Link>
+        <Link href={routes.brand.analytics} className={buttonClasses({ variant: "secondary", size: "lg" })}>
+          <BarChart3 className="h-5 w-5" />
+          Смотреть аналитику
+        </Link>
+        <Link href={routes.brand.scanner} className={buttonClasses({ variant: "secondary", size: "lg" })}>
+          <QrCode className="h-5 w-5" />
+          Открыть сканер
+        </Link>
+      </section>
+
       <Card className="p-5">
         <SectionTitle
           actionHref={routes.brand.challenges}
-          actionLabel="Все"
+          actionLabel="Все челленджи"
           title="Запущенные механики"
           titleClassName="text-2xl"
         />
         <div className="mt-5 grid gap-3 lg:grid-cols-2">
-          {brandChallenges.map((challenge) => (
+          {brandChallenges.filter((challenge) => challenge.isActive).map((challenge) => (
             <div key={challenge.id} className="rounded-[24px] bg-slate-50 p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>
