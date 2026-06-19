@@ -60,7 +60,7 @@ export default function BrandChallengesPage() {
                 <Settings2 className="h-4 w-4" /> Настроить
               </Link>
               <Link href={routes.brand.preview} className={buttonClasses({ variant: "secondary", size: "sm" })}>
-                <Eye className="h-4 w-4" /> Превью
+                <Eye className="h-4 w-4" /> Превью гостя
               </Link>
               <Link href={routes.brand.analytics} className={buttonClasses({ variant: "dark", size: "sm" })}>
                 <BarChart3 className="h-4 w-4" /> Аналитика

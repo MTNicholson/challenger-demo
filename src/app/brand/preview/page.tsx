@@ -22,7 +22,7 @@ export default function BrandPreviewPage() {
   return (
     <main className="space-y-6">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div><div className="text-sm font-semibold text-slate-400">Шаг 5 · Превью</div><h1 className="mt-1 text-3xl font-black">Проверьте кампанию перед запуском</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Слева — экран гостя, справа — параметры для команды Coffee Place.</p></div>
+        <div><div className="text-sm font-semibold text-slate-400">Шаг 5 · Превью гостя</div><h1 className="mt-1 text-3xl font-black">Проверьте кампанию перед запуском</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Слева — экран гостя, справа — параметры для команды Coffee Place.</p></div>
         <Link href={routes.brand.newChallenge} className={buttonClasses({ variant: "ghost" })}><ArrowLeft className="h-4 w-4" />Вернуться к настройке</Link>
       </header>
 

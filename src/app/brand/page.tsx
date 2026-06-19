@@ -42,7 +42,7 @@ export default function BrandDashboardPage() {
         actionIcon={Eye}
         actionLabel="Превью гостя"
         brandName={companyBrand.name}
-        description="Демо-кабинет показывает, как бренд управляет челленджами, вовлечением гостей и наградами без лишней сложности."
+        description="Кабинет бренда показывает, как команда управляет челленджами, вовлечением гостей и наградами без лишней сложности."
         title="Обзор бренда"
         variant="dark"
       />

@@ -25,7 +25,7 @@ import { Badge } from "@/components/ui/badge";
 const campaign = getBrandChallenges(companyBrand.id)[0];
 const brandLocations = getBrandLocations(companyBrand.id);
 
-const steps = ["Основное", "Механика", "Награда", "Точки", "Превью"];
+const steps = ["Основное", "Механика", "Награда", "Точки", "Превью гостя"];
 
 function Field({ label, value, wide = false }: { label: string; value: string; wide?: boolean }) {
   return (
@@ -146,13 +146,13 @@ export default function NewChallengePage() {
 
           <div className="flex flex-wrap items-center gap-3 rounded-[28px] bg-white p-4 shadow-sm">
             <Button variant="secondary" disabled title="Демо-режим: сохранение не требуется" className="cursor-not-allowed opacity-60"><Save className="h-4 w-4" />Сохранить черновик</Button>
-            <Link href={routes.brand.preview} className={buttonClasses({ variant: "dark" })}><Eye className="h-4 w-4" />Посмотреть превью</Link>
+            <Link href={routes.brand.preview} className={buttonClasses({ variant: "dark" })}><Eye className="h-4 w-4" />Открыть превью гостя</Link>
             <span className="text-xs text-slate-400">Демо-режим · изменения не сохраняются</span>
           </div>
         </div>
 
         <aside className="self-start rounded-[32px] bg-slate-950 p-5 text-white shadow-xl shadow-slate-900/10 xl:sticky xl:top-28">
-          <div className="flex items-center justify-between"><span className="text-sm font-semibold text-white/55">Превью для гостя</span><Badge variant="success">Черновик</Badge></div>
+          <div className="flex items-center justify-between"><span className="text-sm font-semibold text-white/55">Превью гостя</span><Badge variant="success">Черновик</Badge></div>
           <div className="mt-5 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-2xl">{companyBrand.logo}</div><div><div className="font-black">{companyBrand.name}</div><div className="text-xs text-white/50">{brandLocations.length} точек выбрано</div></div></div>
           <div className="mt-6 text-4xl">{campaign.emoji}</div>
           <h2 className="mt-3 text-2xl font-black">{campaign.title}</h2>

@@ -46,7 +46,7 @@ const items = [
     icon: QrCode,
   },
   {
-    label: "Превью",
+    label: "Превью гостя",
     href: routes.brand.preview,
     icon: Sparkles,
   },
@@ -70,7 +70,7 @@ export function BrandSidebar() {
       <div className="mb-8 rounded-3xl bg-slate-950 p-4 text-white">
         <div className="text-sm font-semibold text-white/60">Челленджер</div>
         <div className="mt-1 text-xl font-bold">Coffee Place</div>
-        <div className="mt-3 text-xs text-white/55">Демо-кабинет бренда</div>
+        <div className="mt-3 text-xs text-white/55">Кабинет бренда · демо</div>
       </div>
 
       <nav className="space-y-1">
@@ -100,7 +100,7 @@ export function BrandSidebar() {
       <div className="mt-8 rounded-3xl bg-emerald-50 p-4 text-sm text-emerald-950">
         <div className="font-semibold">Демо-режим</div>
         <p className="mt-1 text-emerald-800/80">
-          Данные моковые, но сценарии выглядят как реальный кабинет.
+          Данные моковые, но сценарии связаны в единый кабинет бренда.
         </p>
       </div>
     </aside>
