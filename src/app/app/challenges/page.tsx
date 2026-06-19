@@ -13,6 +13,9 @@ export default function UserChallengesPage() {
       <header>
         <p className="text-sm font-semibold text-slate-400">Каталог</p>
         <h1 className="mt-1 text-3xl font-black">Челленджи</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          Демо-каталог: каждая карточка открывает страницу челленджа.
+        </p>
       </header>
 
       <div className="flex gap-3">
@@ -20,17 +23,17 @@ export default function UserChallengesPage() {
           <Search className="h-5 w-5" />
           <Input placeholder="Найти челлендж" />
         </label>
-        <button
+        <span
           className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-slate-950 text-white shadow-lg shadow-slate-900/10"
           aria-label="Фильтр"
         >
           <Filter className="h-5 w-5" />
-        </button>
+        </span>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1">
         {categories.map((category, index) => (
-          <button
+          <span
             key={category}
             className={buttonClasses({
               variant: index === 0 ? "dark" : "secondary",
@@ -39,7 +42,7 @@ export default function UserChallengesPage() {
             })}
           >
             {category}
-          </button>
+          </span>
         ))}
       </div>
 

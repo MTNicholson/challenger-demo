@@ -1,5 +1,8 @@
-import { Clock, Copy, Gift, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Clock, Copy, Gift, Map, ShieldCheck } from "lucide-react";
 import { getAvailableRewards } from "@/data/rewards";
+import { routes } from "@/lib/routes";
+import { buttonClasses } from "@/components/ui/button";
 
 const qrCells = [
   0, 1, 2, 4, 5, 7, 8, 10, 12, 13, 16, 18, 20, 21, 22, 24, 25, 27, 28, 31, 32,
@@ -9,7 +12,7 @@ const qrCells = [
 export default function UserRewardPage() {
   const reward = getAvailableRewards()[0];
   const rules = [
-    `Покажите QR-код сотруднику ${reward.brandName}.`,
+    "Покажите QR-код сотруднику на кассе.",
     "Награда действует только один раз.",
     "Код нельзя передать другому пользователю.",
   ];
@@ -17,7 +20,7 @@ export default function UserRewardPage() {
   return (
     <main className="space-y-5">
       <header>
-        <p className="text-sm font-semibold text-slate-400">Кошелек</p>
+        <p className="text-sm font-semibold text-slate-400">Финал челленджа</p>
         <h1 className="mt-1 text-3xl font-black">Награда</h1>
       </header>
 
@@ -60,12 +63,12 @@ export default function UserRewardPage() {
                 {reward.code}
               </p>
             </div>
-            <button
+            <span
               className="grid h-11 w-11 place-items-center rounded-full bg-white text-slate-950"
               aria-label="Скопировать код"
             >
               <Copy className="h-5 w-5" />
-            </button>
+            </span>
           </div>
         </div>
       </section>
@@ -96,6 +99,31 @@ export default function UserRewardPage() {
             </li>
           ))}
         </ul>
+      </section>
+
+      <section className="space-y-3">
+        <Link
+          href={routes.user.activeChallenge}
+          className={buttonClasses({
+            variant: "dark",
+            size: "lg",
+            className: "w-full",
+          })}
+        >
+          <ArrowLeft className="h-5 w-5" />
+          Вернуться к прогрессу
+        </Link>
+        <Link
+          href={routes.user.map}
+          className={buttonClasses({
+            variant: "secondary",
+            size: "lg",
+            className: "w-full",
+          })}
+        >
+          <Map className="h-5 w-5" />
+          Открыть карту
+        </Link>
       </section>
     </main>
   );

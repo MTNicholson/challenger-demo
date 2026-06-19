@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
+  ArrowRight,
   CheckCircle2,
   Coins,
   Heart,
@@ -11,6 +12,7 @@ import {
 import { challenges, getChallengeById } from "@/data/challenges";
 import { getBrandLocations } from "@/data/locations";
 import { routes } from "@/lib/routes";
+import { buttonClasses } from "@/components/ui/button";
 
 export function generateStaticParams() {
   return challenges.map((challenge) => ({
@@ -51,18 +53,18 @@ export default async function ChallengeDetailPage({
             <ArrowLeft className="h-5 w-5" />
           </Link>
           <div className="flex gap-2">
-            <button
+            <span
               className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur"
               aria-label="Поделиться"
             >
               <Share2 className="h-5 w-5" />
-            </button>
-            <button
+            </span>
+            <span
               className="grid h-11 w-11 place-items-center rounded-full bg-white/15 backdrop-blur"
               aria-label="В избранное"
             >
               <Heart className="h-5 w-5" />
-            </button>
+            </span>
           </div>
         </div>
         <div className="relative z-10 mt-16">
@@ -102,6 +104,24 @@ export default async function ChallengeDetailPage({
       </section>
 
       <section className="rounded-[30px] bg-white p-5 shadow-sm">
+        <h2 className="text-xl font-black">Что нужно сделать</h2>
+        <div className="mt-4 grid gap-3">
+          <div className="rounded-[24px] bg-slate-50 p-4">
+            <p className="text-sm font-bold text-slate-400">Условие</p>
+            <p className="mt-1 font-black">{challenge.condition}</p>
+          </div>
+          <div className="rounded-[24px] bg-emerald-50 p-4 text-emerald-950">
+            <p className="text-sm font-bold text-emerald-700">Финальная награда</p>
+            <p className="mt-1 font-black">{challenge.reward}</p>
+          </div>
+          <div className="rounded-[24px] bg-amber-50 p-4 text-amber-950">
+            <p className="text-sm font-bold text-amber-700">Статус</p>
+            <p className="mt-1 font-black">{progress.label}</p>
+          </div>
+        </div>
+      </section>
+
+      <section className="rounded-[30px] bg-white p-5 shadow-sm">
         <h2 className="text-xl font-black">Правила</h2>
         <p className="mt-3 text-sm leading-6 text-slate-500">
           {challenge.description} Условие: {challenge.condition}. После
@@ -136,12 +156,41 @@ export default async function ChallengeDetailPage({
         </div>
       </section>
 
-      <Link
-        href={routes.user.activeChallenge}
-        className="sticky bottom-24 z-10 block rounded-full bg-slate-950 px-5 py-4 text-center text-base font-black text-white shadow-2xl shadow-slate-900/20"
-      >
-        Принять челлендж
-      </Link>
+      <section className="sticky bottom-24 z-10 space-y-3 rounded-[30px] bg-white/90 p-3 shadow-2xl shadow-slate-900/15 backdrop-blur">
+        <Link
+          href={routes.user.activeChallenge}
+          className={buttonClasses({
+            variant: "dark",
+            size: "lg",
+            className: "w-full",
+          })}
+        >
+          Принять челлендж
+          <ArrowRight className="h-5 w-5" />
+        </Link>
+        <div className="grid grid-cols-2 gap-2">
+          <Link
+            href={routes.user.map}
+            className={buttonClasses({
+              variant: "secondary",
+              size: "sm",
+              className: "w-full",
+            })}
+          >
+            Показать на карте
+          </Link>
+          <Link
+            href={routes.user.challenges}
+            className={buttonClasses({
+              variant: "secondary",
+              size: "sm",
+              className: "w-full",
+            })}
+          >
+            Назад к челленджам
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }

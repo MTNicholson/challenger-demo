@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  ArrowRight,
   Bell,
   Coffee,
   Flame,
@@ -33,19 +34,19 @@ export default function UserHomePage() {
             Привет, {demoUser.name}! 👋
           </h1>
         </div>
-        <button
+        <span
           className="relative grid h-12 w-12 place-items-center rounded-full bg-white text-slate-700 shadow-sm"
           aria-label="Уведомления"
         >
           <Bell className="h-5 w-5" />
           <span className="absolute right-3 top-3 h-2.5 w-2.5 rounded-full bg-rose-500 ring-2 ring-white" />
-        </button>
+        </span>
       </header>
 
       <CoinBalanceCard href={routes.user.coins} coins={demoUser.coins} />
 
       <Link
-        href={routes.user.challengeDetail(activeChallenge.id)}
+        href={routes.user.activeChallenge}
         className="block overflow-hidden rounded-[34px] bg-slate-950 text-white shadow-2xl shadow-slate-900/15"
       >
         <div className="relative h-40 overflow-hidden bg-[radial-gradient(circle_at_20%_20%,#facc15,transparent_24%),radial-gradient(circle_at_78%_25%,#34d399,transparent_22%),linear-gradient(135deg,#1e293b,#020617)]">
@@ -82,10 +83,17 @@ export default function UserHomePage() {
             className="mt-3 bg-white/15"
             indicatorClassName="bg-emerald-300"
           />
+          <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-black text-slate-950">
+            Продолжить
+            <ArrowRight className="h-4 w-4" />
+          </div>
         </div>
       </Link>
 
-      <section className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-[28px] bg-emerald-50 p-4 text-emerald-950 shadow-sm">
+      <Link
+        href={routes.user.map}
+        className="grid grid-cols-[1fr_auto] items-center gap-3 rounded-[28px] bg-emerald-50 p-4 text-emerald-950 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+      >
         <div className="flex items-center gap-3">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white">
             <Flame className="h-6 w-6 text-emerald-600" />
@@ -100,7 +108,7 @@ export default function UserHomePage() {
         <span className="rounded-full bg-white px-3 py-2 text-sm font-black">
           +10
         </span>
-      </section>
+      </Link>
 
       <section>
         <SectionTitle
@@ -125,7 +133,7 @@ export default function UserHomePage() {
       </section>
 
       <ChallengeCard
-        href={routes.user.challengeDetail(nearbyChallenge.id)}
+        href={routes.user.map}
         title={nearbyChallenge.title}
         brand={nearbyChallenge.brandName}
         reward="+отметка"

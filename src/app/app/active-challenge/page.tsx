@@ -1,19 +1,27 @@
 import Link from "next/link";
-import { CalendarDays, Check, Coins, Map, MapPin } from "lucide-react";
+import { ArrowRight, CalendarDays, Check, Coins, Gift, Map, MapPin } from "lucide-react";
 import { getChallengeById } from "@/data/challenges";
 import { getBrandLocations } from "@/data/locations";
 import { routes } from "@/lib/routes";
+import { buttonClasses } from "@/components/ui/button";
 
 export default function ActiveChallengePage() {
   const challenge = getChallengeById("coffee-route")!;
   const progress = challenge.progress!;
   const visits = getBrandLocations(challenge.brandId).slice(0, progress.total);
+  const remainingVisits = progress.total - progress.current;
 
   return (
     <main className="space-y-5">
       <header>
         <p className="text-sm font-semibold text-slate-400">Активный маршрут</p>
         <h1 className="mt-1 text-3xl font-black">{challenge.title}</h1>
+        <Link
+          href={routes.user.challengeDetail(challenge.id)}
+          className="mt-2 inline-flex text-sm font-black text-slate-500"
+        >
+          Открыть описание челленджа
+        </Link>
       </header>
 
       <section className="rounded-[34px] bg-slate-950 p-5 text-white shadow-2xl shadow-slate-900/15">
@@ -28,6 +36,10 @@ export default function ActiveChallengePage() {
             {challenge.emoji}
           </div>
         </div>
+        <p className="mt-5 text-sm leading-6 text-white/65">
+          Осталось {remainingVisits} визита. Следующая отметка откроет новый
+          чекпоинт маршрута, а финальная награда появится по QR.
+        </p>
 
         <div className="mt-6 flex items-center gap-2">
           {visits.map((visit, index) => (
@@ -58,13 +70,29 @@ export default function ActiveChallengePage() {
       <section className="grid grid-cols-2 gap-3">
         <div className="rounded-[28px] bg-amber-100 p-4 text-amber-950 shadow-sm">
           <Coins className="h-6 w-6" />
-          <p className="mt-4 text-sm font-bold text-amber-700">Награда</p>
+          <p className="mt-4 text-sm font-bold text-amber-700">Монетки</p>
           <p className="text-2xl font-black">{challenge.coinsReward} монет</p>
         </div>
         <div className="rounded-[28px] bg-white p-4 shadow-sm">
           <CalendarDays className="h-6 w-6 text-slate-500" />
           <p className="mt-4 text-sm font-bold text-slate-400">Осталось</p>
           <p className="text-2xl font-black">{challenge.daysLeft} дня</p>
+        </div>
+      </section>
+
+      <section className="rounded-[30px] bg-white p-5 shadow-sm">
+        <div className="flex items-start gap-3">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-700">
+            <Gift className="h-6 w-6" />
+          </div>
+          <div>
+            <p className="text-sm font-bold text-slate-400">Финал маршрута</p>
+            <h2 className="mt-1 text-xl font-black">{challenge.reward}</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-500">
+              В демо QR-награда уже доступна, чтобы показать финальный шаг
+              пользовательского сценария.
+            </p>
+          </div>
         </div>
       </section>
 
@@ -91,13 +119,30 @@ export default function ActiveChallengePage() {
         </div>
       </section>
 
-      <Link
-        href={routes.user.map}
-        className="flex items-center justify-center gap-2 rounded-full bg-slate-950 px-5 py-4 text-base font-black text-white shadow-2xl shadow-slate-900/15"
-      >
-        <Map className="h-5 w-5" />
-        Показать на карте
-      </Link>
+      <section className="space-y-3">
+        <Link
+          href={routes.user.reward}
+          className={buttonClasses({
+            variant: "dark",
+            size: "lg",
+            className: "w-full",
+          })}
+        >
+          Показать QR-награду
+          <ArrowRight className="h-5 w-5" />
+        </Link>
+        <Link
+          href={routes.user.map}
+          className={buttonClasses({
+            variant: "secondary",
+            size: "lg",
+            className: "w-full",
+          })}
+        >
+          <Map className="h-5 w-5" />
+          Открыть карту
+        </Link>
+      </section>
     </main>
   );
 }

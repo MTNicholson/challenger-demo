@@ -14,15 +14,25 @@ import { demoUser } from "@/data/user";
 import { routes } from "@/lib/routes";
 
 const achievements = [
-  { label: "Достижения", value: String(demoUser.achievementsCount), icon: Trophy },
-  { label: "Награды", value: String(demoUser.availableRewardsCount), icon: Award },
+  {
+    label: "Достижения",
+    value: String(demoUser.achievementsCount),
+    icon: Trophy,
+    href: routes.user.activeChallenge,
+  },
+  {
+    label: "Награды",
+    value: String(demoUser.availableRewardsCount),
+    icon: Award,
+    href: routes.user.reward,
+  },
   { label: "Любимые", value: String(demoUser.favoritePlacesCount), icon: Heart },
 ];
 
 const menu = [
-  { label: "Мои челленджи", icon: Trophy },
-  { label: "Любимые места", icon: Heart },
-  { label: "История визитов", icon: History },
+  { label: "Мои челленджи", icon: Trophy, href: routes.user.activeChallenge },
+  { label: "Любимые места", icon: Heart, href: routes.user.map },
+  { label: "История визитов", icon: History, href: routes.user.activeChallenge },
   { label: "Настройки", icon: Settings },
   { label: "Поддержка", icon: LifeBuoy },
 ];
@@ -61,11 +71,15 @@ export default function UserProfilePage() {
         {achievements.map((item) => {
           const Icon = item.icon;
           return (
-            <div key={item.label} className="rounded-[24px] bg-white p-4 shadow-sm">
+            <Link
+              key={item.label}
+              href={item.href ?? routes.user.map}
+              className="rounded-[24px] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+            >
               <Icon className="h-5 w-5 text-slate-400" />
               <p className="mt-3 text-2xl font-black">{item.value}</p>
               <p className="text-xs font-bold text-slate-400">{item.label}</p>
-            </div>
+            </Link>
           );
         })}
       </section>
@@ -95,17 +109,33 @@ export default function UserProfilePage() {
       <section className="overflow-hidden rounded-[30px] bg-white shadow-sm">
         {menu.map((item) => {
           const Icon = item.icon;
-          return (
-            <button
-              key={item.label}
-              className="flex w-full items-center gap-3 border-b border-slate-100 px-5 py-4 text-left last:border-b-0"
-            >
+          const rowContent = (
+            <>
               <Icon className="h-5 w-5 text-slate-400" />
               <span className="flex-1 text-sm font-bold text-slate-800">
                 {item.label}
               </span>
-              <ChevronRight className="h-5 w-5 text-slate-300" />
-            </button>
+              {item.href ? (
+                <ChevronRight className="h-5 w-5 text-slate-300" />
+              ) : null}
+            </>
+          );
+
+          return item.href ? (
+            <Link
+              key={item.label}
+              href={item.href}
+              className="flex w-full items-center gap-3 border-b border-slate-100 px-5 py-4 text-left last:border-b-0"
+            >
+              {rowContent}
+            </Link>
+          ) : (
+            <div
+              key={item.label}
+              className="flex w-full items-center gap-3 border-b border-slate-100 px-5 py-4 text-left last:border-b-0"
+            >
+              {rowContent}
+            </div>
           );
         })}
       </section>

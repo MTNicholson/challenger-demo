@@ -20,7 +20,7 @@ export default function UserMapPage() {
 
         <div className="relative z-10 flex gap-2 overflow-x-auto pb-4">
           {chips.map((chip, index) => (
-            <button
+            <span
               key={chip}
               className={
                 index === 0
@@ -29,7 +29,7 @@ export default function UserMapPage() {
               }
             >
               {chip}
-            </button>
+            </span>
           ))}
         </div>
 

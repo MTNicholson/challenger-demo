@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   ArrowDownLeft,
   ArrowUpRight,
@@ -9,11 +10,27 @@ import {
 } from "lucide-react";
 import { activityEvents } from "@/data/activity";
 import { demoUser } from "@/data/user";
+import { routes } from "@/lib/routes";
 
 const earnWays = [
-  { title: "Выполнять челленджи", caption: "До 200 монет", icon: Gift },
-  { title: "Заходить каждый день", caption: "+10 монет", icon: Coffee },
-  { title: "Посещать новые места", caption: "+30 монет", icon: WalletCards },
+  {
+    title: "Выполнять челленджи",
+    caption: "До 200 монет",
+    icon: Gift,
+    href: routes.user.challenges,
+  },
+  {
+    title: "Заходить каждый день",
+    caption: "+10 монет",
+    icon: Coffee,
+    href: routes.user.home,
+  },
+  {
+    title: "Посещать новые места",
+    caption: "+30 монет",
+    icon: WalletCards,
+    href: routes.user.map,
+  },
 ];
 
 export default function UserCoinsPage() {
@@ -41,7 +58,10 @@ export default function UserCoinsPage() {
         </p>
       </section>
 
-      <button className="flex w-full items-center gap-3 rounded-[28px] bg-white p-4 text-left shadow-sm">
+      <Link
+        href="#operations"
+        className="flex w-full items-center gap-3 rounded-[28px] bg-white p-4 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+      >
         <div className="grid h-12 w-12 place-items-center rounded-2xl bg-slate-50">
           <ReceiptText className="h-6 w-6 text-slate-600" />
         </div>
@@ -49,7 +69,7 @@ export default function UserCoinsPage() {
           <p className="font-black">История начислений</p>
           <p className="text-sm text-slate-500">Все операции за месяц</p>
         </div>
-      </button>
+      </Link>
 
       <section>
         <h2 className="mb-3 text-xl font-black">Как заработать монетки</h2>
@@ -57,7 +77,11 @@ export default function UserCoinsPage() {
           {earnWays.map((way) => {
             const Icon = way.icon;
             return (
-              <div key={way.title} className="flex items-center gap-3 rounded-[26px] bg-white p-4 shadow-sm">
+              <Link
+                key={way.title}
+                href={way.href}
+                className="flex items-center gap-3 rounded-[26px] bg-white p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+              >
                 <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50">
                   <Icon className="h-6 w-6 text-emerald-700" />
                 </div>
@@ -65,13 +89,13 @@ export default function UserCoinsPage() {
                   <p className="font-black">{way.title}</p>
                   <p className="text-sm text-slate-500">{way.caption}</p>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
       </section>
 
-      <section className="rounded-[30px] bg-white p-5 shadow-sm">
+      <section id="operations" className="rounded-[30px] bg-white p-5 shadow-sm">
         <h2 className="text-xl font-black">Операции</h2>
         <div className="mt-4 space-y-3">
           {transactions.map((item) => {

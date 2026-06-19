@@ -142,7 +142,8 @@ const demoRoutes = [
   {
     href: routes.user.home,
     title: "Мобильное приложение",
-    description: "Пользовательский сценарий с челленджами, картой, монетками и наградой.",
+    description:
+      "Пройдите путь пользователя: главная, каталог, активный челлендж и QR-награда.",
     icon: Smartphone,
   },
   {
@@ -424,7 +425,7 @@ export default function Home() {
                     className: "bg-white text-slate-950",
                   })}
                 >
-                  Открыть приложение
+                  Пройти пользовательское демо
                 </Link>
                 <Link
                   href={routes.brand.dashboard}
