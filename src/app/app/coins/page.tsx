@@ -7,6 +7,8 @@ import {
   ReceiptText,
   WalletCards,
 } from "lucide-react";
+import { activityEvents } from "@/data/activity";
+import { demoUser } from "@/data/user";
 
 const earnWays = [
   { title: "Выполнять челленджи", caption: "До 200 монет", icon: Gift },
@@ -14,14 +16,9 @@ const earnWays = [
   { title: "Посещать новые места", caption: "+30 монет", icon: WalletCards },
 ];
 
-const transactions = [
-  { title: "Кофейный маршрут", date: "Сегодня", amount: "+200", type: "in" },
-  { title: "Задача дня", date: "Сегодня", amount: "+10", type: "in" },
-  { title: "Сладкий июнь", date: "Вчера", amount: "-150", type: "out" },
-  { title: "10 000 шагов", date: "15 июня", amount: "+120", type: "in" },
-];
-
 export default function UserCoinsPage() {
+  const transactions = activityEvents.filter((event) => event.amount);
+
   return (
     <main className="space-y-5">
       <section className="overflow-hidden rounded-[36px] bg-[linear-gradient(145deg,#facc15,#f59e0b)] p-6 text-amber-950 shadow-2xl shadow-amber-500/15">
@@ -36,7 +33,9 @@ export default function UserCoinsPage() {
         <p className="mt-10 text-sm font-bold uppercase tracking-[0.16em] text-amber-800/70">
           Ваши монетки
         </p>
-        <h1 className="mt-1 text-6xl font-black leading-none">1 250</h1>
+        <h1 className="mt-1 text-6xl font-black leading-none">
+          {demoUser.coins.toLocaleString("ru-RU")}
+        </h1>
         <p className="mt-3 text-sm font-semibold text-amber-900/70">
           Тратьте на награды, закрытые челленджи и бонусы у партнеров.
         </p>
@@ -76,9 +75,10 @@ export default function UserCoinsPage() {
         <h2 className="text-xl font-black">Операции</h2>
         <div className="mt-4 space-y-3">
           {transactions.map((item) => {
-            const Icon = item.type === "in" ? ArrowDownLeft : ArrowUpRight;
+            const isIncome = (item.amount ?? 0) > 0;
+            const Icon = isIncome ? ArrowDownLeft : ArrowUpRight;
             return (
-              <div key={`${item.title}-${item.date}`} className="flex items-center gap-3">
+              <div key={item.id} className="flex items-center gap-3">
                 <div className="grid h-11 w-11 place-items-center rounded-2xl bg-slate-50">
                   <Icon className="h-5 w-5 text-slate-500" />
                 </div>
@@ -88,11 +88,12 @@ export default function UserCoinsPage() {
                 </div>
                 <p
                   className={
-                    item.type === "in"
+                    isIncome
                       ? "font-black text-emerald-600"
                       : "font-black text-rose-500"
                   }
                 >
+                  {isIncome ? "+" : ""}
                   {item.amount}
                 </p>
               </div>

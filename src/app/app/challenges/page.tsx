@@ -1,62 +1,11 @@
 import { Filter, Search } from "lucide-react";
 import { routes } from "@/lib/routes";
+import { challenges } from "@/data/challenges";
 import { buttonClasses } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ChallengeCard } from "@/components/user/challenge-card";
 
-const categories = ["Все", "Кофе", "Еда", "Фитнес", "Beauty"];
-
-const tiles = [
-  {
-    id: "coffee-week",
-    title: "Кофейный маршрут",
-    brand: "Coffee Place",
-    reward: "200",
-    emoji: "☕",
-    className:
-      "min-h-64 bg-[linear-gradient(145deg,#111827,#334155)] text-white",
-  },
-  {
-    id: "ten-thousand-steps",
-    title: "10 000 шагов",
-    brand: "FitPro",
-    reward: "120",
-    emoji: "👟",
-    className: "min-h-48 bg-sky-100 text-sky-950",
-  },
-  {
-    id: "sweet-june",
-    title: "Сладкий июнь",
-    brand: "Sweetly",
-    reward: "180",
-    emoji: "🍓",
-    className: "min-h-48 bg-rose-100 text-rose-950",
-  },
-  {
-    id: "beauty-rewards",
-    title: "Beauty Rewards",
-    brand: "Beauty Store",
-    reward: "80",
-    emoji: "✨",
-    className: "min-h-64 bg-violet-100 text-violet-950",
-  },
-  {
-    id: "coffee-week",
-    title: "Утренний фильтр",
-    brand: "Coffee Place",
-    reward: "60",
-    emoji: "🌤️",
-    className: "min-h-44 bg-amber-100 text-amber-950",
-  },
-  {
-    id: "sweet-june",
-    title: "Десерт после 18:00",
-    brand: "Sweetly",
-    reward: "90",
-    emoji: "🧁",
-    className: "min-h-44 bg-emerald-100 text-emerald-950",
-  },
-];
+const categories = ["Все", "Кофе", "Еда", "Фитнес", "Beauty", "Книги"];
 
 export default function UserChallengesPage() {
   return (
@@ -95,15 +44,15 @@ export default function UserChallengesPage() {
       </div>
 
       <section className="grid grid-cols-2 gap-3">
-        {tiles.map((tile, index) => (
+        {challenges.map((challenge) => (
           <ChallengeCard
-            key={`${tile.title}-${index}`}
-            href={routes.user.challengeDetail(tile.id)}
-            title={tile.title}
-            brand={tile.brand}
-            reward={`+${tile.reward}`}
-            emoji={tile.emoji}
-            className={tile.className}
+            key={challenge.id}
+            href={routes.user.challengeDetail(challenge.id)}
+            title={challenge.title}
+            brand={challenge.brandName}
+            reward={challenge.coinsReward}
+            emoji={challenge.emoji}
+            className={challenge.cardClassName}
           />
         ))}
       </section>

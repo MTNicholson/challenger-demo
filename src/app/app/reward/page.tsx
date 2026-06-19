@@ -1,17 +1,19 @@
 import { Clock, Copy, Gift, ShieldCheck } from "lucide-react";
+import { getAvailableRewards } from "@/data/rewards";
 
 const qrCells = [
   0, 1, 2, 4, 5, 7, 8, 10, 12, 13, 16, 18, 20, 21, 22, 24, 25, 27, 28, 31, 32,
   34, 36, 38, 39, 40, 42, 45, 46, 48, 49, 50, 52, 54, 56, 57, 59, 60, 62, 63,
 ];
 
-const rules = [
-  "Покажите QR-код сотруднику Coffee Place.",
-  "Награда действует только один раз.",
-  "Код нельзя передать другому пользователю.",
-];
-
 export default function UserRewardPage() {
+  const reward = getAvailableRewards()[0];
+  const rules = [
+    `Покажите QR-код сотруднику ${reward.brandName}.`,
+    "Награда действует только один раз.",
+    "Код нельзя передать другому пользователю.",
+  ];
+
   return (
     <main className="space-y-5">
       <header>
@@ -22,13 +24,15 @@ export default function UserRewardPage() {
       <section className="rounded-[34px] bg-white p-5 shadow-sm">
         <div className="flex items-start gap-4">
           <div className="grid h-16 w-16 shrink-0 place-items-center rounded-[24px] bg-amber-100 text-3xl">
-            ☕
+            {reward.emoji}
           </div>
           <div>
-            <p className="text-sm font-bold text-slate-400">Coffee Place</p>
-            <h2 className="mt-1 text-2xl font-black">Напиток на выбор</h2>
+            <p className="text-sm font-bold text-slate-400">
+              {reward.brandName}
+            </p>
+            <h2 className="mt-1 text-2xl font-black">{reward.title}</h2>
             <p className="mt-2 text-sm leading-6 text-slate-500">
-              Получено за прохождение кофейного маршрута.
+              {reward.description}
             </p>
           </div>
         </div>
@@ -53,7 +57,7 @@ export default function UserRewardPage() {
             <div>
               <p className="text-sm font-semibold text-white/55">Ручной код</p>
               <p className="mt-1 text-2xl font-black tracking-[0.16em]">
-                CP-4829
+                {reward.code}
               </p>
             </div>
             <button
@@ -70,12 +74,12 @@ export default function UserRewardPage() {
         <div className="rounded-[28px] bg-emerald-50 p-4 text-emerald-950 shadow-sm">
           <Clock className="h-6 w-6" />
           <p className="mt-4 text-sm font-bold text-emerald-700">Истекает</p>
-          <p className="text-2xl font-black">02:14:36</p>
+          <p className="text-2xl font-black">{reward.expiresAt}</p>
         </div>
         <div className="rounded-[28px] bg-white p-4 shadow-sm">
           <Gift className="h-6 w-6 text-slate-500" />
           <p className="mt-4 text-sm font-bold text-slate-400">Тип</p>
-          <p className="text-2xl font-black">QR</p>
+          <p className="text-2xl font-black">{reward.type}</p>
         </div>
       </section>
 

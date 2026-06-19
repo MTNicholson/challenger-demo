@@ -1,5 +1,7 @@
 import { Eye, Gift, Target, Users } from "lucide-react";
-import { challenges } from "@/data/challenges";
+import { companyAnalytics } from "@/data/analytics";
+import { companyBrand } from "@/data/brands";
+import { getBrandChallenges } from "@/data/challenges";
 import { routes } from "@/lib/routes";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -7,20 +9,37 @@ import { SectionTitle } from "@/components/ui/section-title";
 import { BrandMetricCard } from "@/components/brand/brand-metric-card";
 import { BrandPageHeader } from "@/components/brand/brand-page-header";
 
-const metrics = [
-  { label: "Участников", value: "1 284", delta: "+14%", icon: Users },
-  { label: "Активных челленджей", value: "6", delta: "+2", icon: Target },
-  { label: "Выдано наград", value: "342", delta: "+31", icon: Gift },
-];
+const brandChallenges = getBrandChallenges(companyBrand.id);
 
 export default function BrandDashboardPage() {
+  const metrics = [
+    {
+      label: "Подписчиков",
+      value: companyAnalytics.followers.toLocaleString("ru-RU"),
+      delta: "+14%",
+      icon: Users,
+    },
+    {
+      label: "Активных челленджей",
+      value: String(companyAnalytics.activeChallenges),
+      delta: "+2",
+      icon: Target,
+    },
+    {
+      label: "Активаций наград",
+      value: companyAnalytics.rewardActivations.toLocaleString("ru-RU"),
+      delta: "+31",
+      icon: Gift,
+    },
+  ];
+
   return (
     <main className="space-y-6">
       <BrandPageHeader
         actionHref={routes.brand.preview}
         actionIcon={Eye}
         actionLabel="Превью гостя"
-        brandName="Coffee Place"
+        brandName={companyBrand.name}
         description="Демо-кабинет показывает, как бренд управляет челленджами, вовлечением гостей и наградами без лишней сложности."
         title="Обзор бренда"
         variant="dark"
@@ -40,7 +59,7 @@ export default function BrandDashboardPage() {
           titleClassName="text-2xl"
         />
         <div className="mt-5 grid gap-3 lg:grid-cols-2">
-          {challenges.slice(0, 4).map((challenge) => (
+          {brandChallenges.map((challenge) => (
             <div key={challenge.id} className="rounded-[24px] bg-slate-50 p-4">
               <div className="flex items-start justify-between gap-4">
                 <div>

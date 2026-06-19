@@ -8,4 +8,7 @@ export const demoUser = {
   completedChallengesCount: 12,
   achievementsCount: 4,
   availableRewardsCount: 3,
+  visitsCount: 27,
+  favoritePlacesCount: 12,
+  initials: "А",
 };

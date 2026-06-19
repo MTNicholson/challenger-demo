@@ -1,23 +1,27 @@
-import { Gift, QrCode, ShieldCheck } from "lucide-react";
+import { QrCode, ShieldCheck } from "lucide-react";
+import { companyBrand } from "@/data/brands";
 import { rewards } from "@/data/rewards";
 
 export default function BrandRewardsPage() {
+  const brandRewards = rewards.filter((reward) => reward.brandId === companyBrand.id);
+
   return (
     <main className="space-y-6">
       <section>
         <div className="text-sm font-semibold text-slate-400">Награды</div>
         <h1 className="mt-1 text-3xl font-black">Выдача и правила</h1>
         <p className="mt-2 text-sm leading-6 text-slate-500">
-          Пример того, как команда видит доступные награды и условия выдачи.
+          Пример того, как команда {companyBrand.name} видит доступные награды и
+          условия выдачи.
         </p>
       </section>
 
       <section className="grid gap-4 lg:grid-cols-2">
-        {rewards.map((reward) => (
+        {brandRewards.map((reward) => (
           <div key={reward.id} className="rounded-[30px] bg-white p-5 shadow-sm">
             <div className="flex items-start justify-between gap-4">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50">
-                <Gift className="h-5 w-5 text-emerald-700" />
+              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-50 text-2xl">
+                {reward.emoji}
               </div>
               <span className="rounded-full bg-slate-50 px-3 py-1 text-xs font-black text-slate-500">
                 {reward.expiresAt}

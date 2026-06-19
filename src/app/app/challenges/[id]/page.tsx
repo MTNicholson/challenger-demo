@@ -1,15 +1,16 @@
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Coins, Heart, MapPin, Share2 } from "lucide-react";
-import { challenges } from "@/data/challenges";
+import { notFound } from "next/navigation";
+import {
+  ArrowLeft,
+  CheckCircle2,
+  Coins,
+  Heart,
+  MapPin,
+  Share2,
+} from "lucide-react";
+import { challenges, getChallengeById } from "@/data/challenges";
+import { getBrandLocations } from "@/data/locations";
 import { routes } from "@/lib/routes";
-
-const locations = [
-  { title: "Coffee Place, Невский 24", done: true },
-  { title: "Coffee Place, Гороховая 12", done: true },
-  { title: "Coffee Place, Большой пр. 8", done: true },
-  { title: "Coffee Place, Литейный 40", done: false },
-  { title: "Coffee Place, Малая Морская 5", done: false },
-];
 
 export function generateStaticParams() {
   return challenges.map((challenge) => ({
@@ -20,7 +21,23 @@ export function generateStaticParams() {
 export default async function ChallengeDetailPage({
   params,
 }: PageProps<"/app/challenges/[id]">) {
-  await params;
+  const { id } = await params;
+  const challenge = getChallengeById(id);
+
+  if (!challenge) {
+    notFound();
+  }
+
+  const progress = challenge.progress ?? {
+    current: challenge.isActive ? 1 : 0,
+    total: 1,
+    label: challenge.isActive ? "1 из 1" : "Еще не начат",
+  };
+  const progressPercent = Math.min(
+    100,
+    Math.round((progress.current / progress.total) * 100),
+  );
+  const locations = getBrandLocations(challenge.brandId).slice(0, 5);
 
   return (
     <main className="space-y-5">
@@ -50,11 +67,13 @@ export default async function ChallengeDetailPage({
         </div>
         <div className="relative z-10 mt-16">
           <div className="mb-4 grid h-20 w-20 place-items-center rounded-[28px] bg-white/15 text-5xl backdrop-blur">
-            ☕
+            {challenge.emoji}
           </div>
-          <p className="text-sm font-bold text-white/60">Coffee Place</p>
+          <p className="text-sm font-bold text-white/60">
+            {challenge.brandName}
+          </p>
           <h1 className="mt-2 text-4xl font-black leading-none">
-            Кофейный маршрут
+            {challenge.title}
           </h1>
         </div>
         <div className="absolute -bottom-16 -right-12 h-44 w-44 rounded-full bg-amber-300/30" />
@@ -65,14 +84,19 @@ export default async function ChallengeDetailPage({
         <div className="rounded-[28px] bg-amber-100 p-4 text-amber-950 shadow-sm">
           <Coins className="h-6 w-6" />
           <p className="mt-5 text-sm font-bold text-amber-700">Награда</p>
-          <p className="text-3xl font-black">200</p>
+          <p className="text-3xl font-black">{challenge.coinsReward}</p>
           <p className="text-sm font-semibold">монет</p>
         </div>
         <div className="rounded-[28px] bg-white p-4 shadow-sm">
           <p className="text-sm font-bold text-slate-400">Прогресс</p>
-          <p className="mt-4 text-3xl font-black">3/5</p>
+          <p className="mt-4 text-3xl font-black">
+            {progress.current}/{progress.total}
+          </p>
           <div className="mt-3 h-3 rounded-full bg-slate-100">
-            <div className="h-3 w-3/5 rounded-full bg-emerald-400" />
+            <div
+              className="h-3 rounded-full bg-emerald-400"
+              style={{ width: `${progressPercent}%` }}
+            />
           </div>
         </div>
       </section>
@@ -80,9 +104,9 @@ export default async function ChallengeDetailPage({
       <section className="rounded-[30px] bg-white p-5 shadow-sm">
         <h2 className="text-xl font-black">Правила</h2>
         <p className="mt-3 text-sm leading-6 text-slate-500">
-          Посетите пять разных Coffee Place за семь дней. На каждой точке
-          отсканируйте QR-код у бариста. После пятой отметки награда появится в
-          кошельке автоматически.
+          {challenge.description} Условие: {challenge.condition}. После
+          выполнения награда «{challenge.reward}» появится в кошельке
+          автоматически.
         </p>
       </section>
 
@@ -90,15 +114,15 @@ export default async function ChallengeDetailPage({
         <h2 className="text-xl font-black">Адреса маршрута</h2>
         <div className="mt-4 space-y-3">
           {locations.map((location) => (
-            <div key={location.title} className="flex items-center gap-3">
+            <div key={location.id} className="flex items-center gap-3">
               <div
                 className={
-                  location.done
+                  location.visited
                     ? "grid h-9 w-9 place-items-center rounded-full bg-emerald-100 text-emerald-700"
                     : "grid h-9 w-9 place-items-center rounded-full bg-slate-100 text-slate-400"
                 }
               >
-                {location.done ? (
+                {location.visited ? (
                   <CheckCircle2 className="h-5 w-5" />
                 ) : (
                   <MapPin className="h-5 w-5" />

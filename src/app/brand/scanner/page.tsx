@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Camera, QrCode, ScanLine } from "lucide-react";
+import { companyBrand } from "@/data/brands";
+import { scannerMockResult } from "@/data/scanner";
 import { routes } from "@/lib/routes";
 
 export default function StaffScannerPage() {
@@ -8,7 +10,7 @@ export default function StaffScannerPage() {
       <section className="rounded-[32px] bg-slate-950 p-6 text-white shadow-2xl shadow-slate-900/10">
         <div className="flex items-center justify-between gap-4">
           <div>
-            <div className="text-sm text-white/60">Сотрудник</div>
+            <div className="text-sm text-white/60">{companyBrand.name}</div>
             <h1 className="mt-1 text-3xl font-black">QR-сканер</h1>
           </div>
           <Camera className="h-7 w-7 text-white/60" />
@@ -34,7 +36,7 @@ export default function StaffScannerPage() {
         <h2 className="text-2xl font-black">Инструкция</h2>
         <div className="mt-5 space-y-4 text-sm leading-6 text-slate-500">
           <p>1. Наведите камеру на QR гостя.</p>
-          <p>2. Проверьте награду и срок действия.</p>
+          <p>2. Проверьте награду, код {scannerMockResult.rewardCode} и срок действия.</p>
           <p>3. Подтвердите выдачу в один клик.</p>
         </div>
       </aside>

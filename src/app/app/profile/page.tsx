@@ -10,18 +10,13 @@ import {
   Trophy,
   WalletCards,
 } from "lucide-react";
+import { demoUser } from "@/data/user";
 import { routes } from "@/lib/routes";
 
 const achievements = [
-  { label: "Маршруты", value: "4", icon: Trophy },
-  { label: "Награды", value: "8", icon: Award },
-  { label: "Любимые", value: "12", icon: Heart },
-];
-
-const stats = [
-  ["12", "завершено"],
-  ["3", "активно"],
-  ["27", "визитов"],
+  { label: "Достижения", value: String(demoUser.achievementsCount), icon: Trophy },
+  { label: "Награды", value: String(demoUser.availableRewardsCount), icon: Award },
+  { label: "Любимые", value: String(demoUser.favoritePlacesCount), icon: Heart },
 ];
 
 const menu = [
@@ -37,12 +32,12 @@ export default function UserProfilePage() {
     <main className="space-y-5">
       <section className="rounded-[34px] bg-white p-5 text-center shadow-sm">
         <div className="mx-auto grid h-24 w-24 place-items-center rounded-[34px] bg-[linear-gradient(145deg,#111827,#475569)] text-4xl font-black text-white">
-          А
+          {demoUser.initials}
         </div>
-        <h1 className="mt-4 text-3xl font-black">Алекс</h1>
+        <h1 className="mt-4 text-3xl font-black">{demoUser.name}</h1>
         <p className="mt-1 inline-flex items-center gap-1 text-sm font-semibold text-slate-500">
           <MapPin className="h-4 w-4" />
-          Санкт-Петербург
+          {demoUser.city}
         </p>
       </section>
 
@@ -54,7 +49,9 @@ export default function UserProfilePage() {
           <WalletCards className="h-7 w-7" />
           <div>
             <p className="text-sm font-bold text-amber-700">Монетки</p>
-            <p className="text-2xl font-black">1 250</p>
+            <p className="text-2xl font-black">
+              {demoUser.coins.toLocaleString("ru-RU")}
+            </p>
           </div>
         </div>
         <ChevronRight className="h-5 w-5" />
@@ -76,12 +73,22 @@ export default function UserProfilePage() {
       <section className="rounded-[30px] bg-slate-950 p-5 text-white shadow-xl shadow-slate-900/10">
         <h2 className="text-xl font-black">Активность</h2>
         <div className="mt-4 grid grid-cols-3 gap-3">
-          {stats.map(([value, label]) => (
-            <div key={label} className="rounded-2xl bg-white/10 p-3">
-              <p className="text-2xl font-black">{value}</p>
-              <p className="text-xs font-semibold text-white/55">{label}</p>
-            </div>
-          ))}
+          <div className="rounded-2xl bg-white/10 p-3">
+            <p className="text-2xl font-black">
+              {demoUser.completedChallengesCount}
+            </p>
+            <p className="text-xs font-semibold text-white/55">завершено</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 p-3">
+            <p className="text-2xl font-black">
+              {demoUser.activeChallengesCount}
+            </p>
+            <p className="text-xs font-semibold text-white/55">активно</p>
+          </div>
+          <div className="rounded-2xl bg-white/10 p-3">
+            <p className="text-2xl font-black">{demoUser.visitsCount}</p>
+            <p className="text-xs font-semibold text-white/55">визитов</p>
+          </div>
         </div>
       </section>
 
