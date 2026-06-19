@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Челленджер
 
-## Getting Started
+Фронтенд-прототип сервиса для городских челленджей, где пользователь выполняет задания у партнеров, получает монеты и обменивает их на награды. Проект собран как инвесторское демо: он показывает ключевые сценарии продукта без подключения реального бэкенда.
 
-First, run the development server:
+## Что входит в демо
+
+- Публичный лендинг.
+- Демо пользовательского веб-приложения.
+- Демо кабинета бренда.
+- Демо сканера для сотрудников.
+- Моковые данные для челленджей, брендов, наград, аналитики, пользователя и активностей.
+
+## Технологии
+
+- Next.js
+- TypeScript
+- Tailwind CSS
+- lucide-react
+- framer-motion
+- recharts
+
+## Запуск локально
+
+Установить зависимости:
+
+```bash
+npm install
+```
+
+Запустить режим разработки:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Проверить production-сборку:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Запустить проверку кода:
 
-## Learn More
+```bash
+npm run lint
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Основные маршруты
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- `/` - публичный лендинг.
+- `/app` - главная пользовательского демо.
+- `/app/challenges` - список челленджей.
+- `/app/challenges/[id]` - карточка конкретного челленджа.
+- `/app/map` - карта и точки партнеров.
+- `/app/profile` - профиль пользователя.
+- `/app/coins` - баланс монет и история.
+- `/app/reward` - экран награды.
+- `/brand` - обзор кабинета бренда.
+- `/brand/challenges` - список челленджей бренда.
+- `/brand/challenges/new` - форма создания челленджа.
+- `/brand/analytics` - аналитика бренда.
+- `/brand/rewards` - управление наградами.
+- `/brand/scanner` - демо сканера для сотрудников.
+- `/brand/scan-result` - результат сканирования.
+- `/brand/preview` - гостевое превью бренда.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Важно
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Это frontend-only инвесторское демо. Бэкенд, авторизация, база данных, API-роуты и реальные интеграции намеренно не включены на этом этапе.
