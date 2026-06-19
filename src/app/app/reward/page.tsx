@@ -159,7 +159,7 @@ export default function UserRewardPage() {
           })}
         >
           <ArrowLeft className="h-5 w-5" />
-          Вернуться к прогрессу
+          Вернуться к активному челленджу
         </Link>
         <Link
           href={routes.user.coins}
@@ -170,7 +170,7 @@ export default function UserRewardPage() {
           })}
         >
           <Coins className="h-5 w-5" />
-          Баланс монеток
+          Открыть монетки
         </Link>
         <Link
           href={routes.user.map}
@@ -181,7 +181,7 @@ export default function UserRewardPage() {
           })}
         >
           <Map className="h-5 w-5" />
-          Открыть карту
+          Показать на карте
         </Link>
       </section>
     </main>

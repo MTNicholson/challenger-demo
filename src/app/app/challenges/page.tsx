@@ -1,7 +1,6 @@
-import { Filter, Search, Sparkles } from "lucide-react";
+import { Search, Sparkles } from "lucide-react";
 import { routes } from "@/lib/routes";
 import { challenges } from "@/data/challenges";
-import { buttonClasses } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { ChallengeCard } from "@/components/user/challenge-card";
@@ -54,23 +53,17 @@ export default function UserChallengesPage() {
           <Search className="h-5 w-5" />
           <Input placeholder="Найти челлендж" />
         </label>
-        <span
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-slate-950 text-white shadow-lg shadow-slate-900/10"
-          aria-label="Фильтр"
-        >
-          <Filter className="h-5 w-5" />
-        </span>
       </div>
 
       <div className="flex gap-2 overflow-x-auto pb-1">
         {categories.map((category, index) => (
           <span
             key={category}
-            className={buttonClasses({
-              variant: index === 0 ? "dark" : "secondary",
-              size: "sm",
-              className: index === 0 ? "shrink-0" : "shrink-0 font-bold text-slate-600",
-            })}
+            className={
+              index === 0
+                ? "shrink-0 rounded-full bg-slate-950 px-4 py-2 text-sm font-black text-white shadow-lg shadow-slate-900/10"
+                : "shrink-0 rounded-full bg-white px-4 py-2 text-sm font-bold text-slate-600 shadow-sm"
+            }
           >
             {category}
           </span>

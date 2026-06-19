@@ -145,7 +145,7 @@ export default function UserHomePage() {
 
       <div className="rounded-[24px] bg-white/70 p-4 text-sm leading-6 text-slate-500">
         <Sparkles className="mb-2 h-5 w-5 text-amber-500" />
-        Чем больше маршрутов закрываешь, тем точнее становятся рекомендации.
+        Чем больше челленджей закрываешь, тем точнее становятся рекомендации.
       </div>
     </main>
   );

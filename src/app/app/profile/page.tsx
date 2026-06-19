@@ -39,7 +39,7 @@ const achievements = [
 const menu = [
   { label: "Мои челленджи", icon: Trophy, href: routes.user.challenges },
   { label: "Активный челлендж", icon: Flame, href: routes.user.activeChallenge },
-  { label: "Баланс монеток", icon: Coins, href: routes.user.coins },
+  { label: "Мои монетки", icon: Coins, href: routes.user.coins },
   { label: "Мои награды", icon: Award, href: routes.user.reward },
   { label: "Любимые места", icon: Heart, href: routes.user.map },
 ];

@@ -189,7 +189,7 @@ export default function ActiveChallengePage() {
           })}
         >
           <Map className="h-5 w-5" />
-          Открыть карту
+          Показать на карте
         </Link>
       </section>
     </main>

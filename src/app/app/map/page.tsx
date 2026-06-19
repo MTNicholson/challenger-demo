@@ -3,7 +3,6 @@ import {
   ArrowRight,
   CheckCircle2,
   Coffee,
-  Crosshair,
   Dumbbell,
   Gift,
   MapPin,
@@ -161,11 +160,6 @@ export default function UserMapPage() {
             </div>
           );
         })}
-
-        <div className="absolute right-5 top-44 z-20 grid h-12 w-12 place-items-center rounded-full bg-white text-slate-800 shadow-xl shadow-slate-900/15">
-          <Crosshair className="h-5 w-5" />
-          <span className="sr-only">Моё местоположение</span>
-        </div>
 
         <Link
           href={routes.user.activeChallenge}

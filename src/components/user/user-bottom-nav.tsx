@@ -11,21 +11,29 @@ const items = [
     label: "Главная",
     href: routes.user.home,
     icon: Home,
+    activePaths: [routes.user.home],
   },
   {
     label: "Челленджи",
     href: routes.user.challenges,
     icon: Trophy,
+    activePaths: [
+      routes.user.challenges,
+      routes.user.activeChallenge,
+      routes.user.reward,
+    ],
   },
   {
     label: "Карта",
     href: routes.user.map,
     icon: Map,
+    activePaths: [routes.user.map],
   },
   {
     label: "Профиль",
     href: routes.user.profile,
     icon: User,
+    activePaths: [routes.user.profile, routes.user.coins],
   },
 ];
 
@@ -37,10 +45,11 @@ export function UserBottomNav() {
       <div className="grid grid-cols-4 gap-1">
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive =
-            item.href === routes.user.home
-              ? pathname === item.href
-              : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive = item.activePaths.some((activePath) =>
+            activePath === routes.user.home
+              ? pathname === activePath
+              : pathname === activePath || pathname.startsWith(`${activePath}/`),
+          );
 
           return (
             <Link
