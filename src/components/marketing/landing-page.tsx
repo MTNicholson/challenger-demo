@@ -4,22 +4,23 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRef, type MouseEvent } from "react";
 import {
+  ArrowLeft,
   ArrowRight,
   BarChart3,
   Check,
   ChevronRight,
-  Coins,
-  Footprints,
-  Store,
+  Clock,
+  Repeat2,
+  Users,
 } from "lucide-react";
 import { routes } from "@/lib/routes";
 import styles from "./landing.module.css";
 
 const steps = [
-  { icon: Store, title: "Бренд запускает челлендж", text: "Настраивает действие, награду и точки участия.", tone: "bg-blue-100 text-blue-700" },
-  { icon: Footprints, title: "Пользователь действует", text: "Находит механику рядом и проходит её в городе.", tone: "bg-violet-100 text-violet-700" },
-  { icon: Coins, title: "Получает монетки", text: "Видит прогресс, копит валюту и открывает подарки.", tone: "bg-amber-100 text-amber-700" },
-  { icon: BarChart3, title: "Бизнес видит результат", text: "Измеряет активации, визиты и возврат аудитории.", tone: "bg-emerald-100 text-emerald-700" },
+  { asset: "/landing/assets/process-flag-final.webp", title: "Бренд запускает челлендж", text: "Задаёт цель, награды, условия и локации.", accent: "mint" },
+  { asset: "/landing/assets/process-sneaker-final.webp", title: "Пользователь выполняет действия", text: "Посещает места, сканирует QR, проходит задания.", accent: "lilac" },
+  { asset: "/landing/assets/process-coin-final.webp", title: "Получает монеты и награды", text: "Копит монеты, открывает бейджи и призы.", accent: "gold" },
+  { asset: "/landing/assets/process-growth-final.webp", title: "Бизнес получает результат", text: "Рост вовлечённости, повторных визитов и продаж.", accent: "sky" },
 ];
 
 const partners = [
@@ -30,13 +31,21 @@ const partners = [
 ];
 
 const challenges = [
-  { brand: "Coffee Place", category: "Кофе", title: "Кофейный маршрут", icon: "☕", meta: "482 участника", reward: "+200 монет", progress: 64, className: styles.coffeeCard },
-  { brand: "FitPro", category: "Фитнес", title: "10 000 шагов", icon: "↗", meta: "931 участник", reward: "+200 монет", progress: 78, className: styles.fitCard },
-  { brand: "Sweetly Desserts", category: "Десерты", title: "Сладкий июнь", icon: "✦", meta: "367 участников", reward: "Десерт", progress: 48, className: styles.sweetCard },
-  { brand: "Book Space", category: "Книги", title: "Книжный челлендж", icon: "B", meta: "154 участника", reward: "+140 монет", progress: 36, className: styles.bookCard },
+  { brand: "Coffee Place", mark: "CP", title: "Кофейный маршрут", description: "Посети 5 кофеен и получи фирменный термостакан", participants: "482 участника", duration: "7 дней", reward: "+200 монет", asset: "/landing/challenges/coffee.webp", className: styles.challengeCoffee },
+  { brand: "FitPro", mark: "F+", title: "10 000 шагов", description: "Двигайся каждый день и забирай награды", participants: "931 участник", duration: "14 дней", reward: "+120 монет", asset: "/landing/challenges/sneaker.webp", className: styles.challengeFit },
+  { brand: "Sweetly Desserts", mark: "SD", title: "Сладкий уикенд", description: "Попробуй 3 новинки и открой секретный подарок", participants: "367 участников", duration: "5 дней", reward: "+150 монет", asset: "/landing/challenges/dessert.webp", className: styles.challengeSweet },
+  { brand: "Book Space", mark: "BK", title: "Книжный челлендж", description: "Прочитай книгу месяца и получи скидку", participants: "154 участника", duration: "10 дней", reward: "+130 монет", asset: "/landing/challenges/book.webp", className: styles.challengeBook },
+  { brand: "Urban Gym", mark: "UG", title: "Сильнее каждый день", description: "Заверши 8 тренировок и открой бонус клуба", participants: "608 участников", duration: "21 день", reward: "+180 монет", asset: "/landing/challenges/dumbbell.webp", className: styles.challengeGym },
 ];
 
-const userBenefits = ["Челленджи рядом на карте", "Прогресс и достижения", "Монетки за реальные действия", "Ежедневный игровой ритм", "Подарки и бонусы брендов"];
+const userBenefits = ["Интересные челленджи рядом", "Монеты за активность", "Эксклюзивные награды и скидки", "Рейтинги и бейджи", "Локальные события и комьюнити"];
+
+const businessMetrics = [
+  { value: "+37%", label: "рост вовлечённости в бренде", icon: BarChart3 },
+  { value: "4 680", label: "активных участников", icon: Users },
+  { value: "1 240", label: "выполненных челленджей", icon: Check },
+  { value: "92%", label: "вернулись повторно", icon: Repeat2 },
+];
 
 function BrandMark({ inverse = false }: { inverse?: boolean }) {
   return (
@@ -65,6 +74,7 @@ function PhonePreview() {
 
 export function LandingPage() {
   const heroRef = useRef<HTMLElement>(null);
+  const challengeCarouselRef = useRef<HTMLDivElement>(null);
 
   function handleHeroPointerMove(event: MouseEvent<HTMLElement>) {
     if (!heroRef.current) return;
@@ -85,6 +95,12 @@ export function LandingPage() {
     for (const property of ["--star-x", "--star-y", "--blue-coin-x", "--blue-coin-y", "--gold-coin-x", "--gold-coin-y", "--diamond-x", "--diamond-y"]) {
       heroRef.current?.style.setProperty(property, "0px");
     }
+  }
+
+  function scrollChallenges(direction: -1 | 1) {
+    const carousel = challengeCarouselRef.current;
+    if (!carousel) return;
+    carousel.scrollBy({ left: carousel.clientWidth * 0.78 * direction, behavior: "smooth" });
   }
 
   return (
@@ -108,7 +124,7 @@ export function LandingPage() {
             <div className={`${styles.heroOrbit} pointer-events-none absolute inset-x-[7%] bottom-[1%] top-[13%] z-0 hidden lg:block`} />
             <Image src="/landing/assets/glass-star-blue.webp" alt="" width={938} height={1029} className={`${styles.heroStar} pointer-events-none absolute left-[42%] top-[1%] z-40 hidden w-[175px] lg:block`} />
             <Image src="/landing/assets/glass-coin-blue.webp" alt="" width={790} height={830} className={`${styles.heroAquaToken} pointer-events-none absolute left-[42%] top-[40%] z-40 hidden w-[176px] lg:block`} />
-            <Image src="/landing/assets/glass-coin-gold.webp" alt="" width={881} height={906} className={`${styles.heroCoin} pointer-events-none absolute -right-[11%] top-[10%] z-50 hidden w-[300px] lg:block`} />
+            <Image src="/landing/assets/hero-gold-star-coin.webp" alt="" width={866} height={926} className={`${styles.heroCoin} pointer-events-none absolute -right-[11%] top-[10%] z-50 hidden w-[292px] lg:block`} />
             <Image src="/landing/assets/glass-diamond-blue.webp" alt="" width={891} height={944} className={`${styles.heroCrystal} pointer-events-none absolute right-[-2%] bottom-[-1%] z-50 hidden w-[225px] lg:block`} />
             <div className={`${styles.bubble} ${styles.bubbleOne}`} /><div className={`${styles.bubble} ${styles.bubbleTwo}`} /><div className={`${styles.bubble} ${styles.bubbleThree}`} /><div className={`${styles.bubble} ${styles.bubbleFour}`} /><div className={`${styles.bubble} ${styles.bubbleFive}`} />
             <div className={`${styles.reveal} relative z-30 max-w-[650px]`}>
@@ -116,7 +132,7 @@ export function LandingPage() {
               <h1 className={`${styles.heroTitle} mt-6 text-[42px] font-bold leading-[.96] tracking-[-.052em] sm:text-[57px] lg:text-[62px]`}><span className={styles.titleLine}>Городские челленджи</span><br /><span className={styles.titleLineDelayed}>и награды</span><br /><span className={styles.titleLineDelayed}>за активность</span><br /><span className={`${styles.gradientText} ${styles.titleLineLast}`}>с любимыми</span><br /><span className={`${styles.gradientText} ${styles.titleLineLast}`}>брендами</span></h1>
               <p className="mt-5 max-w-[570px] text-[15px] leading-7 text-slate-600 sm:text-base">Челленджер соединяет офлайн-действия и цифровые награды. Пользователи получают выгоду и эмоции, а бренды — вовлечённость, лояльность и рост.</p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link href={routes.user.home} className={`${styles.primaryButton} inline-flex items-center justify-center gap-4 rounded-full px-5 py-3.5 text-sm font-black text-white transition hover:-translate-y-1`}>Открыть демо приложения <span className="grid h-8 w-8 place-items-center rounded-full bg-white/12 shadow-inner"><ArrowRight className="h-4 w-4" /></span></Link>
+                <Link href={routes.auth.register} className={`${styles.primaryButton} inline-flex items-center justify-center gap-4 rounded-full px-5 py-3.5 text-sm font-black text-white transition hover:-translate-y-1`}>Открыть демо приложения <span className="grid h-8 w-8 place-items-center rounded-full bg-white/12 shadow-inner"><ArrowRight className="h-4 w-4" /></span></Link>
                 <Link href={routes.brand.dashboard} className={`${styles.secondaryButton} inline-flex items-center justify-center gap-3 rounded-full px-5 py-3.5 text-sm font-black transition hover:-translate-y-1`}>Открыть кабинет бренда <ChevronRight className="h-4 w-4" /></Link>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-bold text-slate-500">{["Без интеграций", "Быстрый старт", "Прозрачная аналитика"].map((x, i) => <span key={x} className={`${styles.helperChip} flex items-center gap-1.5 rounded-full px-3 py-2`}><span className="text-[#5261ca]">{["%", "✣", "▥"][i]}</span>{x}</span>)}</div>
@@ -146,25 +162,75 @@ export function LandingPage() {
         </div>
       </div>
 
-      <section className={`${styles.firstSection} relative mx-auto max-w-[1380px] px-5 py-10 sm:px-8 sm:py-12`}>
-        <div className="mx-auto max-w-3xl text-center"><p className="text-xs font-black uppercase tracking-[.2em] text-[#5261ca]">Как это работает</p><h2 className="mt-4 text-3xl font-black tracking-[-.045em] sm:text-5xl">Одна механика связывает город, пользователей и бренд</h2><p className="mx-auto mt-5 max-w-2xl leading-7 text-slate-500">Понятный путь от первого касания до повторного визита — без лишней сложности для участника.</p></div>
-        <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">{steps.map((step, i) => <article key={step.title} className={`${styles.liftCard} ${styles.firstGlassCard} group relative overflow-hidden rounded-[30px] p-6`}><div className={styles.cardShine} /><div className="relative flex items-center justify-between"><span className={`grid h-12 w-12 place-items-center rounded-2xl ${step.tone}`}><step.icon className="h-5 w-5" /></span><span className="text-sm font-black text-slate-300">0{i + 1}</span></div><h3 className="relative mt-8 text-lg font-black">{step.title}</h3><p className="relative mt-3 text-sm leading-6 text-slate-500">{step.text}</p></article>)}</div>
-      </section>
-
-      <section id="users" className="mx-auto max-w-[1280px] px-5 py-8 sm:px-8 sm:py-16">
-        <div className="grid overflow-hidden rounded-[42px] border border-white bg-white/70 shadow-[0_30px_100px_rgba(61,72,118,.10)] backdrop-blur lg:grid-cols-2">
-          <div className="relative overflow-hidden p-7 sm:p-12 lg:p-14"><div className="absolute -right-24 -top-24 h-72 w-72 rounded-full bg-blue-100/80 blur-2xl" /><p className="relative text-xs font-black uppercase tracking-[.2em] text-blue-600">Для пользователей</p><h2 className="relative mt-4 max-w-lg text-3xl font-black tracking-[-.045em] sm:text-4xl">Каждый день — новый повод выйти в город</h2><div className="relative mt-9 space-y-3">{userBenefits.map((x, i) => <div key={x} className="flex items-center gap-3 rounded-2xl border border-slate-100 bg-white/80 px-4 py-3 text-sm font-bold"><span className={`grid h-8 w-8 place-items-center rounded-xl ${i % 2 ? "bg-violet-100 text-violet-600" : "bg-blue-100 text-blue-600"}`}><Check className="h-4 w-4" /></span>{x}</div>)}</div></div>
-          <div id="business" className={`${styles.metricPanel} p-7 text-white sm:p-12 lg:p-14`}><p className="text-xs font-black uppercase tracking-[.2em] text-emerald-300">Для бизнеса</p><h2 className="mt-4 max-w-lg text-3xl font-black tracking-[-.045em] sm:text-4xl">Вовлечение, которое видно в цифрах</h2><p className="mt-4 max-w-md text-sm leading-6 text-white/55">Управляйте механиками и наблюдайте, как игровые действия превращаются в измеримый результат.</p><div className="mt-10 grid grid-cols-2 gap-3">{[["+31%", "повторных визитов"], ["4 560", "подписчиков бренда"], ["1 208", "активаций наград"], ["7", "точек сети"]].map(([value, label]) => <div key={label} className="rounded-[24px] border border-white/10 bg-white/[.07] p-5 backdrop-blur"><p className="text-2xl font-black text-white sm:text-3xl">{value}</p><p className="mt-2 text-xs leading-5 text-white/50">{label}</p></div>)}</div></div>
+      <section className={`${styles.firstSection} relative mx-auto max-w-[1380px] px-5 pb-5 pt-8 sm:px-8 sm:pb-7 sm:pt-10`}>
+        <div className="mx-auto max-w-4xl text-center"><p className="text-[11px] font-black uppercase tracking-[.24em] text-[#5261ca]">Как это работает</p><h2 className="mt-3 text-3xl font-black tracking-[-.048em] text-[#171d3b] sm:text-[46px] sm:leading-[1.04]">Просто для пользователей. Эффективно для бизнеса.</h2></div>
+        <div className={`${styles.processGrid} mt-9 grid gap-4 md:grid-cols-2 xl:grid-cols-4 xl:gap-5`}>
+          {steps.map((step, i) => (
+            <article key={step.title} className={`${styles.liftCard} ${styles.processCard} ${styles[`process${step.accent}`]} group relative min-h-[280px] overflow-visible rounded-[32px] p-7`}>
+              <div className="relative flex items-start justify-between">
+                <span className={`${styles.processIcon} relative grid h-[88px] w-[88px] place-items-center rounded-[28px]`}><Image src={step.asset} alt="" fill sizes="88px" className="object-contain" /></span>
+                <span className={`${styles.stepNumber} text-2xl font-black`}>0{i + 1}</span>
+              </div>
+              <h3 className="relative mt-7 max-w-[230px] text-xl font-black leading-[1.15] text-[#171d3b]">{step.title}</h3>
+              <p className="relative mt-3 max-w-[240px] text-sm leading-6 text-slate-500">{step.text}</p>
+              {i < steps.length - 1 ? <span className={styles.processConnector} aria-hidden="true"><ArrowRight className="h-4 w-4" /></span> : null}
+            </article>
+          ))}
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1280px] px-5 py-24 sm:px-8 sm:py-32">
-        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div className="max-w-2xl"><p className="text-xs font-black uppercase tracking-[.2em] text-[#5261ca]">Челленджи в городе</p><h2 className="mt-4 text-3xl font-black tracking-[-.045em] sm:text-5xl">Механики, в которые хочется включиться</h2></div><Link href={routes.user.challenges} className="inline-flex items-center gap-2 text-sm font-black text-[#405de6]">Смотреть все челленджи <ArrowRight className="h-4 w-4" /></Link></div>
-        <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-4">{challenges.map((card) => <article key={card.title} className={`${styles.challengeCard} ${card.className} relative min-h-[390px] overflow-hidden rounded-[32px] p-6`}><div className="absolute -right-10 -top-10 h-40 w-40 rounded-full border-[24px] border-white/10" /><div className="relative flex items-center justify-between"><span className="rounded-full bg-white/50 px-3 py-1.5 text-[10px] font-black backdrop-blur">{card.category}</span><span className="grid h-11 w-11 place-items-center rounded-2xl bg-white/55 text-xl font-black shadow-sm backdrop-blur">{card.icon}</span></div><div className="absolute inset-x-6 bottom-6"><p className="text-xs font-bold opacity-55">{card.brand}</p><h3 className="mt-2 text-2xl font-black leading-tight">{card.title}</h3><div className="mt-6 flex items-center justify-between text-[11px] font-bold"><span>{card.meta}</span><span>{card.reward}</span></div><div className="mt-3 h-1.5 rounded-full bg-black/10"><div className="h-full rounded-full bg-current opacity-70" style={{ width: `${card.progress}%` }} /></div></div></article>)}</div>
+      <section id="users" className="mx-auto max-w-[1380px] px-5 pb-14 pt-3 sm:px-8 sm:pb-20 sm:pt-5">
+        <div className={`${styles.valueGrid} grid gap-5 lg:grid-cols-2`}>
+          <article className={`${styles.valuePanel} ${styles.userPanel} relative min-h-[330px] overflow-hidden rounded-[36px] p-7 sm:p-9`}>
+            <div className={styles.valueTopHighlight} />
+            <p className="relative flex items-center gap-2 text-[11px] font-black uppercase tracking-[.2em] text-emerald-700"><Users className="h-4 w-4" /> Для пользователей</p>
+            <div className="relative mt-7 grid max-w-full gap-x-7 gap-y-4 pr-[30%] sm:max-w-[72%] sm:grid-cols-2 sm:pr-0">
+              {userBenefits.map((benefit) => <div key={benefit} className="flex items-start gap-2.5 text-[13px] font-bold leading-5 text-[#26304f]"><span className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-emerald-600 text-white shadow-[0_5px_12px_rgba(5,150,105,.2)]"><Check className="h-3 w-3" /></span>{benefit}</div>)}
+            </div>
+            <Image src="/landing/assets/gift-box-final.webp" alt="" width={1085} height={1146} className={`${styles.giftBox} absolute -bottom-5 -right-3 w-[195px] sm:w-[238px]`} />
+          </article>
+
+          <article id="business" className={`${styles.valuePanel} ${styles.businessPanel} relative min-h-[330px] overflow-hidden rounded-[36px] p-7 sm:p-9`}>
+            <div className={styles.valueTopHighlight} />
+            <p className="relative flex items-center gap-2 text-[11px] font-black uppercase tracking-[.2em] text-sky-700"><BarChart3 className="h-4 w-4" /> Для бизнеса</p>
+            <div className="relative mt-7 grid grid-cols-2 gap-3 xl:grid-cols-4">
+              {businessMetrics.map((metric) => <div key={metric.label} className={styles.kpiCard}><span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-emerald-50 to-sky-100 text-sky-700"><metric.icon className="h-4 w-4" /></span><p className="mt-4 text-[25px] font-black tracking-[-.04em] text-[#171d3b]">{metric.value}</p><p className="mt-1 text-[11px] leading-4 text-slate-500">{metric.label}</p></div>)}
+            </div>
+            <p className="relative mt-6 text-[10px] text-slate-400">Данные на основе пилотных запусков в 12 городах</p>
+          </article>
+        </div>
       </section>
 
-      <section id="demo" className="mx-auto max-w-[1280px] px-5 pb-10 sm:px-8 sm:pb-16">
-        <div className={`${styles.finalCta} relative overflow-hidden rounded-[42px] px-6 py-16 text-center text-white shadow-2xl shadow-indigo-950/20 sm:px-12 sm:py-24`}><div className="absolute left-[10%] top-0 h-64 w-64 rounded-full bg-blue-500/25 blur-3xl" /><div className="absolute bottom-0 right-[10%] h-64 w-64 rounded-full bg-emerald-400/20 blur-3xl" /><Image src="/landing/star-glass.svg" alt="" width={130} height={130} className={`${styles.floatSlow} absolute -left-5 top-10 hidden w-28 opacity-60 md:block`} /><Image src="/landing/token.svg" alt="" width={110} height={110} className={`${styles.floatReverse} absolute -right-3 bottom-8 hidden w-24 opacity-70 md:block`} /><div className="relative mx-auto max-w-3xl"><span className="inline-flex rounded-full border border-white/10 bg-white/10 px-4 py-2 text-xs font-black text-blue-200 backdrop-blur">Готово к просмотру</span><h2 className="mt-6 text-3xl font-black tracking-[-.05em] sm:text-5xl">Превратите офлайн-визиты в измеримую вовлечённость</h2><p className="mx-auto mt-5 max-w-xl leading-7 text-white/60">Пройдите готовый сценарий глазами пользователя или откройте кабинет бренда с моковой аналитикой.</p><div className="mt-9 flex flex-col justify-center gap-3 sm:flex-row"><Link href={routes.user.home} className="inline-flex items-center justify-center gap-2 rounded-full bg-white px-6 py-4 text-sm font-black text-[#202749] transition hover:-translate-y-1 hover:shadow-xl">Пройти пользовательское демо <ArrowRight className="h-4 w-4" /></Link><Link href={routes.brand.dashboard} className="inline-flex items-center justify-center rounded-full border border-white/15 bg-white/10 px-6 py-4 text-sm font-black text-white backdrop-blur transition hover:-translate-y-1 hover:bg-white/15">Открыть кабинет бренда</Link></div></div></div>
+      <section className={`${styles.challengeSection} mx-auto max-w-[1380px] px-5 py-20 sm:px-8 sm:py-24`}>
+        <div className="flex flex-col justify-between gap-5 md:flex-row md:items-end"><div className="max-w-2xl"><p className="text-[11px] font-black uppercase tracking-[.24em] text-[#5261ca]">Примеры челленджей</p><h2 className="mt-3 text-3xl font-black tracking-[-.045em] sm:text-[44px]">Механики, в которые хочется включиться</h2></div><Link href={routes.user.challenges} className="inline-flex items-center gap-2 text-sm font-black text-[#405de6]">Смотреть все <ArrowRight className="h-4 w-4" /></Link></div>
+        <div className="relative mt-10">
+          <button type="button" aria-label="Предыдущие челленджи" onClick={() => scrollChallenges(-1)} className={`${styles.carouselControl} ${styles.carouselPrev}`}><ArrowLeft className="h-5 w-5" /></button>
+          <div ref={challengeCarouselRef} className={styles.challengeCarousel}>
+            {challenges.map((card) => (
+              <article key={card.title} className={`${styles.challengePromoCard} ${card.className} group relative overflow-hidden rounded-[32px] p-6`}>
+                <div className={styles.challengeInnerGlow} />
+                <div className={styles.challengeVisual}><Image src={card.asset} alt="" fill sizes="(max-width: 639px) 72vw, (max-width: 1279px) 44vw, 22vw" className="object-contain" /></div>
+                <div className="relative z-10 flex items-center justify-between gap-3"><span className="flex min-w-0 items-center gap-2.5"><span className={styles.challengeMark}>{card.mark}</span><span className="truncate text-[11px] font-bold">{card.brand}</span></span><span className={styles.rewardPill}>{card.reward}</span></div>
+                <div className="relative z-10 mt-[72px] max-w-[62%]"><h3 className="text-[25px] font-black leading-[1.08] tracking-[-.04em]">{card.title}</h3><p className="mt-3 text-[12px] leading-5 opacity-70">{card.description}</p></div>
+                <div className={styles.challengeStats}><span><Users className="h-3.5 w-3.5" />{card.participants}</span><span><Clock className="h-3.5 w-3.5" />{card.duration}</span></div>
+              </article>
+            ))}
+          </div>
+          <button type="button" aria-label="Следующие челленджи" onClick={() => scrollChallenges(1)} className={`${styles.carouselControl} ${styles.carouselNext}`}><ArrowRight className="h-5 w-5" /></button>
+        </div>
+        <div className={styles.carouselDots} aria-hidden="true"><span className={styles.carouselDotActive} /><span /><span /><span /><span /></div>
+      </section>
+
+      <section id="demo" className="mx-auto max-w-[1380px] px-5 pb-10 sm:px-8 sm:pb-16">
+        <div className={`${styles.finalCta} relative grid overflow-hidden rounded-[40px] px-7 py-10 text-white sm:px-10 lg:grid-cols-[150px_1fr_1.25fr] lg:items-center lg:gap-8 lg:px-12`}>
+          <div className={styles.ctaFlareLeft} /><div className={styles.ctaFlareRight} /><div className={styles.ctaShine} />
+          <div className="relative hidden justify-center lg:flex"><div className={styles.ctaLogo}><span>Ч</span></div></div>
+          <div className="relative"><h2 className="max-w-[470px] text-3xl font-black leading-[1.04] tracking-[-.045em] sm:text-[38px]">Запустите вовлечённость вместе с Челленджером</h2><p className="mt-4 max-w-[500px] text-sm leading-6 text-white/60">Попробуйте демо приложения или изучите кабинет бренда. Убедитесь, как просто это работает.</p></div>
+          <div className="relative mt-8 grid gap-3 sm:grid-cols-2 lg:mt-0">
+            <div><Link href={routes.auth.register} className={styles.ctaPrimary}>Пройти демо для гостей <ArrowRight className="h-4 w-4" /></Link><p className="mt-2 text-center text-[10px] text-white/42">Займёт меньше минуты</p></div>
+            <div><Link href={routes.brand.dashboard} className={styles.ctaSecondary}>Открыть кабинет бренда <ArrowRight className="h-4 w-4" /></Link><p className="mt-2 text-center text-[10px] text-white/42">Для команд и маркетологов</p></div>
+          </div>
+        </div>
       </section>
 
       <footer className="mx-auto flex w-full max-w-[1280px] flex-col items-center justify-between gap-5 px-5 py-8 text-center text-xs text-slate-400 sm:flex-row sm:px-8 sm:text-left"><BrandMark /><p>Инвесторское демо · frontend-прототип · данные моковые</p><div className="flex gap-5 font-bold"><a href="#product">Продукт</a><a href="#demo">Демо</a></div></footer>

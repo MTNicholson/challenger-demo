@@ -2,6 +2,11 @@ export const routes = {
   marketing: {
     home: "/",
   },
+  auth: {
+    register: "/auth/register",
+    login: "/auth/login",
+  },
+  onboarding: "/onboarding",
   user: {
     home: "/app",
     challenges: "/app/challenges",
