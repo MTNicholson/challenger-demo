@@ -170,7 +170,7 @@ export default function UserRewardPage() {
           })}
         >
           <Coins className="h-5 w-5" />
-          Открыть монетки
+          Открыть баллы
         </Link>
         <Link
           href={routes.user.map}

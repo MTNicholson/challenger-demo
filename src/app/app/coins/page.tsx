@@ -17,19 +17,19 @@ import { routes } from "@/lib/routes";
 const earnWays = [
   {
     title: "Выполнять челленджи",
-    caption: "До 200 монет",
+    caption: "До 200 баллов",
     icon: Gift,
     href: routes.user.challenges,
   },
   {
     title: "Заходить каждый день",
-    caption: "+10 монет",
+    caption: "+10 баллов",
     icon: Coffee,
     href: routes.user.home,
   },
   {
     title: "Посещать новые места",
-    caption: "+30 монет",
+    caption: "+30 баллов",
     icon: MapPinned,
     href: routes.user.map,
   },
@@ -52,17 +52,17 @@ export default function UserCoinsPage() {
             <WalletCards className="h-7 w-7" />
           </div>
           <span className="rounded-full bg-white/50 px-3 py-1 text-sm font-black">
-            Баланс
+            Баланс баллов
           </span>
         </div>
         <p className="mt-10 text-sm font-bold uppercase tracking-[0.16em] text-amber-800/70">
-          Ваши монетки
+          Ваши баллы
         </p>
         <h1 className="mt-1 text-6xl font-black leading-none">
           {demoUser.coins.toLocaleString("ru-RU")}
         </h1>
         <p className="mt-3 text-sm font-semibold text-amber-900/70">
-          Монетки начисляются за активность в городе: челленджи, ежедневные
+          Баллы начисляются за активность в городе: челленджи, ежедневные
           задачи, новые места и бонусы от партнеров.
         </p>
       </section>
@@ -78,7 +78,7 @@ export default function UserCoinsPage() {
       </section>
 
       <section>
-        <h2 className="mb-3 text-xl font-black">Как заработать монетки</h2>
+        <h2 className="mb-3 text-xl font-black">Как заработать баллы</h2>
         <div className="space-y-3">
           {earnWays.map((way) => {
             const Icon = way.icon;
@@ -152,7 +152,7 @@ export default function UserCoinsPage() {
       <section className="flex gap-3 rounded-[26px] bg-slate-950 p-4 text-white shadow-xl shadow-slate-900/10">
         <Info className="mt-0.5 h-5 w-5 shrink-0 text-white/60" />
         <p className="text-sm leading-6 text-white/70">
-          Монетки нельзя вывести как деньги. Они работают только внутри
+          Баллы нельзя вывести как деньги. Они работают только внутри
           Челленджера для наград и участия в механиках.
         </p>
       </section>

@@ -1,0 +1,544 @@
+.presentation {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  overflow: clip;
+  place-items: center;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at 18% 16%, rgba(116, 229, 200, .22), transparent 28%),
+    radial-gradient(circle at 84% 17%, rgba(172, 142, 244, .2), transparent 30%),
+    radial-gradient(circle at 72% 84%, rgba(116, 168, 235, .18), transparent 28%),
+    linear-gradient(145deg, #f8f5ee 0%, #f5f8fc 48%, #f8f4fb 100%);
+}
+
+.presentation::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  opacity: .38;
+  background-image: radial-gradient(circle, rgba(63, 79, 124, .15) 1px, transparent 1px);
+  background-size: 29px 29px;
+  mask-image: radial-gradient(ellipse at center, black, transparent 72%);
+}
+
+.auroraMint,
+.auroraLilac {
+  position: absolute;
+  z-index: -2;
+  width: min(42vw, 560px);
+  aspect-ratio: 1;
+  border-radius: 48% 52% 62% 38%;
+  opacity: .24;
+  filter: blur(72px);
+  pointer-events: none;
+}
+
+.auroraMint {
+  left: -12vw;
+  bottom: -26%;
+  background: #7ce6c3;
+  transform: rotate(22deg);
+}
+
+.auroraLilac {
+  right: -10vw;
+  top: -26%;
+  background: #b59af3;
+  transform: rotate(-28deg);
+}
+
+.ambientOrbOne,
+.ambientOrbTwo {
+  position: absolute;
+  z-index: -1;
+  border: 1px solid rgba(255, 255, 255, .85);
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(255,255,255,.5), rgba(255,255,255,.08));
+  box-shadow: inset 0 1px 0 white, 0 22px 60px rgba(73, 87, 135, .09);
+  backdrop-filter: blur(10px);
+  pointer-events: none;
+}
+
+.ambientOrbOne {
+  left: 10%;
+  top: 24%;
+  width: 110px;
+  height: 110px;
+}
+
+.ambientOrbTwo {
+  right: 11%;
+  bottom: 20%;
+  width: 78px;
+  height: 78px;
+}
+
+.phone {
+  position: relative;
+  width: min(420px, calc(100vw - 40px));
+  height: min(860px, calc(100dvh - 48px));
+  min-height: 0;
+  border: 1px solid rgba(12, 17, 31, .9);
+  border-radius: 54px;
+  padding: 9px;
+  background: linear-gradient(145deg, #343b4b 0%, #101522 34%, #02050b 65%, #303747 100%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255,255,255,.2),
+    inset 0 0 0 3px rgba(0,0,0,.78),
+    0 45px 100px rgba(43, 49, 79, .24),
+    0 12px 32px rgba(22, 28, 50, .2);
+}
+
+.phone::before {
+  content: "";
+  position: absolute;
+  inset: 3px 12% auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.45), transparent);
+}
+
+.screen {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 45px;
+  background: radial-gradient(circle at 8% 0%, rgba(116,229,190,.22), transparent 32%), radial-gradient(circle at 94% 13%, rgba(140,120,255,.18), transparent 35%), radial-gradient(circle at 52% 100%, rgba(255,210,130,.17), transparent 40%), linear-gradient(155deg,#f9f8f4,#f4f4f7 48%,#f4efe7);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
+}
+
+.dynamicIsland {
+  position: absolute;
+  z-index: 70;
+  top: 11px;
+  left: 50%;
+  display: flex;
+  width: 112px;
+  height: 31px;
+  align-items: center;
+  justify-content: flex-end;
+  border-radius: 999px;
+  padding-right: 12px;
+  transform: translateX(-50%);
+  background: #03050a;
+  box-shadow: inset 0 -1px 1px rgba(255,255,255,.08), 0 3px 10px rgba(0,0,0,.12);
+  pointer-events: none;
+}
+
+.dynamicIsland span {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #334b77, #07101e 60%, #000);
+  box-shadow: 0 0 0 2px #080a0e;
+}
+
+.appViewport {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+
+.appViewport::-webkit-scrollbar {
+  display: none;
+}
+
+.appContent {
+  min-height: 100%;
+  overflow-x: clip;
+  padding: 48px 20px 20px;
+}
+
+.bottomNav {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 17px;
+  z-index: 75;
+
+  padding: 8px;
+  border-radius: 32px;
+
+  overflow: hidden;
+  background: transparent;
+
+  box-shadow:
+    0 30px 80px rgba(24, 31, 58, 0.30),
+    0 12px 34px rgba(24, 31, 58, 0.18);
+}
+
+.bottomNavGlass {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  border-radius: inherit;
+  pointer-events: none;
+
+  /*
+    Делаем не слишком прозрачным.
+    Иначе будет не стекло, а просто дырка.
+  */
+  background:
+    radial-gradient(
+      circle at 18% 0%,
+      rgba(255, 255, 255, 0.98),
+      rgba(255, 255, 255, 0.68) 36%,
+      rgba(255, 255, 255, 0.48) 72%
+    ),
+    radial-gradient(
+      circle at 88% 100%,
+      rgba(255, 220, 150, 0.46),
+      rgba(255, 255, 255, 0.30) 44%,
+      transparent 74%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.72) 0%,
+      rgba(255, 255, 255, 0.54) 48%,
+      rgba(232, 236, 255, 0.42) 100%
+    );
+
+  border: 1px solid rgba(255, 255, 255, 0.82);
+
+  backdrop-filter: blur(44px);
+  -webkit-backdrop-filter: blur(44px);
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.30);
+}
+
+.bottomNavShine {
+  position: absolute;
+  left: 1px;
+  right: 1px;
+  top: 1px;
+  z-index: 1;
+
+  height: 44%;
+  border-radius: 31px 31px 20px 20px;
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.76),
+      rgba(255, 255, 255, 0.18) 58%,
+      transparent 100%
+    );
+
+  opacity: 0.88;
+}
+
+.bottomNavGrid {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.bottomNavGrid {
+  position: relative;
+  z-index: 2;
+
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.bottomNavItem {
+  position: relative;
+
+  min-height: 56px;
+  padding: 7px 6px 6px;
+  border-radius: 22px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+
+  color: rgba(91, 103, 132, 0.68);
+  text-decoration: none;
+
+  transition:
+    transform 180ms ease,
+    color 180ms ease,
+    background 180ms ease,
+    box-shadow 180ms ease,
+    border-color 180ms ease;
+}
+
+.bottomNavItem:hover {
+  color: rgba(45, 54, 78, 0.86);
+
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.54),
+      rgba(255, 255, 255, 0.22)
+    );
+}
+
+.bottomNavItem:active {
+  transform: scale(0.96);
+}
+
+.bottomNavItemActive {
+  color: #635bff;
+
+  border: 1px solid rgba(255, 255, 255, 0.82);
+
+  background:
+    radial-gradient(
+      circle at 26% 0%,
+      rgba(255, 255, 255, 0.98),
+      rgba(255, 255, 255, 0.52) 42%,
+      rgba(255, 255, 255, 0.28) 74%
+    ),
+    linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.86) 0%,
+      rgba(255, 255, 255, 0.48) 100%
+    );
+
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+
+  box-shadow:
+    0 14px 30px rgba(80, 90, 140, 0.20),
+    0 4px 10px rgba(80, 90, 140, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.98),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.34);
+}
+
+.bottomNavIconWrap {
+  width: 24px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottomNavIcon {
+  width: 21px;
+  height: 21px;
+}
+
+.bottomNavLabel {
+  font-size: 10.5px;
+  line-height: 1;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+}
+
+.overlayRoot {
+  position: absolute;
+  z-index: 90;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.homeIndicator {
+  position: absolute;
+  z-index: 65;
+  bottom: 5px;
+  left: 50%;
+  width: 108px;
+  height: 4px;
+  border-radius: 999px;
+  transform: translateX(-50%);
+  background: rgba(15,23,42,.68);
+  pointer-events: none;
+}
+
+.volumeUp,
+.volumeDown,
+.powerButton {
+  position: absolute;
+  background: linear-gradient(90deg, #121722, #444b5b 45%, #151a25);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.25);
+}
+
+.volumeUp,
+.volumeDown {
+  left: -4px;
+  width: 4px;
+  border-radius: 3px 0 0 3px;
+}
+
+.volumeUp { top: 155px; height: 64px; }
+.volumeDown { top: 229px; height: 64px; }
+
+.powerButton {
+  right: -4px;
+  top: 190px;
+  width: 4px;
+  height: 94px;
+  border-radius: 0 3px 3px 0;
+}
+
+.presentationAside {
+  position: absolute;
+  left: clamp(28px, 7vw, 110px);
+  top: 50%;
+  width: 238px;
+  transform: translateY(-50%);
+}
+
+.demoLabel {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  color: #25304c;
+}
+
+.demoLabel > span {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 17px;
+  color: white;
+  background: #1a213d;
+  box-shadow: 0 14px 30px rgba(36,45,84,.18);
+  font-size: 19px;
+  font-weight: 950;
+}
+
+.demoLabel div { display: grid; gap: 3px; }
+.demoLabel strong { font-size: 17px; font-weight: 950; letter-spacing: -.03em; }
+.demoLabel small { color: #8490a8; font-size: 10px; font-weight: 750; }
+
+.asideActions {
+  display: grid;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.asidePrimary,
+.asideSecondary {
+  display: flex;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  border-radius: 17px;
+  padding: 0 15px;
+  font-size: 11px;
+  font-weight: 900;
+  white-space: nowrap;
+  transition: transform .22s ease, box-shadow .22s ease, background .22s ease;
+}
+
+.asidePrimary {
+  color: white;
+  background: linear-gradient(135deg, #18203b, #303b68);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 15px 30px rgba(35,45,84,.18);
+}
+
+.asideSecondary {
+  border: 1px solid rgba(255,255,255,.9);
+  color: #35405f;
+  background: rgba(255,255,255,.58);
+  box-shadow: inset 0 1px 0 white, 0 12px 28px rgba(57,72,117,.08);
+  backdrop-filter: blur(16px);
+}
+
+.asidePrimary:hover,
+.asideSecondary:hover {
+  transform: translateY(-2px);
+}
+
+.asidePrimary:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 19px 36px rgba(35,45,84,.24); }
+.asideSecondary:hover { background: rgba(255,255,255,.82); box-shadow: inset 0 1px 0 white, 0 16px 32px rgba(57,72,117,.12); }
+
+.presentationHint {
+  position: absolute;
+  right: clamp(28px, 6vw, 100px);
+  bottom: 8%;
+  max-width: 150px;
+  color: #8a94aa;
+  font-size: 10px;
+  line-height: 1.5;
+  font-weight: 750;
+  text-align: right;
+}
+
+@media (max-width: 1180px) {
+  .presentationAside,
+  .presentationHint,
+  .ambientOrbOne,
+  .ambientOrbTwo { display: none; }
+}
+
+@media (max-width: 639px) {
+  .presentation {
+    min-height: 0;
+    background: #f8f5ef;
+  }
+
+  .presentation::before,
+  .auroraMint,
+  .auroraLilac { display: none; }
+
+  .phone {
+    width: 100%;
+    height: 100dvh;
+    min-height: 0;
+    border: 0;
+    border-radius: 0;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .phone::before,
+  .volumeUp,
+  .volumeDown,
+  .powerButton { display: none; }
+
+  .screen {
+    border-radius: 0;
+  }
+
+  .dynamicIsland,
+  .homeIndicator { display: none; }
+
+  .appContent {
+    padding-top: calc(20px + env(safe-area-inset-top));
+    padding-right: 20px;
+    padding-bottom: calc(118px + env(safe-area-inset-bottom));
+    padding-left: 20px;
+  }
+
+  .bottomNav {
+    margin-right: 12px;
+    margin-bottom: calc(10px + env(safe-area-inset-bottom));
+    margin-left: 12px;
+  }
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .appViewport { scroll-behavior: auto; }
+}

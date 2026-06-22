@@ -39,7 +39,7 @@ const achievements = [
 const menu = [
   { label: "Мои челленджи", icon: Trophy, href: routes.user.challenges },
   { label: "Активный челлендж", icon: Flame, href: routes.user.activeChallenge },
-  { label: "Мои монетки", icon: Coins, href: routes.user.coins },
+  { label: "Мои баллы", icon: Coins, href: routes.user.coins },
   { label: "Мои награды", icon: Award, href: routes.user.reward },
   { label: "Любимые места", icon: Heart, href: routes.user.map },
 ];
@@ -96,7 +96,7 @@ export default function UserProfilePage() {
         <div className="flex items-center gap-3">
           <WalletCards className="h-7 w-7" />
           <div>
-            <p className="text-sm font-bold text-amber-700">Монетки</p>
+            <p className="text-sm font-bold text-amber-700">Баллы</p>
             <p className="text-2xl font-black">
               {demoUser.coins.toLocaleString("ru-RU")}
             </p>

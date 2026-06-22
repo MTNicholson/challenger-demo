@@ -9,8 +9,8 @@ import styles from "@/components/onboarding/onboarding.module.css";
 
 const slides: OnboardingSlide[] = [
   { title: "Челленджи рядом с вами", description: "Находите задания от локальных брендов, посещайте места и открывайте награды.", visual: "places" },
-  { title: "Монеты за реальные действия", description: "Сканируйте QR, выполняйте задания и копите монеты за активность.", visual: "coins" },
-  { title: "Награды у любимых брендов", description: "Обменивайте монеты на призы, скидки и приятные бонусы в городе.", visual: "rewards" },
+  { title: "Баллы за реальные действия", description: "Сканируйте QR, выполняйте задания и копите баллы за активность.", visual: "coins" },
+  { title: "Награды у любимых брендов", description: "Обменивайте баллы на призы, скидки и приятные бонусы в городе.", visual: "rewards" },
 ];
 
 export default function OnboardingPage() {

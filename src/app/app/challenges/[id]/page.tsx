@@ -89,7 +89,7 @@ export default async function ChallengeDetailPage({
           <Coins className="h-6 w-6" />
           <p className="mt-5 text-sm font-bold text-amber-700">Бонус</p>
           <p className="text-3xl font-black">{challenge.coinsReward}</p>
-          <p className="text-sm font-semibold">монет</p>
+          <p className="text-sm font-semibold">баллов</p>
         </div>
         <div className="rounded-[28px] bg-white p-4 shadow-sm">
           <CalendarDays className="h-6 w-6 text-slate-500" />

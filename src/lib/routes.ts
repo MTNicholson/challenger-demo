@@ -10,6 +10,7 @@ export const routes = {
   user: {
     home: "/app",
     challenges: "/app/challenges",
+    myChallenges: "/app/my-challenges",
     challengeDetail: (id: string) => `/app/challenges/${id}`,
     activeChallenge: "/app/active-challenge",
     map: "/app/map",

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Home, Map, Trophy, User } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { routes } from "@/lib/routes";
+import styles from "./user-phone-shell.module.css";
 
 const items = [
   {
@@ -19,6 +20,7 @@ const items = [
     icon: Trophy,
     activePaths: [
       routes.user.challenges,
+      routes.user.myChallenges,
       routes.user.activeChallenge,
       routes.user.reward,
     ],
@@ -41,8 +43,11 @@ export function UserBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-3 left-1/2 z-50 w-[calc(100%-24px)] max-w-[452px] -translate-x-1/2 rounded-[26px] border border-slate-200/70 bg-white/90 px-2 py-2 shadow-xl shadow-slate-900/10 backdrop-blur-xl sm:bottom-4">
-      <div className="grid grid-cols-4 gap-1">
+    <nav className={styles.bottomNav} aria-label="Основная навигация">
+      <span className={styles.bottomNavGlass} aria-hidden="true" />
+      <span className={styles.bottomNavShine} aria-hidden="true" />
+
+      <div className={styles.bottomNavGrid}>
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = item.activePaths.some((activePath) =>
@@ -55,16 +60,21 @@ export function UserBottomNav() {
             <Link
               key={item.href}
               href={item.href}
+              scroll={false}
               className={cn(
-                "flex min-h-14 flex-col items-center justify-center gap-1 rounded-[18px] px-2 py-2 text-[11px] font-semibold transition",
-                isActive
-                  ? "bg-slate-950 text-white shadow-md shadow-slate-900/15"
-                  : "text-slate-500 hover:bg-slate-100 hover:text-slate-950",
+                styles.bottomNavItem,
+                isActive && styles.bottomNavItemActive,
               )}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon className="h-5 w-5" />
-              <span>{item.label}</span>
+              <span className={styles.bottomNavIconWrap}>
+                <Icon
+                  className={styles.bottomNavIcon}
+                  strokeWidth={isActive ? 2.6 : 2.15}
+                />
+              </span>
+
+              <span className={styles.bottomNavLabel}>{item.label}</span>
             </Link>
           );
         })}

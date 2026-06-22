@@ -22,7 +22,7 @@ function SlideVisual({ type }: { type: OnboardingSlide["visual"] }) {
     return (
       <div className={`${styles.visual} ${styles.coins}`} aria-hidden="true">
         <div className={styles.token}><span>Ч</span></div>
-        <div className={styles.qrCard}><QrCode /><div><b>Задание выполнено</b><small>Монеты уже ваши</small></div></div>
+        <div className={styles.qrCard}><QrCode /><div><b>Задание выполнено</b><small>Баллы уже ваши</small></div></div>
         <div className={styles.progressCard}><span><b>3 из 5</b><small>До награды</small></span><i><em /></i></div>
         <Sparkles className={styles.sparkle} />
       </div>
@@ -31,7 +31,7 @@ function SlideVisual({ type }: { type: OnboardingSlide["visual"] }) {
   return (
     <div className={`${styles.visual} ${styles.rewards}`} aria-hidden="true">
       <div className={styles.gift}><Gift /></div>
-      <div className={styles.rewardCard}><small>ВАША НАГРАДА</small><b>Кофе в подарок</b><span><QrCode /> 450 монет</span></div>
+      <div className={styles.rewardCard}><small>ВАША НАГРАДА</small><b>Кофе в подарок</b><span><QrCode /> 450 баллов</span></div>
       <div className={styles.badge}>Доступно</div>
     </div>
   );
