@@ -32,7 +32,7 @@ export function ActiveChallengeCarousel({ challenges }: { challenges: Challenge[
         {challenges.map((challenge) => {
           const progress = challenge.progress ?? { current: 0, total: 1, label: "Можно начать" };
           const percent = Math.min(100, Math.round((progress.current / progress.total) * 100));
-          const href = challenge.id === "coffee-route" ? routes.user.activeChallenge : routes.user.challengeDetail(challenge.id);
+          const href = routes.user.challengeDetail(challenge.id);
           const visualTone =
             challenge.category === "Кофе"
               ? styles.visualCoffee

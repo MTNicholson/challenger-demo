@@ -35,7 +35,7 @@ export default function BrandAnalyticsPage() {
         <ChartCard title="Активации наград" caption="Устойчивый рост за последние 4 недели"><RewardActivationsChart /></ChartCard>
       </section>
 
-      <Card className="overflow-hidden border-slate-800 bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/10">
+      <Card className="brand-glass-dark overflow-hidden border-white/10 bg-transparent p-6 text-white">
         <div className="grid gap-8 xl:grid-cols-[1.15fr_1fr] xl:items-center">
           <div>
             <div className="flex flex-wrap items-center gap-3"><Badge variant="success">Кампания активна</Badge><span className="text-sm text-white/50">Осталось 4 дня</span></div>
@@ -66,7 +66,7 @@ export default function BrandAnalyticsPage() {
         </div>
       </Card>
 
-      <Card className="overflow-hidden p-0">
+      <Card className="brand-table-card overflow-hidden p-0">
         <div className="border-b border-slate-100 p-6"><div className="text-sm font-semibold text-slate-400">Сеть Coffee Place</div><h2 className="mt-1 text-2xl font-black">Эффективность точек</h2></div>
         <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-400"><tr>{["Точка", "Визиты", "Сканирования", "Награды", "Повторные визиты", "Динамика"].map((label) => <th key={label} className="px-6 py-4 font-bold">{label}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{locationPerformance.map((location) => <tr key={location.id} className="transition hover:bg-slate-50/70"><td className="px-6 py-5 font-black">{location.name}</td><td className="px-6 py-5">{formatNumber(location.visits)}</td><td className="px-6 py-5">{formatNumber(location.scans)}</td><td className="px-6 py-5">{formatNumber(location.rewards)}</td><td className="px-6 py-5">{formatNumber(location.repeatVisits)}</td><td className="px-6 py-5"><Badge variant="success">+{location.trend}%</Badge></td></tr>)}</tbody></table></div>
       </Card>
@@ -74,5 +74,5 @@ export default function BrandAnalyticsPage() {
   );
 }
 
-function ChartCard({ title, caption, children }: { title: string; caption: string; children: React.ReactNode }) { return <Card className="p-6"><h2 className="text-xl font-black">{title}</h2><p className="mt-1 text-sm text-slate-400">{caption}</p><div className="mt-5 h-64">{children}</div></Card>; }
+function ChartCard({ title, caption, children }: { title: string; caption: string; children: React.ReactNode }) { return <Card className="brand-interactive p-6"><div className="flex items-start justify-between gap-4"><div><div className="text-xs font-extrabold uppercase tracking-[0.14em] text-emerald-700">Динамика</div><h2 className="mt-1 text-xl font-extrabold">{title}</h2></div><span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(52,211,153,.12)]" /></div><p className="mt-1 text-sm font-semibold text-slate-400">{caption}</p><div className="mt-5 h-64 rounded-[22px] bg-white/35 p-2">{children}</div></Card>; }
 function CampaignStat({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl bg-white/8 p-4"><div className="text-2xl font-black">{value}</div><div className="mt-1 text-xs text-white/45">{label}</div></div>; }

@@ -15,7 +15,7 @@ const notificationIcons: Record<DemoNotification["tone"], typeof Bell> = {
   info: MapPin,
 };
 
-export function HomeHeader({ name }: { name: string }) {
+export function HomeHeader({ name }: { name?: string }) {
   const [open, setOpen] = useState(false);
   const portalRoot = typeof document === "undefined" ? null : document.getElementById("user-app-overlay-root");
 
@@ -31,7 +31,7 @@ export function HomeHeader({ name }: { name: string }) {
   return (
     <>
       <header className={styles.homeHeader}>
-        <h1>Привет, {name}! <span aria-hidden="true">👋</span></h1>
+        <h1>{name ? `Привет, ${name}!` : "Привет!"} <span aria-hidden="true">👋</span></h1>
         <button className={`${styles.notificationButton} backdrop-blur-[18px] backdrop-saturate-[160%]`} type="button" aria-label="Открыть уведомления" aria-expanded={open} onClick={() => setOpen(true)}>
           <Bell size={20} />
           <span className={styles.notificationDot} />

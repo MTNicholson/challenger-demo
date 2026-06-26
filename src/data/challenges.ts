@@ -11,6 +11,7 @@ export type ChallengeType =
 
 export type Challenge = {
   id: string;
+  slug?: string;
   title: string;
   brandId: string;
   brandName: string;
@@ -18,6 +19,8 @@ export type Challenge = {
   type: ChallengeType;
   difficulty: ChallengeDifficulty;
   description: string;
+  shortDescription?: string;
+  fullDescription?: string;
   condition: string;
   reward: string;
   coinsReward: number;
@@ -34,11 +37,15 @@ export type Challenge = {
   participants: number;
   isActive: boolean;
   isFeatured: boolean;
+  image?: string;
+  brandLogo?: string;
+  qrCodeValue?: string;
 };
 
 export const challenges: Challenge[] = [
   {
     id: "coffee-route",
+    slug: "coffee-route",
     title: "Кофейный маршрут",
     brandId: "coffee-place",
     brandName: "Coffee Place",
@@ -47,6 +54,9 @@ export const challenges: Challenge[] = [
     difficulty: "easy",
     description:
       "Загляните в пять разных Coffee Place за неделю и соберите маршрут любимых напитков.",
+    shortDescription: "Посети 5 кофеен сети Coffee Place",
+    fullDescription:
+      "Открой новые места, собери кофейный маршрут по городу и получи награду от нашей сети кофеен.",
     condition: "5 визитов за 7 дней",
     reward: "Авторский раф бесплатно",
     coinsReward: 200,
@@ -63,6 +73,8 @@ export const challenges: Challenge[] = [
     participants: 482,
     isActive: true,
     isFeatured: true,
+    image: "/landing/challenges/coffee.webp",
+    qrCodeValue: "CHALLENGER:COFFEE-ROUTE:DEMO-VISIT",
   },
   {
     id: "ten-thousand-steps",

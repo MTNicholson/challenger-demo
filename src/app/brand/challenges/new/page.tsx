@@ -31,7 +31,7 @@ function Field({ label, value, wide = false }: { label: string; value: string; w
   return (
     <label className={wide ? "md:col-span-2" : undefined}>
       <span className="text-xs font-black uppercase tracking-[0.12em] text-slate-400">{label}</span>
-      <div className="mt-2 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-bold text-slate-800">
+      <div className="brand-field mt-2 rounded-2xl px-4 py-3 text-sm font-bold text-slate-800">
         {value}
       </div>
     </label>
@@ -40,7 +40,7 @@ function Field({ label, value, wide = false }: { label: string; value: string; w
 
 function Option({ icon: Icon, title, detail, selected = false }: { icon: LucideIcon; title: string; detail: string; selected?: boolean }) {
   return (
-    <div className={`relative rounded-2xl border p-4 ${selected ? "border-emerald-400 bg-emerald-50" : "border-slate-200 bg-white"}`}>
+    <div className={`brand-interactive relative rounded-2xl border p-4 ${selected ? "brand-selected" : "border-white/80 bg-white/55"}`}>
       {selected ? <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-emerald-500 text-white"><Check className="h-3 w-3" /></span> : null}
       <Icon className={`h-5 w-5 ${selected ? "text-emerald-700" : "text-slate-400"}`} />
       <div className="mt-3 text-sm font-black">{title}</div>
@@ -51,7 +51,7 @@ function Option({ icon: Icon, title, detail, selected = false }: { icon: LucideI
 
 function Section({ number, title, description, children }: { number: string; title: string; description: string; children: React.ReactNode }) {
   return (
-    <section className="rounded-[30px] bg-white p-5 shadow-sm sm:p-6">
+    <section className="brand-glass rounded-[30px] p-5 sm:p-6">
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-950 text-sm font-black text-white">{number}</span>
         <div><h2 className="text-xl font-black">{title}</h2><p className="mt-1 text-sm text-slate-500">{description}</p></div>
@@ -73,11 +73,11 @@ export default function NewChallengePage() {
         <Link href={routes.brand.challenges} className={buttonClasses({ variant: "ghost" })}>К списку челленджей</Link>
       </header>
 
-      <nav aria-label="Этапы настройки" className="overflow-x-auto rounded-[24px] bg-white p-2 shadow-sm">
+      <nav aria-label="Этапы настройки" className="brand-glass overflow-x-auto rounded-[24px] p-2">
         <ol className="flex min-w-max items-center">
           {steps.map((step, index) => (
             <li key={step} className="flex items-center">
-              <div className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 text-sm font-black ${index === 0 ? "bg-slate-950 text-white" : "text-slate-500"}`}>
+              <div className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 text-sm font-extrabold transition ${index === 0 ? "bg-[#172f29] text-white shadow-md" : "text-slate-500 hover:bg-white/60"}`}>
                 <span className={`grid h-6 w-6 place-items-center rounded-full text-xs ${index === 0 ? "bg-white/15" : "bg-slate-100"}`}>{index + 1}</span>{step}
               </div>
               {index < steps.length - 1 ? <ChevronRight className="mx-1 h-4 w-4 text-slate-300" /> : null}
@@ -122,7 +122,7 @@ export default function NewChallengePage() {
           <Section number="4" title="География" description={`Выбрано ${brandLocations.length} из ${companyBrand.locationsCount} точек Coffee Place.`}>
             <div className="space-y-2">
               {brandLocations.map((location) => (
-                <div key={location.id} className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50/60 p-3">
+                <div key={location.id} className="brand-selected brand-interactive flex items-center gap-3 rounded-2xl border p-3">
                   <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-emerald-500 text-white"><Check className="h-4 w-4" /></span>
                   <div className="min-w-0 flex-1"><div className="truncate text-sm font-black">{location.title}</div><div className="truncate text-xs text-slate-500">{location.address} · {location.district}</div></div>
                   <Badge variant="success">Выбрана</Badge>
@@ -144,14 +144,14 @@ export default function NewChallengePage() {
             </div>
           </Section>
 
-          <div className="flex flex-wrap items-center gap-3 rounded-[28px] bg-white p-4 shadow-sm">
+          <div className="brand-glass flex flex-wrap items-center gap-3 rounded-[28px] p-4">
             <Button variant="secondary" disabled title="Демо-режим: сохранение не требуется" className="cursor-not-allowed opacity-60"><Save className="h-4 w-4" />Сохранить черновик</Button>
             <Link href={routes.brand.preview} className={buttonClasses({ variant: "dark" })}><Eye className="h-4 w-4" />Открыть превью гостя</Link>
             <span className="text-xs text-slate-400">Демо-режим · изменения не сохраняются</span>
           </div>
         </div>
 
-        <aside className="self-start rounded-[32px] bg-slate-950 p-5 text-white shadow-xl shadow-slate-900/10 xl:sticky xl:top-28">
+        <aside className="brand-glass-dark self-start overflow-hidden rounded-[32px] p-5 text-white xl:sticky xl:top-28">
           <div className="flex items-center justify-between"><span className="text-sm font-semibold text-white/55">Превью гостя</span><Badge variant="success">Черновик</Badge></div>
           <div className="mt-5 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-2xl">{companyBrand.logo}</div><div><div className="font-black">{companyBrand.name}</div><div className="text-xs text-white/50">{brandLocations.length} точек выбрано</div></div></div>
           <div className="mt-6 text-4xl">{campaign.emoji}</div>

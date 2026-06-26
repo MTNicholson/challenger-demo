@@ -66,14 +66,15 @@ export function BrandSidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-72 shrink-0 border-r border-slate-200 bg-white px-4 py-5 lg:block">
-      <div className="mb-7 rounded-[28px] bg-slate-950 p-4 text-white">
-        <div className="text-sm font-semibold text-white/60">Челленджер</div>
-        <div className="mt-1 text-xl font-bold">Coffee Place</div>
-        <div className="mt-3 text-xs text-white/55">Кабинет бренда · демо</div>
+    <>
+    <aside className="sticky top-0 hidden h-screen w-72 shrink-0 p-4 lg:block">
+      <div className="brand-glass flex h-full flex-col rounded-[30px] p-3">
+      <div className="brand-glass-dark mb-5 rounded-[24px] p-4 text-white">
+        <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/10 text-xl">⚡</span><div><div className="text-sm font-bold text-white/60">Челленджер</div><div className="text-lg font-extrabold">Coffee Place</div></div></div>
+        <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-bold text-white/60">Кабинет бренда · демо</div>
       </div>
 
-      <nav className="space-y-1">
+      <nav className="flex-1 space-y-1">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = isItemActive(pathname, item.href);
@@ -83,26 +84,40 @@ export function BrandSidebar() {
               key={item.href}
               href={item.href}
               className={cn(
-                "flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition",
+                "group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold transition duration-200",
                 isActive
-                  ? "bg-slate-950 text-white shadow-lg shadow-slate-900/10"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-950",
+                  ? "bg-[#172f29] text-white shadow-lg shadow-emerald-950/15"
+                  : "text-slate-600 hover:translate-x-0.5 hover:bg-white/70 hover:text-slate-950",
               )}
               aria-current={isActive ? "page" : undefined}
             >
-              <Icon className="h-5 w-5" />
+              <span className={cn("grid h-8 w-8 place-items-center rounded-xl transition", isActive ? "bg-white/10 text-emerald-200" : "bg-white/50 text-slate-500 group-hover:text-emerald-700")}><Icon className="h-[18px] w-[18px]" /></span>
               {item.label}
             </Link>
           );
         })}
       </nav>
 
-      <div className="mt-7 rounded-2xl border border-emerald-100 bg-emerald-50/70 p-3 text-xs text-emerald-950">
-        <div className="font-semibold">Демо-режим</div>
+      <div className="mt-5 rounded-2xl border border-emerald-100/80 bg-emerald-50/70 p-3 text-xs text-emerald-950">
+        <div className="font-extrabold">Демо-режим</div>
         <p className="mt-1 leading-5 text-emerald-800/75">
           Данные моковые, но сценарии связаны в единый кабинет бренда.
         </p>
       </div>
+      </div>
     </aside>
+    <nav aria-label="Навигация кабинета" className="brand-glass fixed inset-x-3 bottom-3 z-50 grid grid-cols-5 rounded-[22px] p-1.5 lg:hidden">
+      {items.slice(0, 5).map((item) => {
+        const Icon = item.icon;
+        const isActive = isItemActive(pathname, item.href);
+        return (
+          <Link key={item.href} href={item.href} aria-current={isActive ? "page" : undefined} className={cn("flex min-w-0 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-extrabold transition", isActive ? "bg-[#172f29] text-white shadow-md" : "text-slate-500 hover:bg-white/70")}>
+            <Icon className={cn("h-[18px] w-[18px]", isActive && "text-emerald-200")} />
+            <span className="max-w-full truncate">{item.label}</span>
+          </Link>
+        );
+      })}
+    </nav>
+    </>
   );
 }

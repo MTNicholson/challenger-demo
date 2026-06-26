@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Flame, Sparkles } from "lucide-react";
 import { routes } from "@/lib/routes";
-import { challenges, getActiveChallenges } from "@/data/challenges";
-import { demoUser } from "@/data/user";
+import { challenges } from "@/data/challenges";
+import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useUserChallengeStates } from "@/lib/user-challenge-storage";
 import { CoinBalanceCard } from "@/components/user/coin-balance-card";
 import { HomeHeader } from "@/components/user/home-header";
 import { ActiveChallengeCarousel } from "@/components/user/active-challenge-carousel";
@@ -11,7 +14,16 @@ import { glassPanelClasses, glassPillClasses } from "@/components/ui/glass";
 import styles from "@/components/user/user-home.module.css";
 
 export default function UserHomePage() {
-  const activeChallenges = getActiveChallenges();
+  const { user } = useCurrentDemoUser();
+  const { states } = useUserChallengeStates(user?.id);
+  const activeIds = new Set(states.filter((state) => state.isActive).map((state) => state.challengeId));
+  const activeChallenges = states.flatMap((state) => {
+    if (!state.isActive) return [];
+    const challenge = challenges.find((item) => item.id === state.challengeId);
+    return challenge
+      ? [{ ...challenge, progress: { current: state.progressCurrent, total: state.progressTotal, label: `${state.progressCurrent} из ${state.progressTotal}` } }]
+      : [];
+  });
   const nearbyCandidates = challenges
     .filter((challenge) => challenge.distanceKm)
     .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
@@ -21,20 +33,27 @@ export default function UserHomePage() {
         nearbyCandidates.findIndex((item) => item.brandId === challenge.brandId) === index,
     )
     .slice(0, 4);
-  const recommendations = challenges.filter((challenge) => !challenge.isActive).slice(0, 5);
+  const recommendations = challenges.filter((challenge) => !activeIds.has(challenge.id)).slice(0, 5);
 
   return (
     <main className={styles.homePage}>
-      <HomeHeader name={demoUser.name} />
+      <HomeHeader name={user?.name} />
 
-      <CoinBalanceCard href={routes.user.coins} coins={demoUser.coins} />
+      <CoinBalanceCard href={routes.user.coins} coins={user?.coinsBalance ?? 0} />
 
       <section>
         <div className={styles.sectionHeading}>
           <h2>Активные челленджи</h2>
           <Link href={routes.user.myChallenges}>Смотреть все</Link>
         </div>
-        <ActiveChallengeCarousel challenges={activeChallenges} />
+        {activeChallenges.length ? (
+          <ActiveChallengeCarousel challenges={activeChallenges} />
+        ) : (
+          <Link href={routes.user.challenges} className={`${styles.dailyTask} ${glassPanelClasses}`}>
+            <span><Sparkles size={19} /></span>
+            <div><strong>Пока здесь тихо</strong><p>Выберите первый челлендж в каталоге</p></div>
+          </Link>
+        )}
       </section>
 
       <Link href={routes.user.map} className={`${styles.dailyTask} ${glassPanelClasses}`}>

@@ -1,0 +1,25 @@
+.page { display: grid; gap: 15px; }
+.profileCard { display: grid; grid-template-columns: 76px 1fr; align-items: center; gap: 15px; border: 1px solid rgba(255,255,255,.88); border-radius: 30px; padding: 17px; background: radial-gradient(circle at 15% 0%,rgba(255,255,255,.94),transparent 38%),linear-gradient(145deg,rgba(255,255,255,.72),rgba(240,243,255,.4)); box-shadow: 0 18px 42px rgba(61,73,115,.1),inset 0 1px 0 white; backdrop-filter: blur(24px) saturate(165%); }
+.avatar { position: relative; display: grid; width: 76px; height: 76px; place-items: center; border: 4px solid rgba(255,255,255,.82); border-radius: 50%; color: #fff; background: linear-gradient(145deg,#7778dd,#6cc9ae); box-shadow: 0 13px 28px rgba(71,79,134,.2),inset 0 1px 0 rgba(255,255,255,.45); font-size: 28px; font-weight: 950; }
+.avatar i { position: absolute; right: -2px; bottom: 1px; display: grid; width: 27px; height: 27px; place-items: center; border: 3px solid #f8f6f1; border-radius: 50%; color: #58637e; background: white; box-shadow: 0 6px 14px rgba(61,73,115,.16); }
+.identity { min-width: 0; }
+.nameRow { display: flex; align-items: center; gap: 8px; }
+.nameRow h1 { overflow: hidden; font-size: 24px; line-height: 1.1; font-weight: 900; letter-spacing: -.04em; text-overflow: ellipsis; white-space: nowrap; }
+.nameRow button { display: grid; width: 31px; height: 31px; flex: none; place-items: center; border: 1px solid rgba(255,255,255,.9); border-radius: 11px; color: #68728c; background: rgba(255,255,255,.64); box-shadow: inset 0 1px 0 white,0 7px 16px rgba(58,69,108,.08); }
+.location { display: flex; max-width: 100%; align-items: center; gap: 6px; margin-top: 9px; border: 1px solid rgba(255,255,255,.8); border-radius: 13px; padding: 7px 9px; color: #748096; background: rgba(255,255,255,.42); font-size: 10px; font-weight: 750; }
+.location svg:last-child { margin-left: auto; }
+.balance { min-height: 70px; }
+.menu { display: grid; gap: 9px; }
+.menuItem { display: grid; width: 100%; min-height: 70px; grid-template-columns: 42px 1fr auto; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,.82); border-radius: 23px; padding: 11px 13px; color: #27304a; background: linear-gradient(145deg,rgba(255,255,255,.7),rgba(255,255,255,.36)); box-shadow: 0 12px 28px rgba(61,73,115,.075),inset 0 1px 0 white; text-align: left; backdrop-filter: blur(20px); }
+.menuItem > span { display: grid; width: 42px; height: 42px; place-items: center; border-radius: 15px; }
+.menuItem strong { display: block; font-size: 12px; font-weight: 900; }
+.menuItem small { display: block; margin-top: 3px; color: #8992a6; font-size: 9px; line-height: 1.35; font-weight: 650; }
+.menuItem > svg { color: #a0a7b7; }
+.mint { color:#168065; background:#dcf7ed; }.rose { color:#bb5268; background:#ffe5ea; }.amber { color:#9a6a16; background:#fff0c9; }.lilac { color:#6d62bc; background:#ebe7ff; }.blue { color:#4e77ad; background:#e1efff; }
+.toast { position: absolute; z-index: 120; left: 50%; bottom: 112px; padding: 11px 16px; border-radius: 14px; color: white; background: rgba(24,31,51,.9); box-shadow: 0 12px 30px rgba(24,31,51,.22); font-size: 11px; font-weight: 850; transform: translateX(-50%); white-space: nowrap; }
+.overlay { position: absolute; z-index: 100; inset: 0; display: flex; align-items: flex-end; padding: 14px; background: rgba(28,34,51,.3); backdrop-filter: blur(7px); pointer-events: auto; }
+.editor { position: relative; width: 100%; border: 1px solid rgba(255,255,255,.9); border-radius: 30px; padding: 26px 20px 20px; background: rgba(252,251,248,.95); box-shadow: 0 30px 80px rgba(19,25,43,.28); }
+.editor h2 { font-size: 21px; font-weight: 950; letter-spacing: -.035em; }.editor p { margin-top: 6px; color: #7d879a; font-size: 11px; font-weight: 650; }
+.editor input { width: 100%; height: 49px; margin-top: 18px; border: 1px solid rgba(173,181,201,.35); border-radius: 16px; padding: 0 14px; outline: none; color: #25304a; background: #f0f2f7; font-size: 14px; font-weight: 800; }.editor input:focus { border-color:#7778dd; box-shadow:0 0 0 3px rgba(119,120,221,.12); }
+.close { position: absolute; top: 14px; right: 14px; display: grid; width: 34px; height: 34px; place-items: center; border-radius: 12px; color: #737d92; background: #eceef3; }
+.saveButton { display: flex; width: 100%; min-height: 49px; align-items: center; justify-content: center; margin-top: 10px; border-radius: 17px; color: white; background: linear-gradient(135deg,#1d2747,#4b4e89); font-size: 12px; font-weight: 900; }

@@ -1,0 +1,365 @@
+.mapPage {
+  position: relative;
+  isolation: isolate;
+  height: calc(min(860px, 100dvh - 48px) - 18px);
+  min-height: 0;
+  overflow: hidden;
+  margin: -48px -20px -20px;
+  background: #e5ebe4;
+}
+
+.mapCanvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: #dfe7dd;
+  font-family: inherit;
+  touch-action: none;
+}
+
+.mapTint {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(235, 247, 241, 0.12), transparent 30%, rgba(242, 239, 255, 0.08));
+  mix-blend-mode: soft-light;
+}
+
+.filters {
+  position: absolute;
+  z-index: 500;
+  top: 53px;
+  right: 12px;
+  left: 12px;
+  display: flex;
+  gap: 7px;
+  overflow-x: auto;
+  padding: 2px 2px 7px;
+  scrollbar-width: none;
+}
+
+.filters::-webkit-scrollbar {
+  display: none;
+}
+
+.filter,
+.filterActive {
+  min-height: 34px;
+  flex: none;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 999px;
+  padding: 0 13px;
+  font-size: 10px;
+  font-weight: 850;
+  cursor: pointer;
+  backdrop-filter: blur(20px) saturate(170%);
+  -webkit-backdrop-filter: blur(20px) saturate(170%);
+  transition: transform 0.18s ease, background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.filter {
+  color: #66718d;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(245, 247, 255, 0.48));
+  box-shadow: 0 9px 21px rgba(45, 58, 87, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.filterActive {
+  color: #4e5bc4;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(222, 229, 255, 0.72));
+  box-shadow: 0 10px 25px rgba(74, 87, 188, 0.2), inset 0 1px 0 #fff;
+}
+
+.filter:hover,
+.filterActive:hover {
+  transform: translateY(-1px);
+}
+
+.attribution {
+  position: absolute;
+  z-index: 500;
+  top: 101px;
+  right: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: #66716f;
+  background: rgba(255, 255, 255, 0.68);
+  box-shadow: 0 6px 15px rgba(46, 60, 69, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  font-size: 7px;
+  font-weight: 800;
+  backdrop-filter: blur(12px);
+}
+
+.floatingCard {
+  position: absolute;
+  z-index: 650;
+  right: 13px;
+  bottom: 112px;
+  left: 13px;
+  display: grid;
+  min-height: 132px;
+  grid-template-columns: 58px minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  gap: 10px 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  border-radius: 27px;
+  padding: 12px;
+  color: #202945;
+  background: radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.94), transparent 34%), linear-gradient(135deg, rgba(255, 255, 255, 0.82), rgba(240, 244, 255, 0.52));
+  box-shadow: 0 22px 52px rgba(32, 43, 74, 0.22), 0 7px 18px rgba(32, 43, 74, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(28px) saturate(175%);
+  -webkit-backdrop-filter: blur(28px) saturate(175%);
+}
+
+.floatingCard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.34), transparent 48%);
+}
+
+.closeButton {
+  position: absolute;
+  z-index: 2;
+  top: 9px;
+  right: 9px;
+  display: grid;
+  width: 27px;
+  height: 27px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 10px;
+  color: #75809a;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88);
+  cursor: pointer;
+}
+
+.pointVisual {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  place-items: center;
+  align-self: start;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 20px;
+  background: radial-gradient(circle at 25% 15%, rgba(255, 255, 255, 0.9), transparent 36%), linear-gradient(145deg, rgba(203, 243, 229, 0.8), rgba(209, 211, 255, 0.68));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 10px 22px rgba(57, 72, 108, 0.1);
+  font-size: 27px;
+}
+
+.pointCopy {
+  min-width: 0;
+  padding-right: 24px;
+}
+
+.pointCopy > span {
+  display: block;
+  overflow: hidden;
+  color: #707ca0;
+  font-size: 8px;
+  font-weight: 850;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pointCopy h1 {
+  overflow: hidden;
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.16;
+  font-weight: 900;
+  letter-spacing: -0.025em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pointCopy p {
+  overflow: hidden;
+  margin-top: 4px;
+  color: #78839b;
+  font-size: 9px;
+  font-weight: 650;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pointMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 7px;
+}
+
+.pointMeta span {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  color: #68749a;
+  font-size: 8px;
+  font-weight: 850;
+}
+
+.pointMeta strong {
+  border: 1px solid rgba(255, 255, 255, 0.68);
+  border-radius: 999px;
+  padding: 4px 7px;
+  color: #795d13;
+  background: rgba(255, 249, 221, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  font-size: 8px;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.openButton {
+  display: flex;
+  min-height: 34px;
+  grid-column: 1 / -1;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border-radius: 14px;
+  color: white;
+  background: linear-gradient(135deg, #5261ca, #7279e0);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 10px 22px rgba(82, 97, 202, 0.2);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.mapLoading {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: #68758e;
+  background: radial-gradient(circle at 30% 25%, rgba(182, 237, 218, 0.5), transparent 35%), linear-gradient(145deg, #edf2ea, #e2e9e2);
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.mapLoading span {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(94, 112, 145, 0.18);
+  border-top-color: #6876d1;
+  border-radius: 50%;
+  animation: mapSpinner 0.8s linear infinite;
+}
+
+.mapPage :global(.leaflet-top.leaflet-right) {
+  top: 106px;
+  right: 7px;
+}
+
+.mapPage :global(.leaflet-control-zoom) {
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 14px;
+  box-shadow: 0 10px 24px rgba(37, 51, 70, 0.15);
+}
+
+.mapPage :global(.leaflet-control-zoom a) {
+  width: 31px;
+  height: 31px;
+  border: 0;
+  color: #56627f;
+  background: rgba(255, 255, 255, 0.78);
+  font-size: 17px;
+  line-height: 31px;
+  backdrop-filter: blur(16px);
+}
+
+.mapPage :global(.challenge-map-marker-wrap) {
+  border: 0;
+  background: transparent;
+}
+
+.mapPage :global(.challenge-map-marker) {
+  position: relative;
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  border-radius: 15px 15px 15px 5px;
+  transform: rotate(-45deg);
+  color: #29344f;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(224, 232, 255, 0.84));
+  box-shadow: 0 12px 25px rgba(34, 47, 72, 0.25), inset 0 1px 0 white;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  backdrop-filter: blur(16px) saturate(170%);
+}
+
+.mapPage :global(.challenge-map-marker > span) {
+  transform: rotate(45deg);
+  font-size: 20px;
+  line-height: 1;
+}
+
+.mapPage :global(.challenge-map-marker.is-selected) {
+  width: 48px;
+  height: 48px;
+  border-width: 3px;
+  transform: rotate(-45deg) scale(1.08);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(208, 255, 235, 0.9));
+  box-shadow: 0 0 0 7px rgba(76, 199, 160, 0.18), 0 16px 32px rgba(36, 73, 67, 0.3), inset 0 1px 0 white;
+}
+
+.mapPage :global(.challenge-map-marker.is-selected > span) {
+  font-size: 23px;
+}
+
+@keyframes mapSpinner {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 639px) {
+  .mapPage {
+    height: 100dvh;
+    margin-top: calc(-20px - env(safe-area-inset-top));
+    margin-right: -20px;
+    margin-bottom: calc(-118px - env(safe-area-inset-bottom));
+    margin-left: -20px;
+  }
+
+  .filters {
+    top: calc(14px + env(safe-area-inset-top));
+  }
+
+  .attribution {
+    top: calc(62px + env(safe-area-inset-top));
+  }
+
+  .floatingCard {
+    bottom: calc(112px + env(safe-area-inset-bottom));
+  }
+
+  .mapPage :global(.leaflet-top.leaflet-right) {
+    top: calc(67px + env(safe-area-inset-top));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .filter,
+  .filterActive,
+  .mapPage :global(.challenge-map-marker) {
+    transition: none;
+  }
+
+  .mapLoading span {
+    animation: none;
+  }
+}

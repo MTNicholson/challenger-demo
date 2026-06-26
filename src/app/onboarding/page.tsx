@@ -2,9 +2,10 @@
 
 import { ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { OnboardingScreen, type OnboardingSlide } from "@/components/onboarding/onboarding-screen";
 import { routes } from "@/lib/routes";
+import { completeCurrentUserOnboarding, useCurrentDemoUser } from "@/lib/demo-auth";
 import styles from "@/components/onboarding/onboarding.module.css";
 
 const slides: OnboardingSlide[] = [
@@ -15,9 +16,24 @@ const slides: OnboardingSlide[] = [
 
 export default function OnboardingPage() {
   const router = useRouter();
+  const { ready, user } = useCurrentDemoUser();
   const [index, setIndex] = useState(0);
   const isLast = index === slides.length - 1;
-  const openApp = () => router.push(routes.user.home);
+  useEffect(() => {
+    if (!ready) return;
+    if (!user) router.replace(routes.auth.login);
+    else if (user.onboardingCompleted) router.replace(routes.user.home);
+  }, [ready, router, user]);
+
+  const openApp = () => {
+    if (!completeCurrentUserOnboarding()) {
+      router.replace(routes.auth.login);
+      return;
+    }
+    router.replace(routes.user.home);
+  };
+
+  if (!ready || !user || user.onboardingCompleted) return null;
 
   return (
     <main className={styles.page}>

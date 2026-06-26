@@ -114,7 +114,7 @@ export function LandingPage() {
                 <a href="#product" className="transition hover:text-[#405de6]">Продукт</a><a href="#users" className="transition hover:text-[#405de6]">Для пользователей</a><a href="#business" className="transition hover:text-[#405de6]">Для бизнеса</a><a href="#demo" className="transition hover:text-[#405de6]">Демо</a>
               </nav>
               <div className="flex gap-2">
-                <Link href={routes.user.home} className="hidden rounded-full border border-slate-200 bg-white px-4 py-2.5 text-xs font-black transition hover:-translate-y-0.5 hover:shadow-lg sm:inline-flex">Демо для гостей</Link>
+                <Link href={routes.auth.login} className="hidden rounded-full border border-slate-200 bg-white px-4 py-2.5 text-xs font-black transition hover:-translate-y-0.5 hover:shadow-lg sm:inline-flex">Демо для гостей</Link>
                 <Link href={routes.brand.dashboard} className="rounded-full bg-[#1b2040] px-4 py-2.5 text-xs font-black text-white transition hover:-translate-y-0.5 hover:bg-[#405de6] hover:shadow-lg">Кабинет бренда</Link>
               </div>
             </div>
@@ -132,7 +132,7 @@ export function LandingPage() {
               <h1 className={`${styles.heroTitle} mt-6 text-[42px] font-bold leading-[.96] tracking-[-.052em] sm:text-[57px] lg:text-[62px]`}><span className={styles.titleLine}>Городские челленджи</span><br /><span className={styles.titleLineDelayed}>и награды</span><br /><span className={styles.titleLineDelayed}>за активность</span><br /><span className={`${styles.gradientText} ${styles.titleLineLast}`}>с любимыми</span><br /><span className={`${styles.gradientText} ${styles.titleLineLast}`}>брендами</span></h1>
               <p className="mt-5 max-w-[570px] text-[15px] leading-7 text-slate-600 sm:text-base">Челленджер соединяет офлайн-действия и цифровые награды. Пользователи получают выгоду и эмоции, а бренды — вовлечённость, лояльность и рост.</p>
               <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                <Link href={routes.auth.register} className={`${styles.primaryButton} inline-flex items-center justify-center gap-4 rounded-full px-5 py-3.5 text-sm font-black text-white transition hover:-translate-y-1`}>Открыть демо приложения <span className="grid h-8 w-8 place-items-center rounded-full bg-white/12 shadow-inner"><ArrowRight className="h-4 w-4" /></span></Link>
+                <Link href={routes.auth.login} className={`${styles.primaryButton} inline-flex items-center justify-center gap-4 rounded-full px-5 py-3.5 text-sm font-black text-white transition hover:-translate-y-1`}>Открыть демо приложения <span className="grid h-8 w-8 place-items-center rounded-full bg-white/12 shadow-inner"><ArrowRight className="h-4 w-4" /></span></Link>
                 <Link href={routes.brand.dashboard} className={`${styles.secondaryButton} inline-flex items-center justify-center gap-3 rounded-full px-5 py-3.5 text-sm font-black transition hover:-translate-y-1`}>Открыть кабинет бренда <ChevronRight className="h-4 w-4" /></Link>
               </div>
               <div className="mt-4 flex flex-wrap gap-2 text-[10px] font-bold text-slate-500">{["Без интеграций", "Быстрый старт", "Прозрачная аналитика"].map((x, i) => <span key={x} className={`${styles.helperChip} flex items-center gap-1.5 rounded-full px-3 py-2`}><span className="text-[#5261ca]">{["%", "✣", "▥"][i]}</span>{x}</span>)}</div>
@@ -227,7 +227,7 @@ export function LandingPage() {
           <div className="relative hidden justify-center lg:flex"><div className={styles.ctaLogo}><span>Ч</span></div></div>
           <div className="relative"><h2 className="max-w-[470px] text-3xl font-black leading-[1.04] tracking-[-.045em] sm:text-[38px]">Запустите вовлечённость вместе с Челленджером</h2><p className="mt-4 max-w-[500px] text-sm leading-6 text-white/60">Попробуйте демо приложения или изучите кабинет бренда. Убедитесь, как просто это работает.</p></div>
           <div className="relative mt-8 grid gap-3 sm:grid-cols-2 lg:mt-0">
-            <div><Link href={routes.auth.register} className={styles.ctaPrimary}>Пройти демо для гостей <ArrowRight className="h-4 w-4" /></Link><p className="mt-2 text-center text-[10px] text-white/42">Займёт меньше минуты</p></div>
+            <div><Link href={routes.auth.login} className={styles.ctaPrimary}>Пройти демо для гостей <ArrowRight className="h-4 w-4" /></Link><p className="mt-2 text-center text-[10px] text-white/42">Займёт меньше минуты</p></div>
             <div><Link href={routes.brand.dashboard} className={styles.ctaSecondary}>Открыть кабинет бренда <ArrowRight className="h-4 w-4" /></Link><p className="mt-2 text-center text-[10px] text-white/42">Для команд и маркетологов</p></div>
           </div>
         </div>

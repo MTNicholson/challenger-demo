@@ -5,10 +5,10 @@ export type ButtonVariant = "primary" | "secondary" | "ghost" | "dark";
 export type ButtonSize = "sm" | "md" | "lg";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-emerald-500 text-white shadow-md shadow-emerald-500/15 hover:bg-emerald-600",
-  secondary: "border border-slate-200 bg-white text-slate-800 shadow-sm shadow-slate-900/5 hover:border-slate-300 hover:bg-slate-50",
-  ghost: "bg-transparent text-slate-700 hover:bg-slate-100",
-  dark: "bg-slate-950 text-white shadow-lg shadow-slate-900/15 hover:bg-slate-800",
+  primary: "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20 hover:-translate-y-0.5 hover:bg-emerald-600 hover:shadow-xl hover:shadow-emerald-500/20",
+  secondary: "border border-white/80 bg-white/70 text-slate-800 shadow-sm shadow-slate-900/5 backdrop-blur-xl hover:-translate-y-0.5 hover:border-emerald-200 hover:bg-white",
+  ghost: "bg-transparent text-slate-700 hover:bg-white/65 hover:text-slate-950",
+  dark: "bg-[#172f29] text-white shadow-lg shadow-emerald-950/15 hover:-translate-y-0.5 hover:bg-[#21453b]",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -27,7 +27,7 @@ export function buttonClasses({
   className?: string;
 } = {}) {
   return cn(
-    "inline-flex items-center justify-center gap-2 rounded-full font-bold transition duration-200",
+    "inline-flex items-center justify-center gap-2 rounded-full font-extrabold transition duration-200",
     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950",
     variantClasses[variant],
     sizeClasses[size],

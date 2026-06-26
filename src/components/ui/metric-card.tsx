@@ -26,7 +26,7 @@ export function MetricCard({
     <Card
       bordered={!dark}
       className={cn(
-        "p-5 sm:p-6",
+        "brand-interactive overflow-hidden p-5 sm:p-6",
         dark && "bg-slate-950 text-white shadow-xl shadow-slate-900/10",
         tone === "amber" && "bg-amber-100 text-amber-950",
         className,
@@ -37,14 +37,14 @@ export function MetricCard({
           <div
             className={cn(
               "grid h-11 w-11 place-items-center rounded-2xl",
-              dark ? "bg-white/10" : "bg-slate-50",
+              dark ? "bg-white/10" : "border border-white/80 bg-emerald-50/70 shadow-sm",
               tone === "amber" && "bg-white/45",
             )}
           >
             <Icon
               className={cn(
                 "h-5 w-5",
-                dark ? "text-white/70" : "text-slate-600",
+                dark ? "text-white/70" : "text-emerald-700",
                 tone === "amber" && "text-amber-800",
               )}
             />
@@ -58,10 +58,10 @@ export function MetricCard({
           </span>
         ) : null}
       </div>
-      <div className="mt-5 text-3xl font-black tracking-tight">{value}</div>
+      <div className="mt-5 text-4xl font-extrabold tracking-[-0.04em]">{value}</div>
       <div
         className={cn(
-          "mt-1 text-sm font-semibold",
+          "mt-1 text-sm font-bold",
           dark ? "text-white/55" : "text-slate-500",
           tone === "amber" && "text-amber-700",
         )}

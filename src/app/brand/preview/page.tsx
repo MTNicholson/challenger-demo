@@ -27,7 +27,7 @@ export default function BrandPreviewPage() {
       </header>
 
       <div className="grid gap-6 xl:grid-cols-[430px_minmax(0,1fr)]">
-        <section aria-label="Превью челленджа на телефоне" className="mx-auto w-full max-w-[430px] self-start rounded-[46px] border-[9px] border-slate-950 bg-slate-950 p-2 shadow-2xl shadow-slate-900/20">
+        <section aria-label="Превью челленджа на телефоне" className="mx-auto w-full max-w-[430px] self-start rounded-[46px] border-[9px] border-[#172f29] bg-[#172f29] p-2 shadow-2xl shadow-emerald-950/20">
           <div className="overflow-hidden rounded-[32px] bg-[#f6f2ea]">
             <div className="flex items-center justify-between bg-white px-5 py-3 text-[11px] font-black"><span>9:41</span><span className="h-2.5 w-20 rounded-full bg-slate-950" /><span>100%</span></div>
             <div className="p-5">

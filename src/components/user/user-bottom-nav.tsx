@@ -21,8 +21,6 @@ const items = [
     activePaths: [
       routes.user.challenges,
       routes.user.myChallenges,
-      routes.user.activeChallenge,
-      routes.user.reward,
     ],
   },
   {
@@ -35,7 +33,12 @@ const items = [
     label: "Профиль",
     href: routes.user.profile,
     icon: User,
-    activePaths: [routes.user.profile, routes.user.coins],
+    activePaths: [
+      routes.user.profile,
+      routes.user.coins,
+      routes.user.favorites,
+      routes.user.rewards,
+    ],
   },
 ];
 

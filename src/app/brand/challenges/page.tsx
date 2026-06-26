@@ -25,9 +25,9 @@ export default function BrandChallengesPage() {
 
       <section className="grid gap-4 lg:grid-cols-2">
         {challenges.map((challenge) => (
-          <Card key={challenge.id} className="p-5">
+          <Card key={challenge.id} className="brand-interactive p-5">
             <div className="flex items-start justify-between gap-4">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl bg-slate-50 text-2xl">
+              <div className="grid h-12 w-12 place-items-center rounded-2xl border border-white/80 bg-emerald-50/70 text-2xl shadow-sm">
                 {challenge.emoji}
               </div>
               <Badge
@@ -42,15 +42,15 @@ export default function BrandChallengesPage() {
               {challenge.description}
             </p>
             <div className="mt-5 grid grid-cols-3 gap-2 text-center text-sm">
-              <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="rounded-2xl border border-white/80 bg-white/55 p-3">
                 <div className="font-black">{challenge.participants}</div>
                 <div className="text-xs text-slate-400">участников</div>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="rounded-2xl border border-white/80 bg-white/55 p-3">
                 <div className="font-black">{challenge.isActive ? Math.round(challenge.participants * 0.27) : 0}</div>
                 <div className="text-xs text-slate-400">активаций</div>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-3">
+              <div className="rounded-2xl border border-white/80 bg-white/55 p-3">
                 <div className="font-black">{challenge.daysLeft}</div>
                 <div className="text-xs text-slate-400">дней</div>
               </div>

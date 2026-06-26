@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, Building2 } from "lucide-react";
 import { ReactNode, useEffect, useRef } from "react";
 import { routes } from "@/lib/routes";
+import { useCurrentDemoUser } from "@/lib/demo-auth";
 import { UserBottomNav } from "./user-bottom-nav";
 import styles from "./user-phone-shell.module.css";
 
@@ -14,8 +15,15 @@ type UserAppLayoutProps = {
 
 export function UserAppLayout({ children }: UserAppLayoutProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { ready, user } = useCurrentDemoUser();
   const presentationRef = useRef<HTMLDivElement>(null);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (ready && !user) router.replace(routes.auth.login);
+    else if (user && !user.onboardingCompleted) router.replace(routes.onboarding);
+  }, [ready, router, user]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -54,6 +62,8 @@ export function UserAppLayout({ children }: UserAppLayoutProps) {
       window.cancelAnimationFrame(secondFrame);
     };
   }, [pathname]);
+
+  if (!ready || !user || !user.onboardingCompleted) return null;
 
   return (
     <div ref={presentationRef} className={styles.presentation}>

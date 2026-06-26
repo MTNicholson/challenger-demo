@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { challenges, type Challenge } from "@/data/challenges";
 import { routes } from "@/lib/routes";
+import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useUserChallengeStates } from "@/lib/user-challenge-storage";
 import styles from "./user-challenges.module.css";
 
 const categories = ["Все", "Новые", "Еда", "Фитнес", "Beauty", "Книги"];
@@ -123,9 +127,25 @@ function StaggeredCards({ challenges }: { challenges: Challenge[] }) {
 }
 
 export default function UserChallengesPage() {
+  const { user } = useCurrentDemoUser();
+  const { states } = useUserChallengeStates(user?.id);
   const orderedChallenges = catalogOrder
     .map((id) => challenges.find((challenge) => challenge.id === id))
-    .filter((challenge): challenge is Challenge => Boolean(challenge));
+    .filter((challenge): challenge is Challenge => Boolean(challenge))
+    .map((challenge) => {
+      const state = states.find((item) => item.challengeId === challenge.id);
+      return {
+        ...challenge,
+        isActive: state?.isActive ?? false,
+        progress: state?.isActive
+          ? {
+              current: state.progressCurrent,
+              total: state.progressTotal,
+              label: `${state.progressCurrent} из ${state.progressTotal}`,
+            }
+          : undefined,
+      };
+    });
 
   return (
     <main className={styles.catalogPage}>
