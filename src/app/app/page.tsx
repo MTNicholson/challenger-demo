@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Flame, Sparkles } from "lucide-react";
 import { routes } from "@/lib/routes";
 import { challenges } from "@/data/challenges";
-import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useCurrentUser } from "@/lib/auth-client";
 import { useUserChallengeStates } from "@/lib/user-challenge-storage";
 import { CoinBalanceCard } from "@/components/user/coin-balance-card";
 import { HomeHeader } from "@/components/user/home-header";
@@ -14,7 +14,7 @@ import { glassPanelClasses, glassPillClasses } from "@/components/ui/glass";
 import styles from "@/components/user/user-home.module.css";
 
 export default function UserHomePage() {
-  const { user } = useCurrentDemoUser();
+  const { user } = useCurrentUser();
   const { states } = useUserChallengeStates(user?.id);
   const activeIds = new Set(states.filter((state) => state.isActive).map((state) => state.challengeId));
   const activeChallenges = states.flatMap((state) => {

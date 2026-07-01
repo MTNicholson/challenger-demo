@@ -4,7 +4,7 @@ import Link from "next/link";
 import { BadgePercent, Coins, Gift, MapPinned, Sparkles } from "lucide-react";
 import { CoinOperationList } from "@/components/user/coin-operation-list";
 import { coinOperations } from "@/data/coin-operations";
-import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useCurrentUser } from "@/lib/auth-client";
 import { routes } from "@/lib/routes";
 import styles from "@/components/user/coins-screen.module.css";
 
@@ -40,7 +40,7 @@ const earnWays = [
 ];
 
 export default function UserCoinsPage() {
-  const { user } = useCurrentDemoUser();
+  const { user } = useCurrentUser();
   const balance = user?.coinsBalance ?? 1250;
 
   return (

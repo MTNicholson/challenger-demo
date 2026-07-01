@@ -4,12 +4,12 @@ import Link from "next/link";
 import { ArrowLeft, ChevronRight, Heart, Sparkles } from "lucide-react";
 import { challenges } from "@/data/challenges";
 import { routes } from "@/lib/routes";
-import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useCurrentUser } from "@/lib/auth-client";
 import { useUserChallengeStates } from "@/lib/user-challenge-storage";
 import styles from "@/components/user/collection-screen.module.css";
 
 export default function FavoritesPage() {
-  const { user } = useCurrentDemoUser();
+  const { user } = useCurrentUser();
   const { ready, states } = useUserChallengeStates(user?.id);
   const favoriteChallenges = states.flatMap((state) => {
     if (!state.isFavorite) return [];

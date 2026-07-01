@@ -13,10 +13,10 @@ import {
   Trophy,
   X,
 } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { useState } from "react";
 import { CoinBalanceCard } from "@/components/user/coin-balance-card";
 import { routes } from "@/lib/routes";
-import { updateCurrentDemoUserName, useCurrentDemoUser } from "@/lib/demo-auth";
+import { useCurrentUser } from "@/lib/auth-client";
 import styles from "@/components/user/profile-screen.module.css";
 
 const menu = [
@@ -26,12 +26,12 @@ const menu = [
 ] as const;
 
 export default function UserProfilePage() {
-  const { user } = useCurrentDemoUser();
+  const { user } = useCurrentUser();
   const [isEditing, setIsEditing] = useState(false);
-  const [draftName, setDraftName] = useState("");
   const [notice, setNotice] = useState("");
   const name = user?.name ?? "Алекс";
   const initials = name.slice(0, 1).toLocaleUpperCase();
+  const city = user?.city ?? "Санкт-Петербург";
 
   function showSoon() {
     setNotice("Скоро появится");
@@ -39,17 +39,7 @@ export default function UserProfilePage() {
   }
 
   function openEditor() {
-    setDraftName(name);
     setIsEditing(true);
-  }
-
-  function saveName(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    if (!draftName.trim()) return;
-    updateCurrentDemoUserName(draftName);
-    setIsEditing(false);
-    setNotice("Имя обновлено");
-    window.setTimeout(() => setNotice(""), 2000);
   }
 
   return (
@@ -66,7 +56,7 @@ export default function UserProfilePage() {
           </div>
           <button type="button" className={styles.location} onClick={showSoon}>
             <MapPin size={14} />
-            Санкт-Петербург
+            {city}
             <ChevronRight size={14} />
           </button>
         </div>
@@ -101,13 +91,12 @@ export default function UserProfilePage() {
 
       {isEditing ? (
         <div className={styles.overlay} role="presentation" onMouseDown={() => setIsEditing(false)}>
-          <form className={styles.editor} onSubmit={saveName} onMouseDown={(event) => event.stopPropagation()}>
+          <section className={styles.editor} onMouseDown={(event) => event.stopPropagation()}>
             <button type="button" className={styles.close} onClick={() => setIsEditing(false)} aria-label="Закрыть"><X size={18} /></button>
-            <h2>Как вас называть?</h2>
-            <p>Имя изменится во всём пользовательском приложении.</p>
-            <input autoFocus value={draftName} onChange={(event) => setDraftName(event.target.value)} maxLength={40} aria-label="Имя пользователя" />
-            <button type="submit" className={styles.saveButton}>Сохранить</button>
-          </form>
+            <h2>Редактирование профиля</h2>
+            <p>Скоро здесь можно будет менять имя, город и аватар.</p>
+            <button type="button" className={styles.saveButton} onClick={() => setIsEditing(false)}>Понятно</button>
+          </section>
         </div>
       ) : null}
     </main>

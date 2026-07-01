@@ -3,27 +3,33 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, Building2 } from "lucide-react";
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useMemo, useRef } from "react";
 import { routes } from "@/lib/routes";
-import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useCurrentUser } from "@/lib/auth-client";
+import type { PublicUser } from "@/lib/auth-shared";
 import { UserBottomNav } from "./user-bottom-nav";
 import styles from "./user-phone-shell.module.css";
 
 type UserAppLayoutProps = {
   children: ReactNode;
+  initialUser: PublicUser;
 };
 
-export function UserAppLayout({ children }: UserAppLayoutProps) {
+export function UserAppLayout({ children, initialUser }: UserAppLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { ready, user } = useCurrentDemoUser();
+  const { ready, user } = useCurrentUser();
+  const currentUser = useMemo(
+    () => user ?? { ...initialUser, onboardingCompleted: false },
+    [initialUser, user],
+  );
   const presentationRef = useRef<HTMLDivElement>(null);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (ready && !user) router.replace(routes.auth.login);
-    else if (user && !user.onboardingCompleted) router.replace(routes.onboarding);
-  }, [ready, router, user]);
+    else if (currentUser && !currentUser.onboardingCompleted) router.replace(routes.onboarding);
+  }, [currentUser, ready, router, user]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -63,7 +69,7 @@ export function UserAppLayout({ children }: UserAppLayoutProps) {
     };
   }, [pathname]);
 
-  if (!ready || !user || !user.onboardingCompleted) return null;
+  if (!ready || !user || !currentUser.onboardingCompleted) return null;
 
   return (
     <div ref={presentationRef} className={styles.presentation}>

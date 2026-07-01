@@ -5,12 +5,12 @@ import { ArrowLeft, ChevronRight, Sparkles } from "lucide-react";
 import { challenges } from "@/data/challenges";
 import { routes } from "@/lib/routes";
 import { formatCoins } from "@/lib/format";
-import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useCurrentUser } from "@/lib/auth-client";
 import { useUserChallengeStates } from "@/lib/user-challenge-storage";
 import { ProgressBar } from "@/components/ui/progress-bar";
 
 export default function MyChallengesPage() {
-  const { user } = useCurrentDemoUser();
+  const { user } = useCurrentUser();
   const { ready, states } = useUserChallengeStates(user?.id);
   const activeStates = states.filter((state) => state.isActive);
   const activeChallenges = activeStates.flatMap((state) => {

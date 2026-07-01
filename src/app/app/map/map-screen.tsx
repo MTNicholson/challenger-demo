@@ -10,7 +10,7 @@ import {
   type MapChallengePoint,
 } from "@/data/map-challenges";
 import { routes } from "@/lib/routes";
-import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useCurrentUser } from "@/lib/auth-client";
 import { useUserChallengeStates } from "@/lib/user-challenge-storage";
 import styles from "./user-map.module.css";
 
@@ -33,7 +33,7 @@ const filters: Filter[] = ["Все", "Кофе", "Еда", "Спорт", "Beauty
 const defaultPoint = mapChallengePoints.find((point) => point.isActive) ?? mapChallengePoints[0];
 
 export function ChallengeMapScreen() {
-  const { user } = useCurrentDemoUser();
+  const { user } = useCurrentUser();
   const { states } = useUserChallengeStates(user?.id);
   const [activeFilter, setActiveFilter] = useState<Filter>("Все");
   const [selectedPoint, setSelectedPoint] = useState<MapChallengePoint>(defaultPoint);

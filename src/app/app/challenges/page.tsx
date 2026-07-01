@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { challenges, type Challenge } from "@/data/challenges";
 import { routes } from "@/lib/routes";
-import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useCurrentUser } from "@/lib/auth-client";
 import { useUserChallengeStates } from "@/lib/user-challenge-storage";
 import styles from "./user-challenges.module.css";
 
@@ -127,7 +127,7 @@ function StaggeredCards({ challenges }: { challenges: Challenge[] }) {
 }
 
 export default function UserChallengesPage() {
-  const { user } = useCurrentDemoUser();
+  const { user } = useCurrentUser();
   const { states } = useUserChallengeStates(user?.id);
   const orderedChallenges = catalogOrder
     .map((id) => challenges.find((challenge) => challenge.id === id))

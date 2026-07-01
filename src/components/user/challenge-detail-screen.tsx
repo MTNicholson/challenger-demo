@@ -6,7 +6,7 @@ import { ArrowLeft, Check, Heart, MapPin, QrCode, Share2, X } from "lucide-react
 import { useState } from "react";
 import type { Challenge } from "@/data/challenges";
 import type { Location } from "@/data/locations";
-import { useCurrentDemoUser } from "@/lib/demo-auth";
+import { useCurrentUser } from "@/lib/auth-client";
 import { routes } from "@/lib/routes";
 import {
   activateChallenge as activateStoredChallenge,
@@ -26,7 +26,7 @@ const qrCells = Array.from({ length: 121 }, (_, index) =>
 );
 
 export function ChallengeDetailScreen({ challenge, locations }: Props) {
-  const { user } = useCurrentDemoUser();
+  const { user } = useCurrentUser();
   const { states } = useUserChallengeStates(user?.id);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [isQrOpen, setIsQrOpen] = useState(false);

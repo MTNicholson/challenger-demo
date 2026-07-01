@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { getCurrentDemoUser } from "@/lib/demo-auth";
 
 export type UserChallengeState = {
   challengeId: string;
@@ -34,12 +33,7 @@ function writeDatabase(database: UserChallengeDatabase) {
 }
 
 function getInitialStates(userId: string): UserChallengeState[] {
-  const user = getCurrentDemoUser();
-  const isDemoAlex =
-    user?.id === userId &&
-    (user.login.toLocaleLowerCase() === "demo" || user.name.toLocaleLowerCase() === "алекс");
-
-  return isDemoAlex
+  return userId === "alex"
     ? [
         {
           challengeId: "coffee-route",
@@ -84,7 +78,7 @@ function updateChallengeState(
 }
 
 export function getCurrentUserId() {
-  return getCurrentDemoUser()?.id ?? null;
+  return null;
 }
 
 export function getUserChallengeStates(userId: string) {

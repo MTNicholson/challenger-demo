@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { OnboardingScreen, type OnboardingSlide } from "@/components/onboarding/onboarding-screen";
 import { routes } from "@/lib/routes";
-import { completeCurrentUserOnboarding, useCurrentDemoUser } from "@/lib/demo-auth";
+import { markCurrentUserOnboardingCompleted, useCurrentUser } from "@/lib/auth-client";
 import styles from "@/components/onboarding/onboarding.module.css";
 
 const slides: OnboardingSlide[] = [
@@ -16,7 +16,7 @@ const slides: OnboardingSlide[] = [
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { ready, user } = useCurrentDemoUser();
+  const { ready, user } = useCurrentUser();
   const [index, setIndex] = useState(0);
   const isLast = index === slides.length - 1;
   useEffect(() => {
@@ -26,10 +26,11 @@ export default function OnboardingPage() {
   }, [ready, router, user]);
 
   const openApp = () => {
-    if (!completeCurrentUserOnboarding()) {
+    if (!user) {
       router.replace(routes.auth.login);
       return;
     }
+    markCurrentUserOnboardingCompleted(user.id);
     router.replace(routes.user.home);
   };
 
