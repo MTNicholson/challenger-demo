@@ -16,6 +16,17 @@
 .inputIcon { display: grid; flex: none; color: #8490aa; }
 .input { min-width: 0; width: 100%; border: 0; outline: 0; color: #202845; background: transparent; font-size: 15px; font-weight: 750; }
 .input::placeholder { color: #a6afc1; font-weight: 600; }
+.remember { position: relative; display: grid; grid-template-columns: 22px 1fr; gap: 12px; align-items: center; margin-top: 16px; border: 1px solid rgba(225,230,240,.9); border-radius: 18px; padding: 13px 14px; background: rgba(255,255,255,.62); box-shadow: inset 0 1px 0 rgba(255,255,255,.7); cursor: pointer; transition: border-color .2s,box-shadow .2s,background .2s; }
+.remember:focus-within { border-color: #7d91ed; background: rgba(255,255,255,.86); box-shadow: 0 0 0 4px rgba(108,128,229,.12),inset 0 1px 0 #fff; }
+.remember input { position: absolute; opacity: 0; pointer-events: none; }
+.rememberBox { position: relative; display: grid; width: 22px; height: 22px; place-items: center; border: 1px solid #cfd7e7; border-radius: 8px; background: rgba(255,255,255,.9); box-shadow: inset 0 1px 2px rgba(54,65,105,.05); transition: border-color .2s,background .2s,box-shadow .2s; }
+.rememberBox::after { content: ""; width: 9px; height: 5px; border-bottom: 2px solid #fff; border-left: 2px solid #fff; opacity: 0; transform: translateY(-1px) rotate(-45deg) scale(.85); transition: opacity .2s,transform .2s; }
+.remember input:checked + .rememberBox { border-color: #505fd2; background: linear-gradient(135deg,#4553b8,#785ccf); box-shadow: 0 8px 18px rgba(73,85,180,.22); }
+.remember input:checked + .rememberBox::after { opacity: 1; transform: translateY(-1px) rotate(-45deg) scale(1); }
+.remember input:disabled + .rememberBox,.remember input:disabled ~ .rememberText { opacity: .62; }
+.rememberText { display: grid; gap: 3px; min-width: 0; color: #39435f; }
+.rememberText strong { font-size: 13px; font-weight: 900; }
+.rememberText small { color: #7a859d; font-size: 11px; font-weight: 700; line-height: 1.35; }
 .primary { display: flex; width: 100%; min-height: 56px; align-items: center; justify-content: center; gap: 10px; margin-top: 24px; border: 0; border-radius: 999px; color: #fff; background: linear-gradient(105deg,#283464,#505fd2 56%,#785ccf); box-shadow: inset 0 1px 0 rgba(255,255,255,.25),0 16px 32px rgba(73,85,180,.26); font-size: 14px; font-weight: 900; cursor: pointer; transition: transform .2s,box-shadow .2s,opacity .2s; }
 .primary:hover { transform: translateY(-2px); box-shadow: inset 0 1px 0 rgba(255,255,255,.3),0 20px 38px rgba(73,85,180,.31); }
 .primary:disabled { cursor: default; opacity: .68; transform: none; }

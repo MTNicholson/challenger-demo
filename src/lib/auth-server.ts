@@ -19,8 +19,8 @@ function getJwtSecret() {
   return new TextEncoder().encode(secret);
 }
 
-export async function createSessionToken(payload: SessionPayload) {
-  const expiresAt = Math.floor(Date.now() / 1000) + AUTH_SESSION_DAYS * 24 * 60 * 60;
+export async function createSessionToken(payload: SessionPayload, sessionDays = AUTH_SESSION_DAYS) {
+  const expiresAt = Math.floor(Date.now() / 1000) + sessionDays * 24 * 60 * 60;
 
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })

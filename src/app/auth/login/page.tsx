@@ -15,6 +15,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
@@ -31,7 +32,7 @@ export default function LoginPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ identifier: login, password }),
+      body: JSON.stringify({ identifier: login, password, rememberMe }),
     });
     const data = (await response.json().catch(() => null)) as { error?: string } | null;
     setPending(false);
@@ -80,6 +81,19 @@ export default function LoginPage() {
               setError("");
             }}
           />
+          <label className={styles.remember}>
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              disabled={pending}
+              onChange={(event) => setRememberMe(event.target.checked)}
+            />
+            <span className={styles.rememberBox} aria-hidden="true" />
+            <span className={styles.rememberText}>
+              <strong>Запомнить меня</strong>
+              <small>Не выходить из аккаунта на этом устройстве</small>
+            </span>
+          </label>
           {error && (
             <p className={styles.error} role="alert">
               {error}

@@ -3,26 +3,20 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { ArrowLeft, Building2 } from "lucide-react";
-import { ReactNode, useEffect, useMemo, useRef } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { routes } from "@/lib/routes";
 import { useCurrentUser } from "@/lib/auth-client";
-import type { PublicUser } from "@/lib/auth-shared";
 import { UserBottomNav } from "./user-bottom-nav";
 import styles from "./user-phone-shell.module.css";
 
 type UserAppLayoutProps = {
   children: ReactNode;
-  initialUser: PublicUser;
 };
 
-export function UserAppLayout({ children, initialUser }: UserAppLayoutProps) {
+export function UserAppLayout({ children }: UserAppLayoutProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { ready, user } = useCurrentUser();
-  const currentUser = useMemo(
-    () => user ?? { ...initialUser, onboardingCompleted: true },
-    [initialUser, user],
-  );
   const presentationRef = useRef<HTMLDivElement>(null);
   const scrollViewportRef = useRef<HTMLDivElement>(null);
 

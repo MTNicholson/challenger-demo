@@ -9,11 +9,12 @@ export const dynamic = "force-dynamic";
 
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as
-    | { login?: string; identifier?: string; password?: string }
+    | { login?: string; identifier?: string; password?: string; rememberMe?: boolean }
     | null;
 
   const identifier = splitIdentifier(body?.identifier ?? body?.login ?? "");
   const password = body?.password ?? "";
+  const sessionDays = body?.rememberMe === true ? AUTH_SESSION_DAYS : 1;
 
   if (!identifier || !password.trim()) {
     return NextResponse.json({ error: "Введите email/телефон и пароль." }, { status: 400 });
@@ -34,12 +35,12 @@ export async function POST(request: Request) {
   }
 
   const response = NextResponse.json({ user: toPublicUser(user) });
-  response.cookies.set(AUTH_COOKIE_NAME, await createSessionToken({ userId: user.id }), {
+  response.cookies.set(AUTH_COOKIE_NAME, await createSessionToken({ userId: user.id }, sessionDays), {
     httpOnly: true,
     sameSite: "lax",
     secure: false,
     path: "/",
-    maxAge: AUTH_SESSION_DAYS * 24 * 60 * 60,
+    maxAge: sessionDays * 24 * 60 * 60,
   });
 
   return response;
