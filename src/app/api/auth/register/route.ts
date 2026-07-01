@@ -52,7 +52,7 @@ export async function POST(request: Request) {
   response.cookies.set(AUTH_COOKIE_NAME, await createSessionToken({ userId: user.id }), {
     httpOnly: true,
     sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+    secure: false,
     path: "/",
     maxAge: AUTH_SESSION_DAYS * 24 * 60 * 60,
   });

@@ -20,7 +20,7 @@ export function UserAppLayout({ children, initialUser }: UserAppLayoutProps) {
   const router = useRouter();
   const { ready, user } = useCurrentUser();
   const currentUser = useMemo(
-    () => user ?? { ...initialUser, onboardingCompleted: false },
+    () => user ?? { ...initialUser, onboardingCompleted: true },
     [initialUser, user],
   );
   const presentationRef = useRef<HTMLDivElement>(null);
@@ -28,8 +28,7 @@ export function UserAppLayout({ children, initialUser }: UserAppLayoutProps) {
 
   useEffect(() => {
     if (ready && !user) router.replace(routes.auth.login);
-    else if (currentUser && !currentUser.onboardingCompleted) router.replace(routes.onboarding);
-  }, [currentUser, ready, router, user]);
+  }, [ready, router, user]);
 
   useEffect(() => {
     const html = document.documentElement;
@@ -69,7 +68,7 @@ export function UserAppLayout({ children, initialUser }: UserAppLayoutProps) {
     };
   }, [pathname]);
 
-  if (!ready || !user || !currentUser.onboardingCompleted) return null;
+  if (!ready || !user) return null;
 
   return (
     <div ref={presentationRef} className={styles.presentation}>
