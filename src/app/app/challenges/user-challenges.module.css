@@ -76,6 +76,52 @@
   display: none;
 }
 
+.brandsSection {
+  display: grid;
+  gap: 10px;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 1px 2px 0;
+}
+
+.sectionHeading h2 {
+  color: #202945;
+  font-size: 18px;
+  line-height: 1.1;
+  font-weight: 950;
+  letter-spacing: -0.035em;
+}
+
+.sectionHeading p {
+  margin-top: 4px;
+  color: #7a849c;
+  font-size: 10px;
+  line-height: 1.35;
+  font-weight: 750;
+}
+
+.brandRail {
+  display: flex;
+  gap: 11px;
+  overflow-x: auto;
+  padding: 2px 2px 6px;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+}
+
+.brandRail::-webkit-scrollbar {
+  display: none;
+}
+
+.brandRail > * {
+  scroll-snap-align: start;
+}
+
 .category,
 .categoryActive {
   flex: none;

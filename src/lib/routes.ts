@@ -17,6 +17,7 @@ export const routes = {
     myChallenges: "/app/my-challenges",
     favorites: "/app/favorites",
     rewards: "/app/rewards",
+    brandDetail: (slug: string) => `/app/brands/${slug}`,
     challengeDetail: (id: string) => `/app/challenges/${id}`,
     map: "/app/map",
     profile: "/app/profile",
