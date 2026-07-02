@@ -115,6 +115,14 @@ npm run lint
 npm run check
 ```
 
+## Brand auth
+
+- `/brand/auth/register` — регистрация бренда и owner-аккаунта для корпоративного кабинета.
+- `/brand/auth/login` — вход владельца/администратора бренда.
+- Brand auth API: `POST /api/brand/auth/register`, `POST /api/brand/auth/login`, `POST /api/brand/auth/logout`, `GET /api/brand/auth/me`.
+- Brand session хранится отдельно от пользовательской сессии в httpOnly cookie `challenger_brand_session`.
+- Кабинет `/brand` теперь защищён brand-сессией и берёт базовый профиль бренда из PostgreSQL/Prisma; моковые графики, таблицы и демо-сценарии пока остаются в `src/data`.
+
 ## Основные демо-маршруты
 
 - `/` — публичный лендинг и точки входа в демо.

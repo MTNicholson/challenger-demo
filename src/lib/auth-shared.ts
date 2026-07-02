@@ -1,9 +1,12 @@
-import type { User } from "@prisma/client";
+import type { Brand, BrandMember, User } from "@prisma/client";
 
 export const AUTH_COOKIE_NAME = "challenger_session";
+export const BRAND_AUTH_COOKIE_NAME = "challenger_brand_session";
 export const AUTH_SESSION_DAYS = 7;
 
 export type PublicUser = Omit<User, "passwordHash">;
+export type PublicBrandMember = Omit<BrandMember, "passwordHash">;
+export type PublicBrand = Brand;
 
 export function toPublicUser(user: User): PublicUser {
   return {
@@ -16,6 +19,18 @@ export function toPublicUser(user: User): PublicUser {
     coinsBalance: user.coinsBalance,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+  };
+}
+
+export function toPublicBrandMember(member: BrandMember): PublicBrandMember {
+  return {
+    id: member.id,
+    brandId: member.brandId,
+    email: member.email,
+    name: member.name,
+    role: member.role,
+    createdAt: member.createdAt,
+    updatedAt: member.updatedAt,
   };
 }
 

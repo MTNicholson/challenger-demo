@@ -62,7 +62,7 @@ function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function BrandSidebar() {
+export function BrandSidebar({ brandName }: { brandName: string }) {
   const pathname = usePathname();
 
   return (
@@ -70,7 +70,7 @@ export function BrandSidebar() {
     <aside className="sticky top-0 hidden h-screen w-72 shrink-0 p-4 lg:block">
       <div className="brand-glass flex h-full flex-col rounded-[30px] p-3">
       <div className="brand-glass-dark mb-5 rounded-[24px] p-4 text-white">
-        <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/10 text-xl">⚡</span><div><div className="text-sm font-bold text-white/60">Челленджер</div><div className="text-lg font-extrabold">Coffee Place</div></div></div>
+        <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/10 text-xl">⚡</span><div><div className="text-sm font-bold text-white/60">Челленджер</div><div className="text-lg font-extrabold">{brandName}</div></div></div>
         <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-bold text-white/60">Кабинет бренда · демо</div>
       </div>
 

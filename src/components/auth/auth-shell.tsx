@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { routes } from "@/lib/routes";
 import styles from "./auth.module.css";
 
-export function AuthShell({ children }: { children: ReactNode }) {
+export function AuthShell({ children, caption = "Защищённый вход в демо Челленджера" }: { children: ReactNode; caption?: string }) {
   return (
     <main className={styles.shell}>
       <div className={styles.glowMint} />
@@ -16,7 +16,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
         <span>Челленджер</span>
       </Link>
       <div className={styles.content}>{children}</div>
-      <p className={styles.caption}>Демо-режим · без реальной регистрации</p>
+      <p className={styles.caption}>{caption}</p>
     </main>
   );
 }

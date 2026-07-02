@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { AlertCircle, Gift, Keyboard, QrCode, ScanLine, UserRound } from "lucide-react";
 import { scannerErrorStates, scannerMockResult } from "@/data/scanner";
+import { getCurrentBrand } from "@/lib/auth-server";
 import { routes } from "@/lib/routes";
 import { buttonClasses } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
-export default function StaffScannerPage() {
+export default async function StaffScannerPage() {
+  const session = await getCurrentBrand();
+  const brandName = session?.brand.name ?? "Бренд";
+
   return (
     <main className="space-y-6">
-      <header><div className="text-sm font-bold text-emerald-700">Coffee Place · режим сотрудника</div><h1 className="mt-1 text-3xl font-black tracking-tight">Сканер наград</h1><p className="mt-2 text-slate-500">Отсканируйте QR-код гостя или введите код вручную</p></header>
+      <header><div className="text-sm font-bold text-emerald-700">{brandName} · режим сотрудника</div><h1 className="mt-1 text-3xl font-black tracking-tight">Сканер наград</h1><p className="mt-2 text-slate-500">Отсканируйте QR-код гостя или введите код вручную</p></header>
       <div className="grid gap-6 lg:grid-cols-[1fr_380px]">
         <section className="brand-glass-dark rounded-[32px] p-6 text-white">
           <div className="grid min-h-[360px] place-items-center rounded-[30px] border border-white/15 bg-white/[0.07] shadow-inner">

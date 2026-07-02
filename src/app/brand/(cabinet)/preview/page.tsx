@@ -4,6 +4,7 @@ import { companyBrand } from "@/data/brands";
 import { getBrandChallenges } from "@/data/challenges";
 import { getBrandLocations } from "@/data/locations";
 import { companyAnalytics } from "@/data/analytics";
+import { getCurrentBrand } from "@/lib/auth-server";
 import { routes } from "@/lib/routes";
 import { buttonClasses } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -11,18 +12,21 @@ import { Badge } from "@/components/ui/badge";
 const campaign = getBrandChallenges(companyBrand.id)[0];
 const selectedLocations = getBrandLocations(companyBrand.id);
 
-const summary = [
-  { icon: QrCode, label: "Механика", value: "Серия из 5 QR-визитов" },
-  { icon: Gift, label: "Награда", value: "Напиток на выбор + 200 монет" },
-  { icon: MapPin, label: "География", value: `${selectedLocations.length} точек Coffee Place` },
-  { icon: CalendarDays, label: "Срок кампании", value: "24 июня — 31 июля · 38 дней" },
-];
+export default async function BrandPreviewPage() {
+  const session = await getCurrentBrand();
+  const brandName = session?.brand.name ?? companyBrand.name;
+  const brandMark = brandName[0]?.toLocaleUpperCase() ?? "Б";
+  const summary = [
+    { icon: QrCode, label: "Механика", value: "Серия из 5 QR-визитов" },
+    { icon: Gift, label: "Награда", value: "Напиток на выбор + 200 монет" },
+    { icon: MapPin, label: "География", value: `${selectedLocations.length} точек ${brandName}` },
+    { icon: CalendarDays, label: "Срок кампании", value: "24 июня — 31 июля · 38 дней" },
+  ];
 
-export default function BrandPreviewPage() {
   return (
     <main className="space-y-6">
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-        <div><div className="text-sm font-semibold text-slate-400">Шаг 5 · Превью гостя</div><h1 className="mt-1 text-3xl font-black">Проверьте кампанию перед запуском</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Слева — экран гостя, справа — параметры для команды Coffee Place.</p></div>
+        <div><div className="text-sm font-semibold text-slate-400">Шаг 5 · Превью гостя</div><h1 className="mt-1 text-3xl font-black">Проверьте кампанию перед запуском</h1><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Слева — экран гостя, справа — параметры для команды {brandName}.</p></div>
         <Link href={routes.brand.newChallenge} className={buttonClasses({ variant: "ghost" })}><ArrowLeft className="h-4 w-4" />Вернуться к настройке</Link>
       </header>
 
@@ -31,11 +35,11 @@ export default function BrandPreviewPage() {
           <div className="overflow-hidden rounded-[32px] bg-[#f6f2ea]">
             <div className="flex items-center justify-between bg-white px-5 py-3 text-[11px] font-black"><span>9:41</span><span className="h-2.5 w-20 rounded-full bg-slate-950" /><span>100%</span></div>
             <div className="p-5">
-              <div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-2xl shadow-sm">{companyBrand.logo}</div><div><div className="font-black">{companyBrand.name}</div><div className="text-xs text-slate-500">Челлендж от бренда</div></div></div><Badge variant="success">Активен</Badge></div>
+              <div className="flex items-center justify-between"><div className="flex items-center gap-3"><div className="grid h-11 w-11 place-items-center rounded-2xl bg-white text-2xl shadow-sm">{brandMark}</div><div><div className="font-black">{brandName}</div><div className="text-xs text-slate-500">Челлендж от бренда</div></div></div><Badge variant="success">Активен</Badge></div>
               <article className="mt-5 rounded-[30px] bg-slate-950 p-5 text-white shadow-xl">
                 <div className="flex items-start justify-between"><span className="rounded-full bg-emerald-400/15 px-3 py-1 text-xs font-black text-emerald-300">Легко · 7 дней</span><span className="text-4xl">{campaign.emoji}</span></div>
                 <h2 className="mt-5 text-2xl font-black">{campaign.title}</h2>
-                <p className="mt-2 text-sm leading-6 text-white/65">Посетите пять Coffee Place за неделю и откройте напиток на выбор.</p>
+                <p className="mt-2 text-sm leading-6 text-white/65">Посетите пять точек {brandName} за неделю и откройте напиток на выбор.</p>
                 <div className="mt-5 space-y-2"><div className="flex items-center gap-3 rounded-2xl bg-white/10 p-3 text-sm font-bold"><Target className="h-5 w-5 text-emerald-300" />5 визитов за 7 дней</div><div className="flex items-center gap-3 rounded-2xl bg-white/10 p-3 text-sm font-bold"><Gift className="h-5 w-5 text-amber-300" />Напиток + 200 монет</div></div>
               </article>
               <div className="mt-4 rounded-[24px] bg-white p-4 shadow-sm"><div className="flex justify-between text-sm"><span className="font-black">Ваш прогресс</span><span className="font-bold text-emerald-700">3 из 5</span></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full w-3/5 rounded-full bg-emerald-500" /></div><p className="mt-3 text-xs leading-5 text-slate-500">Ещё 2 визита — и награда появится в кошельке.</p></div>

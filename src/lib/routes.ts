@@ -6,6 +6,10 @@ export const routes = {
     register: "/auth/register",
     login: "/auth/login",
   },
+  brandAuth: {
+    register: "/brand/auth/register",
+    login: "/brand/auth/login",
+  },
   onboarding: "/onboarding",
   user: {
     home: "/app",

@@ -18,6 +18,7 @@ import {
 import { companyBrand } from "@/data/brands";
 import { getBrandChallenges } from "@/data/challenges";
 import { getBrandLocations } from "@/data/locations";
+import { getCurrentBrand } from "@/lib/auth-server";
 import { routes } from "@/lib/routes";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -61,12 +62,16 @@ function Section({ number, title, description, children }: { number: string; tit
   );
 }
 
-export default function NewChallengePage() {
+export default async function NewChallengePage() {
+  const session = await getCurrentBrand();
+  const brandName = session?.brand.name ?? companyBrand.name;
+  const brandMark = brandName[0]?.toLocaleUpperCase() ?? "Б";
+
   return (
     <main className="space-y-6">
       <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
         <div>
-          <div className="text-sm font-semibold text-slate-400">Конструктор кампании · Coffee Place</div>
+          <div className="text-sm font-semibold text-slate-400">Конструктор кампании · {brandName}</div>
           <h1 className="mt-1 text-3xl font-black">Новый челлендж</h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">Настройте механику, награду и точки. Все значения демонстрационные — ничего не публикуется.</p>
         </div>
@@ -91,9 +96,9 @@ export default function NewChallengePage() {
           <Section number="1" title="Основное" description="Название и описание, которые увидит гость.">
             <div className="grid gap-4 md:grid-cols-2">
               <Field label="Название челленджа" value={campaign.title} />
-              <Field label="Бренд" value={companyBrand.name} />
+              <Field label="Бренд" value={brandName} />
               <Field label="Категория" value="Кофе и визиты" />
-              <Field label="Короткое описание" value="Посетите пять Coffee Place за неделю и получите награду." />
+              <Field label="Короткое описание" value={`Посетите пять точек ${brandName} за неделю и получите награду.`} />
             </div>
           </Section>
 
@@ -119,7 +124,7 @@ export default function NewChallengePage() {
             </div>
           </Section>
 
-          <Section number="4" title="География" description={`Выбрано ${brandLocations.length} из ${companyBrand.locationsCount} точек Coffee Place.`}>
+          <Section number="4" title="География" description={`Выбрано ${brandLocations.length} из ${companyBrand.locationsCount} точек ${brandName}.`}>
             <div className="space-y-2">
               {brandLocations.map((location) => (
                 <div key={location.id} className="brand-selected brand-interactive flex items-center gap-3 rounded-2xl border p-3">
@@ -153,10 +158,10 @@ export default function NewChallengePage() {
 
         <aside className="brand-glass-dark self-start overflow-hidden rounded-[32px] p-5 text-white xl:sticky xl:top-28">
           <div className="flex items-center justify-between"><span className="text-sm font-semibold text-white/55">Превью гостя</span><Badge variant="success">Черновик</Badge></div>
-          <div className="mt-5 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-2xl">{companyBrand.logo}</div><div><div className="font-black">{companyBrand.name}</div><div className="text-xs text-white/50">{brandLocations.length} точек выбрано</div></div></div>
+          <div className="mt-5 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-2xl">{brandMark}</div><div><div className="font-black">{brandName}</div><div className="text-xs text-white/50">{brandLocations.length} точек выбрано</div></div></div>
           <div className="mt-6 text-4xl">{campaign.emoji}</div>
           <h2 className="mt-3 text-2xl font-black">{campaign.title}</h2>
-          <p className="mt-2 text-sm leading-6 text-white/65">Посетите пять Coffee Place за неделю и откройте напиток на выбор.</p>
+          <p className="mt-2 text-sm leading-6 text-white/65">Посетите пять точек {brandName} за неделю и откройте напиток на выбор.</p>
           <div className="mt-5 space-y-2 text-sm font-bold">
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-3"><Target className="h-5 w-5 text-emerald-300" />5 визитов за 7 дней</div>
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-3"><Gift className="h-5 w-5 text-amber-300" />Напиток на выбор + 200 монет</div>

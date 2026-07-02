@@ -3,13 +3,16 @@ import { BarChart3, Eye, PlusCircle, Settings2 } from "lucide-react";
 import { companyBrand } from "@/data/brands";
 import { getBrandChallenges } from "@/data/challenges";
 import { companyAnalytics } from "@/data/analytics";
+import { getCurrentBrand } from "@/lib/auth-server";
 import { routes } from "@/lib/routes";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { BrandPageHeader } from "@/components/brand/brand-page-header";
 import { buttonClasses } from "@/components/ui/button";
 
-export default function BrandChallengesPage() {
+export default async function BrandChallengesPage() {
+  const session = await getCurrentBrand();
+  const brandName = session?.brand.name ?? "бренда";
   const challenges = getBrandChallenges(companyBrand.id);
 
   return (
@@ -18,7 +21,7 @@ export default function BrandChallengesPage() {
         actionHref={routes.brand.newChallenge}
         actionIcon={PlusCircle}
         actionLabel="Создать челлендж"
-        description="Управляйте кампаниями Coffee Place: настраивайте механику, проверяйте вид для гостя и следите за результатами."
+        description={`Управляйте кампаниями ${brandName}: настраивайте механику, проверяйте вид для гостя и следите за результатами.`}
         eyebrow="Механики"
         title="Челленджи бренда"
       />
@@ -70,7 +73,7 @@ export default function BrandChallengesPage() {
         ))}
       </section>
 
-      <p className="text-xs text-slate-400">Всего активаций наград Coffee Place: {companyAnalytics.rewardActivations.toLocaleString("ru-RU")}</p>
+      <p className="text-xs text-slate-400">Всего активаций наград {brandName}: {companyAnalytics.rewardActivations.toLocaleString("ru-RU")}</p>
     </main>
   );
 }

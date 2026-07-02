@@ -3,6 +3,7 @@ import { ArrowRight, BarChart3, Eye, Gift, PlusCircle, QrCode, Repeat2, Target, 
 import { companyAnalytics } from "@/data/analytics";
 import { companyBrand } from "@/data/brands";
 import { getBrandChallenges } from "@/data/challenges";
+import { getCurrentBrand } from "@/lib/auth-server";
 import { routes } from "@/lib/routes";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -13,7 +14,14 @@ import { buttonClasses } from "@/components/ui/button";
 
 const brandChallenges = getBrandChallenges(companyBrand.id);
 
-export default function BrandDashboardPage() {
+export default async function BrandDashboardPage() {
+  const session = await getCurrentBrand();
+  const brand = session?.brand;
+  const brandName = brand?.name ?? "Бренд";
+  const brandCategory = brand?.category ?? "Категория не указана";
+  const brandLocation = [brand?.city, brand?.address].filter(Boolean).join(", ") || "Локация не указана";
+  const brandDescription = brand?.description ?? "Добавьте описание бренда, чтобы команда видела общий контекст кабинета.";
+
   const metrics = [
     {
       label: "Подписчиков",
@@ -41,7 +49,7 @@ export default function BrandDashboardPage() {
         actionHref={routes.brand.preview}
         actionIcon={Eye}
         actionLabel="Превью гостя"
-        brandName={companyBrand.name}
+        brandName={brandName}
         description="Кабинет бренда показывает, как команда управляет челленджами, вовлечением гостей и наградами без лишней сложности."
         title="Обзор бренда"
         variant="dark"
@@ -50,6 +58,26 @@ export default function BrandDashboardPage() {
       <p className="w-fit rounded-full border border-slate-200/70 bg-white/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
         Демо-сценарий бренда
       </p>
+
+      <Card className="p-5">
+        <div className="grid gap-4 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+          <div>
+            <div className="text-xs font-extrabold uppercase tracking-[0.14em] text-emerald-700">Профиль бренда</div>
+            <h2 className="mt-1 text-2xl font-black">{brandName}</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">{brandDescription}</p>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/80 bg-white/55 p-3">
+              <div className="text-xs font-bold text-slate-400">Категория</div>
+              <div className="mt-1 font-black">{brandCategory}</div>
+            </div>
+            <div className="rounded-2xl border border-white/80 bg-white/55 p-3">
+              <div className="text-xs font-bold text-slate-400">Город и адрес</div>
+              <div className="mt-1 font-black">{brandLocation}</div>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       <section className="grid gap-4 md:grid-cols-3">
         {metrics.map((metric) => (

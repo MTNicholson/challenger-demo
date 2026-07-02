@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { BarChart3, Boxes, QrCode, ScanLine, Target } from "lucide-react";
 import { coffeePlaceRewards, type BrandReward } from "@/data/rewards";
+import { getCurrentBrand } from "@/lib/auth-server";
 import { routes } from "@/lib/routes";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -18,17 +19,20 @@ const typeLabels: Record<BrandReward["rewardType"], string> = {
   bonus: "Бонусные монеты",
 };
 
-export default function BrandRewardsPage() {
+export default async function BrandRewardsPage() {
+  const session = await getCurrentBrand();
+  const brandName = session?.brand.name ?? "Бренд";
+
   return (
     <main className="space-y-6">
-      <BrandPageHeader eyebrow="Coffee Place · награды" title="Управление наградами" description="Следите за статусами, активациями и остатками наград в активных челленджах." />
+      <BrandPageHeader eyebrow={`${brandName} · награды`} title="Управление наградами" description="Следите за статусами, активациями и остатками наград в активных челленджах." />
 
       <div className="flex flex-wrap gap-3">
         <Link href={routes.brand.scanner} className={buttonClasses({ variant: "dark" })}><ScanLine className="h-4 w-4" />Открыть сканер</Link>
         <Link href={routes.brand.analytics} className={buttonClasses({ variant: "secondary" })}><BarChart3 className="h-4 w-4" />Аналитика</Link>
       </div>
 
-      <section className="grid gap-4" aria-label="Награды Coffee Place">
+      <section className="grid gap-4" aria-label={`Награды ${brandName}`}>
         {coffeePlaceRewards.map((reward) => {
           const status = statusMeta[reward.status];
           return (

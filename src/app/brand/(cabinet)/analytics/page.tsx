@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, Gift, MapPin, Repeat2, Target, TrendingUp, Users } from "lucide-react";
 import { campaignAnalytics, companyAnalytics, engagementFunnel, locationPerformance } from "@/data/analytics";
+import { getCurrentBrand } from "@/lib/auth-server";
 import { routes } from "@/lib/routes";
 import { Card } from "@/components/ui/card";
 import { BrandMetricCard } from "@/components/brand/brand-metric-card";
@@ -12,7 +13,10 @@ import { ChallengePerformanceChart, LocationsChart, RewardActivationsChart, Week
 
 const formatNumber = (value: number) => value.toLocaleString("ru-RU");
 
-export default function BrandAnalyticsPage() {
+export default async function BrandAnalyticsPage() {
+  const session = await getCurrentBrand();
+  const brandName = session?.brand.name ?? "Бренд";
+
   const metrics = [
     { label: "Участников", value: formatNumber(companyAnalytics.participants), delta: "+248 за неделю", icon: Users },
     { label: "Активных челленджей", value: companyAnalytics.activeChallenges, delta: "2 ключевые кампании", icon: Target },
@@ -24,7 +28,7 @@ export default function BrandAnalyticsPage() {
 
   return (
     <main className="space-y-6">
-      <BrandPageHeader eyebrow="Аналитика Coffee Place · 13–19 июня" title="Эффективность бренда" description="Челленджи приводят гостей в кофейни, возвращают их повторно и превращают вовлечение в измеримые активации наград." />
+      <BrandPageHeader eyebrow={`Аналитика ${brandName} · 13–19 июня`} title="Эффективность бренда" description="Челленджи приводят гостей в точки бренда, возвращают их повторно и превращают вовлечение в измеримые активации наград." />
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {metrics.map((metric) => <BrandMetricCard key={metric.label} {...metric} />)}
@@ -67,7 +71,7 @@ export default function BrandAnalyticsPage() {
       </Card>
 
       <Card className="brand-table-card overflow-hidden p-0">
-        <div className="border-b border-slate-100 p-6"><div className="text-sm font-semibold text-slate-400">Сеть Coffee Place</div><h2 className="mt-1 text-2xl font-black">Эффективность точек</h2></div>
+        <div className="border-b border-slate-100 p-6"><div className="text-sm font-semibold text-slate-400">Сеть {brandName}</div><h2 className="mt-1 text-2xl font-black">Эффективность точек</h2></div>
         <div className="overflow-x-auto"><table className="w-full min-w-[760px] text-left text-sm"><thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-400"><tr>{["Точка", "Визиты", "Сканирования", "Награды", "Повторные визиты", "Динамика"].map((label) => <th key={label} className="px-6 py-4 font-bold">{label}</th>)}</tr></thead><tbody className="divide-y divide-slate-100">{locationPerformance.map((location) => <tr key={location.id} className="transition hover:bg-slate-50/70"><td className="px-6 py-5 font-black">{location.name}</td><td className="px-6 py-5">{formatNumber(location.visits)}</td><td className="px-6 py-5">{formatNumber(location.scans)}</td><td className="px-6 py-5">{formatNumber(location.rewards)}</td><td className="px-6 py-5">{formatNumber(location.repeatVisits)}</td><td className="px-6 py-5"><Badge variant="success">+{location.trend}%</Badge></td></tr>)}</tbody></table></div>
       </Card>
     </main>
