@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
 import type { PublicBrandSummary } from "@/lib/public-brands";
 import { routes } from "@/lib/routes";
+import { FavoriteToggleButton } from "@/components/user/favorite-toggle-button";
 import styles from "./brand-card.module.css";
 
 type BrandCardProps = {
@@ -37,6 +40,12 @@ export function BrandCard({ brand }: BrandCardProps) {
           <span className={styles.category}>{category}</span>
           <h3 className={styles.title}>{brand.name}</h3>
         </div>
+        <FavoriteToggleButton
+          id={brand.id}
+          type="brand"
+          className={styles.favoriteButton}
+          activeClassName={styles.favoriteButtonActive}
+        />
       </div>
       <div className={styles.meta}>
         <span>

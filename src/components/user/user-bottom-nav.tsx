@@ -2,18 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Map, Trophy, User } from "lucide-react";
+import { Building2, Home, Map, Trophy, User } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { routes } from "@/lib/routes";
 import styles from "./user-phone-shell.module.css";
 
 const items = [
-  {
-    label: "Главная",
-    href: routes.user.home,
-    icon: Home,
-    activePaths: [routes.user.home],
-  },
   {
     label: "Челленджи",
     href: routes.user.challenges,
@@ -22,6 +16,19 @@ const items = [
       routes.user.challenges,
       routes.user.myChallenges,
     ],
+  },
+  {
+    label: "Бренды",
+    href: routes.user.brands,
+    icon: Building2,
+    activePaths: [routes.user.brands],
+  },
+  {
+    label: "Главная",
+    href: routes.user.home,
+    icon: Home,
+    activePaths: [routes.user.home],
+    primary: true,
   },
   {
     label: "Карта",
@@ -65,10 +72,12 @@ export function UserBottomNav() {
               href={item.href}
               scroll={false}
               className={cn(
-                styles.bottomNavItem,
+                item.primary ? styles.bottomNavPrimary : styles.bottomNavItem,
                 isActive && styles.bottomNavItemActive,
+                item.primary && isActive && styles.bottomNavPrimaryActive,
               )}
               aria-current={isActive ? "page" : undefined}
+              aria-label={item.primary ? item.label : undefined}
             >
               <span className={styles.bottomNavIconWrap}>
                 <Icon
@@ -77,7 +86,7 @@ export function UserBottomNav() {
                 />
               </span>
 
-              <span className={styles.bottomNavLabel}>{item.label}</span>
+              {item.primary ? null : <span className={styles.bottomNavLabel}>{item.label}</span>}
             </Link>
           );
         })}

@@ -3,11 +3,9 @@
 import Link from "next/link";
 import { Search, SlidersHorizontal } from "lucide-react";
 import { challenges, type Challenge } from "@/data/challenges";
-import type { PublicBrandSummary } from "@/lib/public-brands";
 import { routes } from "@/lib/routes";
 import { useCurrentUser } from "@/lib/auth-client";
 import { useUserChallengeStates } from "@/lib/user-challenge-storage";
-import { BrandCard } from "@/components/user/brand-card";
 import styles from "./user-challenges.module.css";
 
 const categories = ["Все", "Новые", "Еда", "Фитнес", "Beauty", "Книги"];
@@ -128,7 +126,7 @@ function StaggeredCards({ challenges }: { challenges: Challenge[] }) {
   );
 }
 
-export function UserChallengesClient({ brands }: { brands: PublicBrandSummary[] }) {
+export function UserChallengesClient() {
   const { user } = useCurrentUser();
   const { states } = useUserChallengeStates(user?.id);
   const orderedChallenges = catalogOrder
@@ -172,22 +170,6 @@ export function UserChallengesClient({ brands }: { brands: PublicBrandSummary[] 
           </button>
         ))}
       </div>
-
-      {brands.length ? (
-        <section className={styles.brandsSection} aria-labelledby="real-brands-title">
-          <div className={styles.sectionHeading}>
-            <div>
-              <h2 id="real-brands-title">Бренды в Челленджере</h2>
-              <p>Открывайте места, следите за заданиями и забирайте награды</p>
-            </div>
-          </div>
-          <div className={styles.brandRail}>
-            {brands.map((brand) => (
-              <BrandCard key={brand.id} brand={brand} />
-            ))}
-          </div>
-        </section>
-      ) : null}
 
       <section className={styles.catalog} aria-label="Каталог челленджей">
         {orderedChallenges[0] ? (

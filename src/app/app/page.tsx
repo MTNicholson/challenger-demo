@@ -41,6 +41,12 @@ export default function UserHomePage() {
 
       <CoinBalanceCard href={routes.user.coins} coins={user?.coinsBalance ?? 0} />
 
+      <Link href={routes.user.map} className={`${styles.dailyTask} ${styles.dailyTaskHighlight} ${glassPanelClasses}`}>
+        <span><Flame size={19} /></span>
+        <div><strong>Задача дня</strong><p>Открой карту и выбери место рядом</p></div>
+        <b className={glassPillClasses}>🪙 10</b>
+      </Link>
+
       <section>
         <div className={styles.sectionHeading}>
           <h2>Активные челленджи</h2>
@@ -55,12 +61,6 @@ export default function UserHomePage() {
           </Link>
         )}
       </section>
-
-      <Link href={routes.user.map} className={`${styles.dailyTask} ${glassPanelClasses}`}>
-        <span><Flame size={19} /></span>
-        <div><strong>Задача дня</strong><p>Открой карту и выбери место рядом</p></div>
-        <b className={glassPillClasses}>🪙 10</b>
-      </Link>
 
       <section>
         <div className={styles.sectionHeading}><h2>Рядом с тобой</h2></div>

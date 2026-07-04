@@ -69,6 +69,14 @@ function serializeChallenge(challenge: BrandChallenge): PublicBrandChallenge {
   };
 }
 
+export function normalizePublicBrandSlug(slug: string) {
+  try {
+    return decodeURIComponent(slug).trim().toLocaleLowerCase().normalize("NFC");
+  } catch {
+    return slug.trim().toLocaleLowerCase().normalize("NFC");
+  }
+}
+
 export async function getPublicBrands(): Promise<PublicBrandSummary[]> {
   const brands = await prisma.brand.findMany({
     orderBy: { createdAt: "desc" },
@@ -83,8 +91,10 @@ export async function getPublicBrands(): Promise<PublicBrandSummary[]> {
 }
 
 export async function getPublicBrandBySlug(slug: string): Promise<PublicBrandDetail | null> {
-  const brand = await prisma.brand.findUnique({
-    where: { slug },
+  const normalizedSlug = normalizePublicBrandSlug(slug);
+
+  const brand = await prisma.brand.findFirst({
+    where: { slug: normalizedSlug },
     include: {
       challenges: {
         orderBy: { createdAt: "desc" },

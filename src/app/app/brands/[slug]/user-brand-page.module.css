@@ -46,7 +46,34 @@
 }
 
 .heroCopy {
+  flex: 1;
   min-width: 0;
+}
+
+.favoriteButton {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: none;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: 17px;
+  color: #8b95ad;
+  background: rgba(255, 255, 255, 0.58);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 9px 20px rgba(55, 70, 126, 0.09);
+  cursor: pointer;
+  transition: transform 0.2s ease, color 0.2s ease, background 0.2s ease;
+}
+
+.favoriteButton:hover {
+  transform: translateY(-1px);
+  color: #e2647b;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.favoriteButtonActive {
+  color: #e2647b;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(255, 226, 234, 0.68));
 }
 
 .category {

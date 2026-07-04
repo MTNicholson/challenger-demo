@@ -14,10 +14,11 @@ export const routes = {
   user: {
     home: "/app",
     challenges: "/app/challenges",
+    brands: "/app/brands",
     myChallenges: "/app/my-challenges",
     favorites: "/app/favorites",
     rewards: "/app/rewards",
-    brandDetail: (slug: string) => `/app/brands/${slug}`,
+    brandDetail: (slug: string) => `/app/brands/${encodeURIComponent(slug)}`,
     challengeDetail: (id: string) => `/app/challenges/${id}`,
     map: "/app/map",
     profile: "/app/profile",

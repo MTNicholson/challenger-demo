@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { addFavoriteItem, removeFavoriteItem } from "@/lib/favorite-storage";
 
 export type UserChallengeState = {
   challengeId: string;
@@ -11,6 +12,7 @@ export type UserChallengeState = {
   cancelledAt?: string;
   completedAt?: string;
   isFavorite?: boolean;
+  favoriteAddedAt?: string;
 };
 
 type UserChallengeDatabase = Record<string, UserChallengeState[]>;
@@ -42,6 +44,7 @@ function getInitialStates(userId: string): UserChallengeState[] {
           progressTotal: 5,
           activatedAt: new Date().toISOString(),
           isFavorite: true,
+          favoriteAddedAt: new Date().toISOString(),
         },
       ]
     : [];
@@ -114,10 +117,24 @@ export function cancelChallenge(userId: string, challengeId: string) {
 }
 
 export function toggleFavoriteChallenge(userId: string, challengeId: string) {
-  return updateChallengeState(userId, challengeId, (current) => ({
-    ...current,
-    isFavorite: !current.isFavorite,
-  }));
+  return updateChallengeState(userId, challengeId, (current) => {
+    if (current.isFavorite) {
+      removeFavoriteItem(userId, "challenge", challengeId);
+      return {
+        ...current,
+        isFavorite: false,
+        favoriteAddedAt: undefined,
+      };
+    }
+
+    const favoriteAddedAt = new Date().toISOString();
+    addFavoriteItem(userId, "challenge", challengeId, favoriteAddedAt);
+    return {
+      ...current,
+      isFavorite: true,
+      favoriteAddedAt,
+    };
+  });
 }
 
 export function getActiveChallengesForUser(userId: string) {

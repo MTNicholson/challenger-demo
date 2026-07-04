@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: challenger-postgres-dev
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: challenger
+      POSTGRES_PASSWORD: challenger
+      POSTGRES_DB: challenger_demo_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - challenger_postgres_dev_data:/var/lib/postgresql/data
+
+volumes:
+  challenger_postgres_dev_data:

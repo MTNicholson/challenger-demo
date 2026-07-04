@@ -4,6 +4,7 @@ import { ArrowLeft, ExternalLink, Gift, Globe, MapPin, Sparkles } from "lucide-r
 import { getPublicBrandBySlug } from "@/lib/public-brands";
 import { routes } from "@/lib/routes";
 import { buttonClasses } from "@/components/ui/button";
+import { FavoriteToggleButton } from "@/components/user/favorite-toggle-button";
 import styles from "./user-brand-page.module.css";
 
 export const dynamic = "force-dynamic";
@@ -19,9 +20,18 @@ function formatStatus(status: string) {
   return status;
 }
 
+function decodeSlugParam(slug: string) {
+  try {
+    return decodeURIComponent(slug);
+  } catch {
+    return slug;
+  }
+}
+
 export default async function UserBrandPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const brand = await getPublicBrandBySlug(slug);
+  const decodedSlug = decodeSlugParam(slug);
+  const brand = await getPublicBrandBySlug(decodedSlug);
 
   if (!brand) notFound();
 
@@ -32,9 +42,9 @@ export default async function UserBrandPage({ params }: { params: Promise<{ slug
 
   return (
     <main className={styles.page}>
-      <Link href={routes.user.challenges} className={buttonClasses({ variant: "ghost", size: "sm", className: "w-fit" })}>
+      <Link href={routes.user.brands} className={buttonClasses({ variant: "ghost", size: "sm", className: "w-fit" })}>
         <ArrowLeft className="h-4 w-4" />
-        К челленджам
+        К брендам
       </Link>
 
       <section className={styles.hero}>
@@ -49,6 +59,12 @@ export default async function UserBrandPage({ params }: { params: Promise<{ slug
             <span className={styles.category}>{category}</span>
             <h1 className={styles.title}>{brand.name}</h1>
           </div>
+          <FavoriteToggleButton
+            id={brand.id}
+            type="brand"
+            className={styles.favoriteButton}
+            activeClassName={styles.favoriteButtonActive}
+          />
         </div>
         <p className={styles.description}>{description}</p>
         <div className={styles.metaGrid}>
