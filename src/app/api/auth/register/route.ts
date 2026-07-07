@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { AUTH_COOKIE_NAME, AUTH_SESSION_DAYS, splitIdentifier, toPublicUser } from "@/lib/auth-shared";
 import { createSessionToken } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
+import { RUSSIAN_CITIES } from "@/lib/russian-cities";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -15,10 +16,14 @@ export async function POST(request: Request) {
   const name = body?.name?.trim() ?? "";
   const password = body?.password ?? "";
   const identifier = splitIdentifier(body?.identifier ?? body?.login ?? "");
-  const city = body?.city?.trim() || "Санкт-Петербург";
+  const city = body?.city?.trim() ?? "";
 
-  if (!name || !identifier || !password.trim()) {
+  if (!name || !identifier || !password.trim() || !city) {
     return NextResponse.json({ error: "Заполните все поля." }, { status: 400 });
+  }
+
+  if (!RUSSIAN_CITIES.includes(city as (typeof RUSSIAN_CITIES)[number])) {
+    return NextResponse.json({ error: "Выберите город из списка." }, { status: 400 });
   }
 
   const existingUser = await prisma.user.findFirst({

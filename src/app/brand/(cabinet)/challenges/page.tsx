@@ -30,7 +30,7 @@ export default async function BrandChallengesPage() {
         {challenges.map((challenge) => (
           <Card key={challenge.id} className="brand-interactive p-5">
             <div className="flex items-start justify-between gap-4">
-              <div className="grid h-12 w-12 place-items-center rounded-2xl border border-white/80 bg-emerald-50/70 text-2xl shadow-sm">
+              <div className="grid h-12 w-12 place-items-center rounded-xl border border-blue-100 bg-blue-50 text-2xl shadow-sm">
                 {challenge.emoji}
               </div>
               <Badge

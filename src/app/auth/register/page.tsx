@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LockKeyhole, Sparkles, UserRound } from "lucide-react";
+import { LockKeyhole, MapPin, Sparkles, UserRound } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { AuthInput } from "@/components/auth/auth-input";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { notifyAuthChanged } from "@/lib/auth-client";
+import { RUSSIAN_CITIES } from "@/lib/russian-cities";
 import { routes } from "@/lib/routes";
 import styles from "@/components/auth/auth.module.css";
 
@@ -16,13 +17,14 @@ export default function RegisterPage() {
   const [name, setName] = useState("");
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [city, setCity] = useState("");
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    if (!name.trim() || !login.trim() || !password.trim()) {
+    if (!name.trim() || !login.trim() || !password.trim() || !city.trim()) {
       setError("Заполните все поля.");
       return;
     }
@@ -32,7 +34,7 @@ export default function RegisterPage() {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include",
-      body: JSON.stringify({ name, identifier: login, password }),
+      body: JSON.stringify({ name, identifier: login, password, city }),
     });
     const data = (await response.json().catch(() => null)) as { error?: string } | null;
     setPending(false);
@@ -94,6 +96,26 @@ export default function RegisterPage() {
               setError("");
             }}
           />
+          <label className={styles.field}>
+            <span className={styles.label}>Город</span>
+            <span className={`${styles.inputWrap} ${error ? styles.inputError : ""}`}>
+              <span className={styles.inputIcon}><MapPin size={19} /></span>
+              <select
+                className={styles.input}
+                value={city}
+                disabled={pending}
+                onChange={(event) => {
+                  setCity(event.target.value);
+                  setError("");
+                }}
+              >
+                <option value="">Выберите город</option>
+                {RUSSIAN_CITIES.map((item) => (
+                  <option key={item} value={item}>{item}</option>
+                ))}
+              </select>
+            </span>
+          </label>
           {error && (
             <p className={styles.error} role="alert">
               {error}

@@ -3,7 +3,11 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
 import { AUTH_SESSION_DAYS, BRAND_AUTH_COOKIE_NAME, normalizeIdentifier, toPublicBrandMember } from "@/lib/auth-shared";
 import { createBrandSessionToken } from "@/lib/auth-server";
+import { getImageFile, saveBrandImage, validateBrandImage } from "@/lib/brand-upload-server";
+import { getOptionalNumberField, isValidLatitude, isValidLongitude } from "@/lib/brand-settings-validation";
+import { BRAND_CATEGORIES } from "@/lib/brand-visuals";
 import { prisma } from "@/lib/prisma";
+import { RUSSIAN_CITIES } from "@/lib/russian-cities";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -16,6 +20,21 @@ function makeSlug(value: string) {
       .replace(/[^a-z0-9а-яё]+/gi, "-")
       .replace(/^-+|-+$/g, "") || "brand"
   );
+}
+
+function getStringValue(source: FormData | Record<string, unknown> | null, key: string) {
+  if (!source) return "";
+  if (source instanceof FormData) {
+    const value = source.get(key);
+    return typeof value === "string" ? value.trim() : "";
+  }
+
+  const value = source[key];
+  return typeof value === "string" ? value.trim() : "";
+}
+
+function getOptionalStringValue(source: FormData | Record<string, unknown> | null, key: string) {
+  return getStringValue(source, key) || null;
 }
 
 async function createUniqueBrandSlug(name: string) {
@@ -32,30 +51,50 @@ async function createUniqueBrandSlug(name: string) {
 }
 
 export async function POST(request: Request) {
-  const body = (await request.json().catch(() => null)) as
-    | {
-        name?: string;
-        email?: string;
-        password?: string;
-        city?: string;
-        address?: string;
-        category?: string;
-        description?: string;
-        website?: string;
-      }
-    | null;
+  const contentType = request.headers.get("content-type") ?? "";
+  const isMultipart = contentType.includes("multipart/form-data");
+  const body = isMultipart
+    ? await request.formData().catch(() => null)
+    : ((await request.json().catch(() => null)) as Record<string, unknown> | null);
 
-  const name = body?.name?.trim() ?? "";
-  const email = normalizeIdentifier(body?.email ?? "");
-  const password = body?.password ?? "";
-  const city = body?.city?.trim() || null;
-  const address = body?.address?.trim() || null;
-  const category = body?.category?.trim() || null;
-  const description = body?.description?.trim() || null;
-  const website = body?.website?.trim() || null;
+  const name = getStringValue(body, "name") || getStringValue(body, "brandName");
+  const email = normalizeIdentifier(getStringValue(body, "email"));
+  const password = getStringValue(body, "password");
+  const city = getStringValue(body, "city");
+  const address = getStringValue(body, "address");
+  const fullAddress = getOptionalStringValue(body, "fullAddress");
+  const lat = getOptionalNumberField(body, "lat");
+  const lng = getOptionalNumberField(body, "lng");
+  const geoProvider = getOptionalStringValue(body, "geoProvider");
+  const geoPlaceId = getOptionalStringValue(body, "geoPlaceId");
+  const category = getStringValue(body, "category");
+  const description = getOptionalStringValue(body, "description");
+  const website = getOptionalStringValue(body, "website");
+  const logoFile = body instanceof FormData ? getImageFile(body, "logo") : null;
+  const coverImageFile = body instanceof FormData
+    ? getImageFile(body, "coverImage") ?? getImageFile(body, "cover")
+    : null;
 
-  if (!name || !email || !email.includes("@") || !password.trim() || !city || !address || !category) {
+  if (!name || !email || !email.includes("@") || !password.trim() || !category || !city || !address) {
     return NextResponse.json({ error: "Заполните обязательные поля бренда." }, { status: 400 });
+  }
+
+  if (!BRAND_CATEGORIES.includes(category as (typeof BRAND_CATEGORIES)[number])) {
+    return NextResponse.json({ error: "Выберите категорию компании из списка." }, { status: 400 });
+  }
+
+  if (!RUSSIAN_CITIES.includes(city as (typeof RUSSIAN_CITIES)[number])) {
+    return NextResponse.json({ error: "Выберите город из списка." }, { status: 400 });
+  }
+
+  const logoError = logoFile ? validateBrandImage(logoFile, "Логотип") : null;
+  const coverError = coverImageFile ? validateBrandImage(coverImageFile, "Промо-картинка") : null;
+  if (!isValidLatitude(lat) || !isValidLongitude(lng)) {
+    return NextResponse.json({ error: "Проверьте координаты адреса." }, { status: 400 });
+  }
+
+  if (logoError || coverError) {
+    return NextResponse.json({ error: logoError ?? coverError }, { status: 400 });
   }
 
   const existingMember = await prisma.brandMember.findUnique({ where: { email }, select: { id: true } });
@@ -69,6 +108,8 @@ export async function POST(request: Request) {
   try {
     const passwordHash = await bcrypt.hash(password, 12);
     const slug = await createUniqueBrandSlug(name);
+    const logoUrl = logoFile ? await saveBrandImage(logoFile, "logo") : null;
+    const coverImageUrl = coverImageFile ? await saveBrandImage(coverImageFile, "cover") : null;
     const { brand, member } = await prisma.$transaction(async (tx) => {
       const createdBrand = await tx.brand.create({
         data: {
@@ -78,6 +119,8 @@ export async function POST(request: Request) {
           city,
           address,
           description,
+          logoUrl,
+          coverImageUrl,
           website,
         },
       });
@@ -88,6 +131,21 @@ export async function POST(request: Request) {
           email,
           passwordHash,
           role: "owner",
+        },
+      });
+
+      await tx.brandLocation.create({
+        data: {
+          brandId: createdBrand.id,
+          name: "Первая точка",
+          city,
+          address,
+          fullAddress,
+          lat,
+          lng,
+          geoProvider,
+          geoPlaceId,
+          isMain: false,
         },
       });
 

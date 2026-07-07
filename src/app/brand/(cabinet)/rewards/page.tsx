@@ -36,16 +36,16 @@ export default async function BrandRewardsPage() {
         {coffeePlaceRewards.map((reward) => {
           const status = statusMeta[reward.status];
           return (
-            <Card key={reward.id} className={reward.qrEnabled ? "brand-interactive overflow-hidden border-emerald-200 p-0 ring-2 ring-emerald-100/70" : "brand-interactive p-0"}>
-              {reward.qrEnabled && <div className="bg-emerald-500 px-5 py-2 text-xs font-black uppercase tracking-wider text-white">Основная награда QR-потока</div>}
+            <Card key={reward.id} className={reward.qrEnabled ? "brand-interactive overflow-hidden border-blue-200 p-0 ring-2 ring-blue-100/70" : "brand-interactive p-0"}>
+              {reward.qrEnabled && <div className="bg-blue-600 px-5 py-2 text-xs font-black uppercase tracking-wider text-white">Основная награда QR-потока</div>}
               <div className="grid gap-6 p-5 xl:grid-cols-[1.25fr_1fr_auto] xl:items-center">
                 <div className="flex items-start gap-4">
-                  <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-emerald-50 text-2xl font-black text-emerald-700">{reward.emoji}</div>
-                  <div><div className="flex flex-wrap items-center gap-2"><h2 className="text-xl font-black">{reward.title}</h2><Badge variant={status.variant}>{status.label}</Badge><Badge>{typeLabels[reward.rewardType]}</Badge></div><p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">{reward.description}</p><div className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-slate-600"><Target className="h-4 w-4 text-emerald-600" />{reward.challengeTitle}</div></div>
+                  <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-blue-50 text-2xl font-black text-blue-700">{reward.emoji}</div>
+                  <div><div className="flex flex-wrap items-center gap-2"><h2 className="text-xl font-black">{reward.title}</h2><Badge variant={status.variant}>{status.label}</Badge><Badge>{typeLabels[reward.rewardType]}</Badge></div><p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">{reward.description}</p><div className="mt-3 inline-flex items-center gap-2 text-sm font-bold text-slate-600"><Target className="h-4 w-4 text-blue-600" />{reward.challengeTitle}</div></div>
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div className="rounded-2xl bg-slate-50 p-4"><div className="text-2xl font-black">{reward.activations}</div><div className="mt-1 text-xs text-slate-400">активаций</div></div>
-                  <div className="rounded-2xl bg-slate-50 p-4"><div className="flex items-center gap-2 font-black"><Boxes className="h-4 w-4 text-slate-400" />{reward.stockLabel}</div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-emerald-500" style={{ width: `${reward.stockPercent}%` }} /></div><div className="mt-1 text-xs text-slate-400">остаток / бюджет</div></div>
+                  <div className="rounded-xl bg-slate-50 p-4"><div className="flex items-center gap-2 font-black"><Boxes className="h-4 w-4 text-slate-400" />{reward.stockLabel}</div><div className="mt-3 h-1.5 overflow-hidden rounded-full bg-slate-200"><div className="h-full rounded-full bg-blue-600" style={{ width: `${reward.stockPercent}%` }} /></div><div className="mt-1 text-xs text-slate-400">остаток / бюджет</div></div>
                 </div>
                 {reward.qrEnabled ? <Link href={routes.brand.scanner} className={buttonClasses({ variant: "primary" })}><QrCode className="h-4 w-4" />Сканировать</Link> : <Badge variant={status.variant}>Настройка недоступна в демо</Badge>}
               </div>

@@ -16,7 +16,8 @@ import {
 import { useState } from "react";
 import { CoinBalanceCard } from "@/components/user/coin-balance-card";
 import { routes } from "@/lib/routes";
-import { useCurrentUser } from "@/lib/auth-client";
+import { notifyAuthChanged, useCurrentUser } from "@/lib/auth-client";
+import { RUSSIAN_CITIES } from "@/lib/russian-cities";
 import styles from "@/components/user/profile-screen.module.css";
 
 const menu = [
@@ -28,6 +29,9 @@ const menu = [
 export default function UserProfilePage() {
   const { user } = useCurrentUser();
   const [isEditing, setIsEditing] = useState(false);
+  const [isCityEditing, setIsCityEditing] = useState(false);
+  const [selectedCity, setSelectedCity] = useState("");
+  const [citySaving, setCitySaving] = useState(false);
   const [notice, setNotice] = useState("");
   const name = user?.name ?? "Алекс";
   const initials = name.slice(0, 1).toLocaleUpperCase();
@@ -42,6 +46,34 @@ export default function UserProfilePage() {
     setIsEditing(true);
   }
 
+  function openCityEditor() {
+    setSelectedCity(city);
+    setIsCityEditing(true);
+  }
+
+  async function saveCity() {
+    if (!selectedCity) return;
+    setCitySaving(true);
+    const response = await fetch("/api/auth/me", {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ city: selectedCity }),
+    });
+    setCitySaving(false);
+
+    if (!response.ok) {
+      setNotice("Не удалось сохранить город");
+      window.setTimeout(() => setNotice(""), 2000);
+      return;
+    }
+
+    notifyAuthChanged();
+    setIsCityEditing(false);
+    setNotice("Город обновлён");
+    window.setTimeout(() => setNotice(""), 2000);
+  }
+
   return (
     <main className={styles.page}>
       <section className={styles.profileCard}>
@@ -54,7 +86,7 @@ export default function UserProfilePage() {
             <h1>{name}</h1>
             <button type="button" onClick={openEditor} aria-label="Редактировать имя"><Pencil size={15} /></button>
           </div>
-          <button type="button" className={styles.location} onClick={showSoon}>
+          <button type="button" className={styles.location} onClick={openCityEditor}>
             <MapPin size={14} />
             {city}
             <ChevronRight size={14} />
@@ -96,6 +128,25 @@ export default function UserProfilePage() {
             <h2>Редактирование профиля</h2>
             <p>Скоро здесь можно будет менять имя, город и аватар.</p>
             <button type="button" className={styles.saveButton} onClick={() => setIsEditing(false)}>Понятно</button>
+          </section>
+        </div>
+      ) : null}
+
+      {isCityEditing ? (
+        <div className={styles.overlay} role="presentation" onMouseDown={() => setIsCityEditing(false)}>
+          <section className={styles.editor} onMouseDown={(event) => event.stopPropagation()}>
+            <button type="button" className={styles.close} onClick={() => setIsCityEditing(false)} aria-label="Закрыть"><X size={18} /></button>
+            <h2>Выбор города</h2>
+            <p>Город поможет показывать бренды и точки рядом с вами.</p>
+            <select className={styles.select} value={selectedCity} onChange={(event) => setSelectedCity(event.target.value)}>
+              <option value="">Выберите город</option>
+              {RUSSIAN_CITIES.map((item) => (
+                <option key={item} value={item}>{item}</option>
+              ))}
+            </select>
+            <button type="button" className={styles.saveButton} disabled={citySaving || !selectedCity} onClick={saveCity}>
+              {citySaving ? "Сохраняем..." : "Сохранить город"}
+            </button>
           </section>
         </div>
       ) : null}

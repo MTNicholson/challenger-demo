@@ -37,14 +37,14 @@ export function MetricCard({
           <div
             className={cn(
               "grid h-11 w-11 place-items-center rounded-2xl",
-              dark ? "bg-white/10" : "border border-white/80 bg-emerald-50/70 shadow-sm",
+              dark ? "bg-white/10" : "border border-blue-100 bg-blue-50 text-blue-700 shadow-sm",
               tone === "amber" && "bg-white/45",
             )}
           >
             <Icon
               className={cn(
                 "h-5 w-5",
-                dark ? "text-white/70" : "text-emerald-700",
+                dark ? "text-white/70" : "text-blue-700",
                 tone === "amber" && "text-amber-800",
               )}
             />
@@ -53,7 +53,7 @@ export function MetricCard({
           <span />
         )}
         {delta ? (
-          <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700">
+          <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-bold text-blue-700">
             {delta}
           </span>
         ) : null}

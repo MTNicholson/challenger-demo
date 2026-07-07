@@ -43,6 +43,10 @@ yarn-error.log*
 *.sqlite
 *.sqlite3
 
+# local demo uploads
+/public/uploads
+/public/uploads/brands
+
 # vercel
 .vercel
 

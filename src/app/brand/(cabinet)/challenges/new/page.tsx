@@ -42,8 +42,8 @@ function Field({ label, value, wide = false }: { label: string; value: string; w
 function Option({ icon: Icon, title, detail, selected = false }: { icon: LucideIcon; title: string; detail: string; selected?: boolean }) {
   return (
     <div className={`brand-interactive relative rounded-2xl border p-4 ${selected ? "brand-selected" : "border-white/80 bg-white/55"}`}>
-      {selected ? <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-emerald-500 text-white"><Check className="h-3 w-3" /></span> : null}
-      <Icon className={`h-5 w-5 ${selected ? "text-emerald-700" : "text-slate-400"}`} />
+      {selected ? <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-blue-600 text-white"><Check className="h-3 w-3" /></span> : null}
+      <Icon className={`h-5 w-5 ${selected ? "text-blue-700" : "text-slate-400"}`} />
       <div className="mt-3 text-sm font-black">{title}</div>
       <div className="mt-1 pr-4 text-xs leading-5 text-slate-500">{detail}</div>
     </div>
@@ -52,7 +52,7 @@ function Option({ icon: Icon, title, detail, selected = false }: { icon: LucideI
 
 function Section({ number, title, description, children }: { number: string; title: string; description: string; children: React.ReactNode }) {
   return (
-    <section className="brand-glass rounded-[30px] p-5 sm:p-6">
+    <section className="brand-glass rounded-2xl p-5 sm:p-6">
       <div className="flex items-start gap-3">
         <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-slate-950 text-sm font-black text-white">{number}</span>
         <div><h2 className="text-xl font-black">{title}</h2><p className="mt-1 text-sm text-slate-500">{description}</p></div>
@@ -78,11 +78,11 @@ export default async function NewChallengePage() {
         <Link href={routes.brand.challenges} className={buttonClasses({ variant: "ghost" })}>К списку челленджей</Link>
       </header>
 
-      <nav aria-label="Этапы настройки" className="brand-glass overflow-x-auto rounded-[24px] p-2">
+      <nav aria-label="Этапы настройки" className="brand-glass overflow-x-auto rounded-2xl p-2">
         <ol className="flex min-w-max items-center">
           {steps.map((step, index) => (
             <li key={step} className="flex items-center">
-              <div className={`flex items-center gap-2 rounded-2xl px-3 py-2.5 text-sm font-extrabold transition ${index === 0 ? "bg-[#172f29] text-white shadow-md" : "text-slate-500 hover:bg-white/60"}`}>
+              <div className={`flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-extrabold transition ${index === 0 ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:bg-blue-50"}`}>
                 <span className={`grid h-6 w-6 place-items-center rounded-full text-xs ${index === 0 ? "bg-white/15" : "bg-slate-100"}`}>{index + 1}</span>{step}
               </div>
               {index < steps.length - 1 ? <ChevronRight className="mx-1 h-4 w-4 text-slate-300" /> : null}
@@ -128,7 +128,7 @@ export default async function NewChallengePage() {
             <div className="space-y-2">
               {brandLocations.map((location) => (
                 <div key={location.id} className="brand-selected brand-interactive flex items-center gap-3 rounded-2xl border p-3">
-                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-emerald-500 text-white"><Check className="h-4 w-4" /></span>
+                  <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-blue-600 text-white"><Check className="h-4 w-4" /></span>
                   <div className="min-w-0 flex-1"><div className="truncate text-sm font-black">{location.title}</div><div className="truncate text-xs text-slate-500">{location.address} · {location.district}</div></div>
                   <Badge variant="success">Выбрана</Badge>
                 </div>
@@ -149,27 +149,27 @@ export default async function NewChallengePage() {
             </div>
           </Section>
 
-          <div className="brand-glass flex flex-wrap items-center gap-3 rounded-[28px] p-4">
+          <div className="brand-glass flex flex-wrap items-center gap-3 rounded-2xl p-4">
             <Button variant="secondary" disabled title="Демо-режим: сохранение не требуется" className="cursor-not-allowed opacity-60"><Save className="h-4 w-4" />Сохранить черновик</Button>
             <Link href={routes.brand.preview} className={buttonClasses({ variant: "dark" })}><Eye className="h-4 w-4" />Открыть превью гостя</Link>
             <span className="text-xs text-slate-400">Демо-режим · изменения не сохраняются</span>
           </div>
         </div>
 
-        <aside className="brand-glass-dark self-start overflow-hidden rounded-[32px] p-5 text-white xl:sticky xl:top-28">
+        <aside className="brand-glass-dark self-start overflow-hidden rounded-2xl p-5 text-white xl:sticky xl:top-28">
           <div className="flex items-center justify-between"><span className="text-sm font-semibold text-white/55">Превью гостя</span><Badge variant="success">Черновик</Badge></div>
           <div className="mt-5 flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-2xl">{brandMark}</div><div><div className="font-black">{brandName}</div><div className="text-xs text-white/50">{brandLocations.length} точек выбрано</div></div></div>
           <div className="mt-6 text-4xl">{campaign.emoji}</div>
           <h2 className="mt-3 text-2xl font-black">{campaign.title}</h2>
           <p className="mt-2 text-sm leading-6 text-white/65">Посетите пять точек {brandName} за неделю и откройте напиток на выбор.</p>
           <div className="mt-5 space-y-2 text-sm font-bold">
-            <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-3"><Target className="h-5 w-5 text-emerald-300" />5 визитов за 7 дней</div>
+            <div className="flex items-center gap-3 rounded-xl bg-white/10 p-3"><Target className="h-5 w-5 text-sky-200" />5 визитов за 7 дней</div>
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-3"><Gift className="h-5 w-5 text-amber-300" />Напиток на выбор + 200 монет</div>
             <div className="flex items-center gap-3 rounded-2xl bg-white/10 p-3"><CalendarDays className="h-5 w-5 text-sky-300" />24 июня — 31 июля</div>
           </div>
           <div className="mt-5 rounded-2xl bg-white p-4 text-slate-950">
-            <div className="flex justify-between text-sm"><span className="font-black">Прогресс</span><span className="font-bold text-emerald-700">3 из 5</span></div>
-            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full w-3/5 rounded-full bg-emerald-500" /></div>
+            <div className="flex justify-between text-sm"><span className="font-black">Прогресс</span><span className="font-bold text-blue-700">3 из 5</span></div>
+            <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full w-3/5 rounded-full bg-blue-600" /></div>
             <div className="mt-2 text-xs text-slate-500">Осталось 2 визита до награды</div>
           </div>
           <Link href={routes.brand.preview} className={buttonClasses({ variant: "secondary", className: "mt-5 w-full" })}>Открыть полный экран<Eye className="h-4 w-4" /></Link>

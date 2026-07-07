@@ -1,9 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink, Gift, Globe, MapPin, Sparkles } from "lucide-react";
+import { ArrowLeft, ExternalLink, Globe, Sparkles } from "lucide-react";
+import { getBrandCategoryFallback } from "@/lib/brand-visuals";
+import { getCurrentUser } from "@/lib/auth-server";
 import { getPublicBrandBySlug } from "@/lib/public-brands";
 import { routes } from "@/lib/routes";
 import { buttonClasses } from "@/components/ui/button";
+import { BrandLocationsList } from "@/components/user/brand-locations-list";
 import { FavoriteToggleButton } from "@/components/user/favorite-toggle-button";
 import styles from "./user-brand-page.module.css";
 
@@ -31,14 +34,13 @@ function decodeSlugParam(slug: string) {
 export default async function UserBrandPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const decodedSlug = decodeSlugParam(slug);
-  const brand = await getPublicBrandBySlug(decodedSlug);
+  const [brand, user] = await Promise.all([getPublicBrandBySlug(decodedSlug), getCurrentUser()]);
 
   if (!brand) notFound();
 
   const category = brand.category ?? "Бренд";
-  const city = brand.city ?? "Город не указан";
-  const address = brand.address ?? "Адрес появится позже";
   const description = brand.description ?? "Скоро бренд добавит описание, задания и награды для гостей.";
+  const fallback = getBrandCategoryFallback(brand.category);
 
   return (
     <main className={styles.page}>
@@ -48,12 +50,16 @@ export default async function UserBrandPage({ params }: { params: Promise<{ slug
       </Link>
 
       <section className={styles.hero}>
+        <div
+          className={styles.cover}
+          style={brand.coverImageUrl ? { backgroundImage: `url(${brand.coverImageUrl})` } : { background: fallback.coverGradient }}
+        />
         <div className={styles.heroTop}>
           <div
             className={styles.logo}
-            style={brand.logoUrl ? { backgroundImage: `url(${brand.logoUrl})` } : undefined}
+            style={brand.logoUrl ? { backgroundImage: `url(${brand.logoUrl})` } : { background: fallback.logoGradient }}
           >
-            {brand.logoUrl ? null : getInitial(brand.name)}
+            {brand.logoUrl ? null : getInitial(brand.name) || fallback.mark}
           </div>
           <div className={styles.heroCopy}>
             <span className={styles.category}>{category}</span>
@@ -68,14 +74,6 @@ export default async function UserBrandPage({ params }: { params: Promise<{ slug
         </div>
         <p className={styles.description}>{description}</p>
         <div className={styles.metaGrid}>
-          <div className={styles.metaItem}>
-            <MapPin size={16} />
-            <span>{city}</span>
-          </div>
-          <div className={styles.metaItem}>
-            <MapPin size={16} />
-            <span>{address}</span>
-          </div>
           {brand.website ? (
             <a className={styles.website} href={brand.website} target="_blank" rel="noreferrer">
               <Globe size={16} />
@@ -85,6 +83,8 @@ export default async function UserBrandPage({ params }: { params: Promise<{ slug
           ) : null}
         </div>
       </section>
+
+      <BrandLocationsList locations={brand.locations} userCity={user?.city} />
 
       <section className={styles.challengeList} aria-labelledby="brand-challenges-title">
         <div className={styles.sectionHeading}>
@@ -118,11 +118,6 @@ export default async function UserBrandPage({ params }: { params: Promise<{ slug
           </div>
         )}
       </section>
-
-      <Link href={routes.user.rewards} className={buttonClasses({ variant: "secondary", className: "w-full" })}>
-        <Gift className="h-4 w-4" />
-        Смотреть мои награды
-      </Link>
     </main>
   );
 }

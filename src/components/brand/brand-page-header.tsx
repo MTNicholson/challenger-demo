@@ -47,12 +47,12 @@ export function BrandPageHeader({
     <>
       <div>
         {brandName ? (
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-3 py-2 text-sm font-bold text-white/70">
+          <div className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm font-bold text-white/75">
             <Coffee className="h-4 w-4" />
             {brandName}
           </div>
         ) : eyebrow ? (
-          <div className="text-sm font-bold text-emerald-700">{eyebrow}</div>
+          <div className="text-sm font-bold text-blue-700">{eyebrow}</div>
         ) : null}
         <h1 className={cn("mt-1 text-3xl font-extrabold leading-tight tracking-[-0.025em]", dark && "mt-5 text-4xl")}> 
           {title}
@@ -76,7 +76,7 @@ export function BrandPageHeader({
     return (
       <section
         className={cn(
-          "brand-glass-dark rounded-[30px] p-6 text-white sm:p-7",
+          "brand-glass-dark rounded-2xl p-6 text-white sm:p-7",
           className,
         )}
       >

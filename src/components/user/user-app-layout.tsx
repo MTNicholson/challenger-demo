@@ -63,6 +63,7 @@ export function UserAppLayout({ children }: UserAppLayoutProps) {
   }, [pathname]);
 
   if (!ready || !user) return null;
+  const isMapPage = pathname === routes.user.map;
 
   return (
     <div ref={presentationRef} className={styles.presentation}>
@@ -101,11 +102,15 @@ export function UserAppLayout({ children }: UserAppLayoutProps) {
             <span />
           </div>
 
-          <div key={pathname} ref={scrollViewportRef} className={styles.appViewport}>
-            <div className={styles.appContent}>{children}</div>
+          <div
+            key={pathname}
+            ref={scrollViewportRef}
+            className={isMapPage ? `${styles.appViewport} ${styles.appViewportMap}` : styles.appViewport}
+          >
+            <div className={isMapPage ? `${styles.appContent} ${styles.appContentMap}` : styles.appContent}>{children}</div>
           </div>
 
-          <UserBottomNav />
+          {isMapPage ? null : <UserBottomNav />}
           <div id="user-app-overlay-root" className={styles.overlayRoot} />
           <div className={styles.homeIndicator} aria-hidden="true" />
         </div>

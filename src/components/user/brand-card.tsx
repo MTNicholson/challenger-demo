@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, MapPin } from "lucide-react";
 import type { PublicBrandSummary } from "@/lib/public-brands";
+import { getBrandCategoryFallback } from "@/lib/brand-visuals";
 import { routes } from "@/lib/routes";
 import { FavoriteToggleButton } from "@/components/user/favorite-toggle-button";
 import styles from "./brand-card.module.css";
@@ -23,18 +23,21 @@ function formatChallengesCount(count: number) {
 
 export function BrandCard({ brand }: BrandCardProps) {
   const category = brand.category ?? "Бренд";
-  const city = brand.city ?? "Город не указан";
-  const address = brand.address ?? "Адрес появится позже";
   const description = brand.description ?? "Скоро здесь появятся задания, маршруты и награды от бренда.";
+  const fallback = getBrandCategoryFallback(brand.category);
 
   return (
     <Link className={styles.card} href={routes.user.brandDetail(brand.slug)}>
+      <div
+        className={styles.cover}
+        style={brand.coverImageUrl ? { backgroundImage: `url(${brand.coverImageUrl})` } : { background: fallback.coverGradient }}
+      />
       <div className={styles.top}>
         <div
           className={styles.logo}
-          style={brand.logoUrl ? { backgroundImage: `url(${brand.logoUrl})` } : undefined}
+          style={brand.logoUrl ? { backgroundImage: `url(${brand.logoUrl})` } : { background: fallback.logoGradient }}
         >
-          {brand.logoUrl ? null : getInitial(brand.name)}
+          {brand.logoUrl ? null : getInitial(brand.name) || fallback.mark}
         </div>
         <div className={styles.titleBlock}>
           <span className={styles.category}>{category}</span>
@@ -47,23 +50,9 @@ export function BrandCard({ brand }: BrandCardProps) {
           activeClassName={styles.favoriteButtonActive}
         />
       </div>
-      <div className={styles.meta}>
-        <span>
-          <MapPin size={13} />
-          <b>{city}</b>
-        </span>
-        <span>
-          <MapPin size={13} />
-          <b>{address}</b>
-        </span>
-      </div>
       <p className={styles.description}>{description}</p>
       <div className={styles.bottom}>
         <span className={styles.count}>{formatChallengesCount(brand.challengesCount)}</span>
-        <span className={styles.cta}>
-          Открыть бренд
-          <ArrowRight size={13} />
-        </span>
       </div>
     </Link>
   );

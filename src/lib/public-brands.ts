@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { Brand, BrandChallenge } from "@prisma/client";
+import type { Brand, BrandChallenge, BrandLocation } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type PublicBrandSummary = {
@@ -12,9 +12,23 @@ export type PublicBrandSummary = {
   address: string | null;
   description: string | null;
   logoUrl: string | null;
+  coverImageUrl: string | null;
   website: string | null;
   createdAt: string;
   challengesCount: number;
+  locations: PublicBrandLocation[];
+};
+
+export type PublicBrandLocation = {
+  id: string;
+  name: string | null;
+  city: string;
+  address: string;
+  fullAddress: string | null;
+  lat: number | null;
+  lng: number | null;
+  description: string | null;
+  isMain: boolean;
 };
 
 export type PublicBrandChallenge = {
@@ -36,7 +50,7 @@ export type PublicBrandDetail = PublicBrandSummary & {
 };
 
 function serializeBrand(
-  brand: Brand & { _count?: { challenges: number } },
+  brand: Brand & { _count?: { challenges: number }; locations?: BrandLocation[] },
 ): PublicBrandSummary {
   return {
     id: brand.id,
@@ -47,9 +61,25 @@ function serializeBrand(
     address: brand.address,
     description: brand.description,
     logoUrl: brand.logoUrl,
+    coverImageUrl: brand.coverImageUrl,
     website: brand.website,
     createdAt: brand.createdAt.toISOString(),
     challengesCount: brand._count?.challenges ?? 0,
+    locations: brand.locations?.map(serializeLocation) ?? [],
+  };
+}
+
+function serializeLocation(location: BrandLocation): PublicBrandLocation {
+  return {
+    id: location.id,
+    name: location.name,
+    city: location.city,
+    address: location.address,
+    fullAddress: location.fullAddress,
+    lat: location.lat,
+    lng: location.lng,
+    description: location.description,
+    isMain: location.isMain,
   };
 }
 
@@ -81,6 +111,9 @@ export async function getPublicBrands(): Promise<PublicBrandSummary[]> {
   const brands = await prisma.brand.findMany({
     orderBy: { createdAt: "desc" },
     include: {
+      locations: {
+        orderBy: [{ isMain: "desc" }, { createdAt: "asc" }],
+      },
       _count: {
         select: { challenges: true },
       },
@@ -98,6 +131,9 @@ export async function getPublicBrandBySlug(slug: string): Promise<PublicBrandDet
     include: {
       challenges: {
         orderBy: { createdAt: "desc" },
+      },
+      locations: {
+        orderBy: [{ isMain: "desc" }, { createdAt: "asc" }],
       },
       _count: {
         select: { challenges: true },

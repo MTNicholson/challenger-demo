@@ -15,9 +15,9 @@ export function Card({
   return (
     <div
       className={cn(
-        "brand-glass rounded-[var(--brand-radius)] bg-white/75 backdrop-blur-xl",
+        "brand-glass rounded-[var(--brand-radius)] bg-white",
         shadow && "shadow-[var(--brand-shadow)]",
-        bordered && "border border-white/80",
+        bordered && "border border-slate-200",
         className,
       )}
       {...props}

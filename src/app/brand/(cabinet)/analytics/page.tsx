@@ -45,7 +45,7 @@ export default async function BrandAnalyticsPage() {
             <div className="flex flex-wrap items-center gap-3"><Badge variant="success">Кампания активна</Badge><span className="text-sm text-white/50">Осталось 4 дня</span></div>
             <h2 className="mt-4 text-3xl font-black">{campaignAnalytics.title}</h2>
             <p className="mt-2 max-w-xl text-sm leading-6 text-white/60">Главная кампания недели уже вернула 329 гостей. Лучше всего маршрут работает на Петроградской.</p>
-            <div className="mt-6 flex items-center gap-4"><ProgressBar value={campaignAnalytics.progressPercent} max={100} className="bg-white/10" indicatorClassName="bg-emerald-400"/><span className="shrink-0 text-sm font-black">{campaignAnalytics.progressPercent}% цели</span></div>
+            <div className="mt-6 flex items-center gap-4"><ProgressBar value={campaignAnalytics.progressPercent} max={100} className="bg-white/10" indicatorClassName="bg-sky-300"/><span className="shrink-0 text-sm font-black">{campaignAnalytics.progressPercent}% цели</span></div>
             <div className="mt-6 flex flex-wrap gap-3"><Link href={routes.brand.challenges} className={buttonClasses({ variant: "secondary" })}>Открыть челленджи <ArrowRight className="h-4 w-4"/></Link><Link href={routes.brand.rewards} className={buttonClasses({ variant: "ghost", className: "text-white hover:bg-white/10" })}>Управлять наградами</Link></div>
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -64,9 +64,9 @@ export default async function BrandAnalyticsPage() {
       </section>
 
       <Card className="p-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><div className="text-sm font-semibold text-slate-400">Путь участника</div><h2 className="mt-1 text-2xl font-black">Воронка вовлечения</h2></div><div className="text-sm font-bold text-emerald-600">8% от просмотра до награды</div></div>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between"><div><div className="text-sm font-semibold text-slate-400">Путь участника</div><h2 className="mt-1 text-2xl font-black">Воронка вовлечения</h2></div><div className="text-sm font-bold text-blue-700">8% от просмотра до награды</div></div>
         <div className="mt-6 grid gap-2 lg:grid-cols-5">
-          {engagementFunnel.map((step, index) => { const width = Math.max(45, (step.value / engagementFunnel[0].value) * 100); return <div key={step.label} className="relative overflow-hidden rounded-2xl bg-slate-50 p-4"><div className="absolute inset-y-0 left-0 bg-emerald-100/60" style={{ width: `${width}%` }}/><div className="relative"><div className="text-xs font-bold text-slate-400">0{index + 1}</div><div className="mt-4 text-2xl font-black">{formatNumber(step.value)}</div><div className="mt-1 text-xs font-semibold text-slate-600">{step.label}</div></div></div>; })}
+          {engagementFunnel.map((step, index) => { const width = Math.max(45, (step.value / engagementFunnel[0].value) * 100); return <div key={step.label} className="relative overflow-hidden rounded-xl bg-slate-50 p-4"><div className="absolute inset-y-0 left-0 bg-blue-100/70" style={{ width: `${width}%` }}/><div className="relative"><div className="text-xs font-bold text-slate-400">0{index + 1}</div><div className="mt-4 text-2xl font-black">{formatNumber(step.value)}</div><div className="mt-1 text-xs font-semibold text-slate-600">{step.label}</div></div></div>; })}
         </div>
       </Card>
 
@@ -78,5 +78,5 @@ export default async function BrandAnalyticsPage() {
   );
 }
 
-function ChartCard({ title, caption, children }: { title: string; caption: string; children: React.ReactNode }) { return <Card className="brand-interactive p-6"><div className="flex items-start justify-between gap-4"><div><div className="text-xs font-extrabold uppercase tracking-[0.14em] text-emerald-700">Динамика</div><h2 className="mt-1 text-xl font-extrabold">{title}</h2></div><span className="h-2.5 w-2.5 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(52,211,153,.12)]" /></div><p className="mt-1 text-sm font-semibold text-slate-400">{caption}</p><div className="mt-5 h-64 rounded-[22px] bg-white/35 p-2">{children}</div></Card>; }
+function ChartCard({ title, caption, children }: { title: string; caption: string; children: React.ReactNode }) { return <Card className="brand-interactive p-6"><div className="flex items-start justify-between gap-4"><div><div className="text-xs font-extrabold uppercase tracking-[0.14em] text-blue-700">Динамика</div><h2 className="mt-1 text-xl font-extrabold">{title}</h2></div><span className="h-2.5 w-2.5 rounded-full bg-blue-500 shadow-[0_0_0_6px_rgba(37,99,235,.12)]" /></div><p className="mt-1 text-sm font-semibold text-slate-400">{caption}</p><div className="mt-5 h-64 rounded-xl bg-slate-50 p-2">{children}</div></Card>; }
 function CampaignStat({ label, value }: { label: string; value: string }) { return <div className="rounded-2xl bg-white/8 p-4"><div className="text-2xl font-black">{value}</div><div className="mt-1 text-xs text-white/45">{label}</div></div>; }

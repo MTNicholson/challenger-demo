@@ -49,11 +49,15 @@ const items = [
   },
 ];
 
-export function UserBottomNav() {
+type UserBottomNavProps = {
+  className?: string;
+};
+
+export function UserBottomNav({ className }: UserBottomNavProps) {
   const pathname = usePathname();
 
   return (
-    <nav className={styles.bottomNav} aria-label="Основная навигация">
+    <nav className={cn(styles.bottomNav, className)} aria-label="Основная навигация">
       <span className={styles.bottomNavGlass} aria-hidden="true" />
       <span className={styles.bottomNavShine} aria-hidden="true" />
 

@@ -20,19 +20,43 @@ model User {
 }
 
 model Brand {
-  id          String           @id @default(uuid())
-  name        String
-  slug        String           @unique
-  category    String?
-  city        String?
-  address     String?
+  id            String           @id @default(uuid())
+  name          String
+  slug          String           @unique
+  category      String?
+  city          String?
+  address       String?
+  description   String?
+  logoUrl       String?
+  coverImageUrl String?
+  website       String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  members       BrandMember[]
+  challenges    BrandChallenge[]
+  locations     BrandLocation[]
+}
+
+model BrandLocation {
+  id          String   @id @default(cuid())
+  brandId     String
+  name        String?
+  city        String
+  address     String
+  fullAddress String?
+  lat         Float?
+  lng         Float?
+  geoProvider String?
+  geoPlaceId  String?
+  geoRaw      Json?
   description String?
-  logoUrl     String?
-  website     String?
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  members     BrandMember[]
-  challenges  BrandChallenge[]
+  isMain      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId])
+  @@index([city])
 }
 
 model BrandMember {

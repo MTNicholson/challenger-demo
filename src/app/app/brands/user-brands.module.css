@@ -10,6 +10,10 @@
   gap: 10px;
 }
 
+.sortWrap {
+  position: relative;
+}
+
 .filterButton,
 .searchField {
   min-height: 47px;
@@ -22,11 +26,108 @@
 
 .filterButton {
   display: grid;
+  width: 100%;
   place-items: center;
   border-radius: 17px;
   color: #56617f;
   cursor: pointer;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sortPopover {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 0;
+  z-index: 20;
+  width: min(292px, calc(100vw - 32px));
+  border: 1px solid rgba(226, 232, 240, 0.92);
+  border-radius: 18px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 22px 48px rgba(45, 56, 94, 0.18), inset 0 1px 0 #fff;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.sortTitle {
+  padding: 2px 2px 10px;
+  color: #202945;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.sortOptions {
+  display: grid;
+  gap: 5px;
+}
+
+.sortOption,
+.sortOptionDisabled {
+  display: grid;
+  grid-template-columns: 18px 1fr;
+  gap: 9px;
+  align-items: center;
+  border-radius: 13px;
+  padding: 9px 10px;
+  font-size: 12px;
+  font-weight: 850;
+}
+
+.sortOption {
+  color: #334155;
+  cursor: pointer;
+}
+
+.sortOption:hover {
+  background: #f1f5ff;
+}
+
+.sortOption input,
+.sortOptionDisabled input {
+  accent-color: #535fc4;
+}
+
+.sortOptionDisabled {
+  color: #9aa4b6;
+  cursor: not-allowed;
+}
+
+.sortOptionDisabled small {
+  display: block;
+  margin-top: 2px;
+  color: #aab3c2;
+  font-size: 10px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.sortActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 11px;
+  border-top: 1px solid #eef2f7;
+  padding-top: 11px;
+}
+
+.sortReset,
+.sortApply {
+  border: 0;
+  border-radius: 12px;
+  padding: 9px 12px;
+  font-size: 11px;
+  font-weight: 950;
+  cursor: pointer;
+}
+
+.sortReset {
+  color: #64748b;
+  background: #f1f5f9;
+}
+
+.sortApply {
+  color: #fff;
+  background: #535fc4;
 }
 
 .filterButton:hover {
@@ -77,7 +178,8 @@
 }
 
 .category,
-.categoryActive {
+.categoryActive,
+.sortChip {
   flex: none;
   border: 1px solid rgba(255, 255, 255, 0.7);
   border-radius: 999px;
@@ -99,6 +201,15 @@
   color: #535fc4;
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(225, 230, 255, 0.58));
   box-shadow: 0 9px 22px rgba(83, 95, 196, 0.14), inset 0 1px 0 #fff;
+}
+
+.sortChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #fff;
+  background: #535fc4;
+  box-shadow: 0 9px 22px rgba(83, 95, 196, 0.18);
 }
 
 .grid {

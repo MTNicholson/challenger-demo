@@ -4,10 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   BarChart3,
+  ChevronsLeft,
+  ChevronsRight,
   Gift,
   LayoutDashboard,
   PlusCircle,
   QrCode,
+  Settings,
   Sparkles,
   Target,
 } from "lucide-react";
@@ -50,6 +53,11 @@ const items = [
     href: routes.brand.preview,
     icon: Sparkles,
   },
+  {
+    label: "Настройки",
+    href: routes.brand.settings,
+    icon: Settings,
+  },
 ];
 
 function isItemActive(pathname: string, href: string) {
@@ -62,19 +70,41 @@ function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function BrandSidebar({ brandName }: { brandName: string }) {
+type BrandSidebarProps = {
+  collapsed: boolean;
+  onToggle: () => void;
+};
+
+export function BrandSidebar({ collapsed, onToggle }: BrandSidebarProps) {
   const pathname = usePathname();
 
   return (
-    <>
-    <aside className="sticky top-0 hidden h-screen w-72 shrink-0 p-4 lg:block">
-      <div className="brand-glass flex h-full flex-col rounded-[30px] p-3">
-      <div className="brand-glass-dark mb-5 rounded-[24px] p-4 text-white">
-        <div className="flex items-center gap-3"><span className="grid h-10 w-10 place-items-center rounded-2xl bg-white/10 text-xl">⚡</span><div><div className="text-sm font-bold text-white/60">Челленджер</div><div className="text-lg font-extrabold">{brandName}</div></div></div>
-        <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/10 px-3 py-1 text-[11px] font-bold text-white/60">Кабинет бренда · демо</div>
+    <aside
+      className={cn(
+        "sticky top-0 flex h-screen shrink-0 flex-col border-r border-slate-200 bg-white transition-[width] duration-200",
+        collapsed ? "w-20" : "w-20 lg:w-72",
+      )}
+    >
+      <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4">
+        <span
+          className={cn(
+            "min-w-0 truncate text-sm font-black uppercase tracking-[0.16em] text-blue-700",
+            collapsed ? "sr-only" : "hidden lg:inline",
+          )}
+        >
+          ЧЕЛЛЕНДЖЕР
+        </span>
+        <button
+          aria-label={collapsed ? "Развернуть меню" : "Свернуть меню"}
+          className="grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 transition hover:border-blue-200 hover:bg-blue-50 hover:text-blue-700"
+          type="button"
+          onClick={onToggle}
+        >
+          {collapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+        </button>
       </div>
 
-      <nav className="flex-1 space-y-1">
+      <nav className="flex-1 space-y-1 px-3 py-4" aria-label="Навигация кабинета бренда">
         {items.map((item) => {
           const Icon = item.icon;
           const isActive = isItemActive(pathname, item.href);
@@ -84,40 +114,28 @@ export function BrandSidebar({ brandName }: { brandName: string }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "group flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-bold transition duration-200",
+                "group flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-extrabold transition duration-200",
+                collapsed ? "justify-center px-2" : "justify-center px-2 lg:justify-start lg:px-3",
                 isActive
-                  ? "bg-[#172f29] text-white shadow-lg shadow-emerald-950/15"
-                  : "text-slate-600 hover:translate-x-0.5 hover:bg-white/70 hover:text-slate-950",
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-slate-600 hover:bg-blue-50/70 hover:text-blue-700",
               )}
               aria-current={isActive ? "page" : undefined}
+              title={collapsed ? item.label : undefined}
             >
-              <span className={cn("grid h-8 w-8 place-items-center rounded-xl transition", isActive ? "bg-white/10 text-emerald-200" : "bg-white/50 text-slate-500 group-hover:text-emerald-700")}><Icon className="h-[18px] w-[18px]" /></span>
-              {item.label}
+              <span
+                className={cn(
+                  "grid h-8 w-8 shrink-0 place-items-center rounded-lg transition",
+                  isActive ? "bg-blue-100 text-blue-700" : "bg-slate-50 text-slate-500 group-hover:bg-blue-100 group-hover:text-blue-700",
+                )}
+              >
+                <Icon className="h-[18px] w-[18px]" />
+              </span>
+              <span className={cn("truncate", collapsed ? "sr-only" : "sr-only lg:not-sr-only")}>{item.label}</span>
             </Link>
           );
         })}
       </nav>
-
-      <div className="mt-5 rounded-2xl border border-emerald-100/80 bg-emerald-50/70 p-3 text-xs text-emerald-950">
-        <div className="font-extrabold">Демо-режим</div>
-        <p className="mt-1 leading-5 text-emerald-800/75">
-          Данные моковые, но сценарии связаны в единый кабинет бренда.
-        </p>
-      </div>
-      </div>
     </aside>
-    <nav aria-label="Навигация кабинета" className="brand-glass fixed inset-x-3 bottom-3 z-50 grid grid-cols-5 rounded-[22px] p-1.5 lg:hidden">
-      {items.slice(0, 5).map((item) => {
-        const Icon = item.icon;
-        const isActive = isItemActive(pathname, item.href);
-        return (
-          <Link key={item.href} href={item.href} aria-current={isActive ? "page" : undefined} className={cn("flex min-w-0 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[10px] font-extrabold transition", isActive ? "bg-[#172f29] text-white shadow-md" : "text-slate-500 hover:bg-white/70")}>
-            <Icon className={cn("h-[18px] w-[18px]", isActive && "text-emerald-200")} />
-            <span className="max-w-full truncate">{item.label}</span>
-          </Link>
-        );
-      })}
-    </nav>
-    </>
   );
 }
