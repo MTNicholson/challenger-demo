@@ -1,0 +1,1557 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { ReactNode } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import type { Variants } from "framer-motion";
+import {
+  CalendarDays,
+  Check,
+  Coins,
+  Eye,
+  Footprints,
+  Gift,
+  Info,
+  MapPin,
+  MapPinned,
+  Save,
+  Settings2,
+  ShoppingBag,
+  Sparkles,
+  Target,
+  Trophy,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { routes } from "@/lib/routes";
+import { cn } from "@/lib/cn";
+import type { BrandRewardDto } from "@/lib/brand-rewards";
+import {
+  getBrandChallengeDraft,
+  saveBrandChallengeDraft,
+  type BrandChallengeDraft,
+} from "@/lib/brand-challenge-drafts";
+import { Badge } from "@/components/ui/badge";
+import { Button, buttonClasses } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+
+type StepId = 1 | 2 | 3 | 4;
+type TemplateId = "activity" | "visit" | "purchase";
+
+type Template = {
+  id: TemplateId;
+  title: string;
+  description: string;
+  badges: string[];
+  icon: LucideIcon;
+  accent: "violet" | "blue" | "amber";
+};
+
+type ChallengeFormState = {
+  title: string;
+  description: string;
+  mechanicType: string;
+  visitsCount: number;
+  stepsCount: number;
+  dailyStepsCount: number;
+  activeDaysCount: number;
+  purchaseCount: number;
+  minPurchaseAmount: number;
+  purchaseAmount: number;
+  taskDescription: string;
+  visitInterval: string;
+  allowDifferentLocations: boolean;
+  purchaseConfirmation: string;
+  rewardType: string;
+  rewardTitle: string;
+  useExistingReward: boolean;
+  rewardTemplateId: string;
+  rewardDescription: string;
+  rewardLimit: number | null;
+  rewardUnlimited: boolean;
+  rewardCoins: number;
+  startDate: string;
+  endDate: string;
+  rewardExpiresInDays: number;
+  partialCoinsEnabled: boolean;
+  partialCoinsAmount: number;
+  selectedLocationIds: string[];
+};
+
+type BrandLocationOption = {
+  id: string;
+  title: string;
+  address: string;
+  district: string;
+};
+
+type SelectOption = {
+  value: string;
+  label: string;
+};
+
+const steps: Array<{ id: StepId; title: string; subtitle: string }> = [
+  { id: 1, title: "Шаблон", subtitle: "Выберите категорию" },
+  { id: 2, title: "Условия и награда", subtitle: "Настройте правила" },
+  { id: 3, title: "Предпросмотр", subtitle: "Проверьте детали" },
+  { id: 4, title: "Публикация", subtitle: "Запустите челлендж" },
+];
+
+const templates: Template[] = [
+  {
+    id: "activity",
+    title: "Активность",
+    description: "Шаги, спорт, прогулки и задания на действие",
+    badges: ["Шаги", "Спорт", "Ежедневная цель"],
+    icon: Footprints,
+    accent: "violet",
+  },
+  {
+    id: "visit",
+    title: "Посещение",
+    description: "Визиты в точки, маршруты и серии посещений",
+    badges: ["QR-визит", "Серия визитов", "Маршрут"],
+    icon: MapPin,
+    accent: "blue",
+  },
+  {
+    id: "purchase",
+    title: "Покупки",
+    description: "Покупки, чеки, суммы и накопительные механики",
+    badges: ["Чек", "Серия покупок", "Сумма"],
+    icon: ShoppingBag,
+    accent: "amber",
+  },
+];
+
+const templateTitles: Record<TemplateId, string> = {
+  activity: "Активность",
+  visit: "Посещение",
+  purchase: "Покупки",
+};
+
+const mechanicOptions: Record<TemplateId, SelectOption[]> = {
+  activity: [
+    { value: "steps_total", label: "Пройти определённое количество шагов" },
+    { value: "steps_daily", label: "Выполнять дневную цель по шагам" },
+    { value: "workout_checkin", label: "Отметить тренировку или активность" },
+    { value: "video_task", label: "Записать видео с выполнением задания" },
+    { value: "social_post", label: "Сделать пост в соцсетях" },
+  ],
+  visit: [
+    { value: "qr_visit", label: "Один QR-визит" },
+    { value: "visit_series", label: "Серия визитов" },
+    { value: "route", label: "Маршрут по нескольким точкам" },
+    { value: "checkin", label: "Отметка в точке" },
+  ],
+  purchase: [
+    { value: "purchase_count", label: "Совершить несколько покупок" },
+    { value: "purchase_amount", label: "Набрать сумму покупок" },
+    { value: "receipt_upload", label: "Загрузить чек" },
+    { value: "product_category", label: "Купить товар из категории" },
+  ],
+};
+
+const rewardOptions: SelectOption[] = [
+  { value: "drink", label: "Напиток на выбор" },
+  { value: "discount", label: "Скидка" },
+  { value: "gift", label: "Подарок" },
+  { value: "coins", label: "Баллы" },
+  { value: "custom", label: "Другая награда" },
+];
+
+const visitIntervalOptions: SelectOption[] = [
+  { value: "Без интервала", label: "Без интервала" },
+  { value: "1 час", label: "1 час" },
+  { value: "1 день", label: "1 день" },
+  { value: "3 дня", label: "3 дня" },
+];
+
+const purchaseConfirmationOptions: SelectOption[] = [
+  { value: "QR-код на кассе", label: "QR-код на кассе" },
+  { value: "Загрузка чека", label: "Загрузка чека" },
+  { value: "Чек или QR-код", label: "Чек или QR-код" },
+];
+
+function createDefaultForm(category: TemplateId, brandName: string, locations: BrandLocationOption[] = []): ChallengeFormState {
+  const common = {
+    rewardType: "drink",
+    rewardTitle: "Напиток на выбор",
+    useExistingReward: false,
+    rewardTemplateId: "reward-drink",
+    rewardLimit: 500,
+    rewardUnlimited: false,
+    rewardCoins: 200,
+    startDate: "01.05.2024",
+    endDate: "31.05.2024",
+    rewardExpiresInDays: 15,
+    partialCoinsEnabled: false,
+    partialCoinsAmount: 100,
+    selectedLocationIds: locations.map((location) => location.id),
+    visitsCount: 5,
+    stepsCount: 10000,
+    dailyStepsCount: 8000,
+    activeDaysCount: 7,
+    purchaseCount: 5,
+    minPurchaseAmount: 500,
+    purchaseAmount: 3000,
+    taskDescription: "Например: запишите короткое видео с прогулки или тренировки",
+    visitInterval: "1 день",
+    allowDifferentLocations: true,
+    purchaseConfirmation: "Чек или QR-код",
+  };
+
+  if (category === "activity") {
+    return {
+      ...common,
+      title: "10 000 шагов за неделю",
+      description: "Выполняйте цель по активности и получайте награду от бренда.",
+      mechanicType: "steps_total",
+      rewardDescription: `Напиток на выбор в ${brandName}`,
+    };
+  }
+
+  if (category === "purchase") {
+    return {
+      ...common,
+      title: "Пятая покупка в подарок",
+      description: "Совершайте покупки в точках бренда и получайте бонус.",
+      mechanicType: "purchase_count",
+      rewardDescription: "Напиток на выбор после серии покупок",
+    };
+  }
+
+  return {
+    ...common,
+    title: "Кофейная неделя",
+    description: `Посещайте кофейни сети ${brandName} и получайте награды.`,
+    mechanicType: "visit_series",
+    rewardDescription: `Любой напиток на выбор в сети ${brandName}`,
+  };
+}
+
+const accentClasses: Record<Template["accent"], { icon: string; selected: string; halo: string }> = {
+  violet: {
+    icon: "bg-violet-50 text-violet-700 ring-violet-100",
+    selected: "border-blue-300 bg-blue-50/70 shadow-blue-600/10",
+    halo: "from-violet-100/80 to-blue-50/30",
+  },
+  blue: {
+    icon: "bg-blue-50 text-blue-700 ring-blue-100",
+    selected: "border-blue-300 bg-blue-50/70 shadow-blue-600/10",
+    halo: "from-blue-100/80 to-sky-50/30",
+  },
+  amber: {
+    icon: "bg-amber-50 text-amber-700 ring-amber-100",
+    selected: "border-blue-300 bg-blue-50/70 shadow-blue-600/10",
+    halo: "from-amber-100/80 to-orange-50/30",
+  },
+};
+
+const contentVariants = {
+  initial: { opacity: 0, y: 8, scale: 0.99 },
+  animate: { opacity: 1, y: 0, scale: 1 },
+  exit: { opacity: 0, y: -8, scale: 0.99 },
+};
+
+const templateIconMotion: Record<TemplateId, Variants> = {
+  activity: {
+    hover: {
+      y: [0, -5, 2, -3, 0],
+      rotate: [0, -3, 2, -1, 0],
+      transition: { duration: 0.58, ease: "easeInOut" },
+    },
+  },
+  visit: {
+    hover: {
+      y: [0, -8, 0],
+      scale: [1, 1.1, 1.04],
+      transition: { duration: 0.44, ease: "easeOut" },
+    },
+  },
+  purchase: {
+    hover: {
+      rotate: [0, -5, 4, 0],
+      scale: [1, 1.08, 1.03],
+      transition: { duration: 0.48, ease: "easeOut" },
+    },
+  },
+};
+
+export function NewChallengeWizard({
+  brandName,
+  draftId,
+  locations,
+  rewards,
+}: {
+  brandName: string;
+  draftId?: string;
+  locations: BrandLocationOption[];
+  rewards: BrandRewardDto[];
+}) {
+  const router = useRouter();
+  const [currentStep, setCurrentStep] = useState<StepId>(1);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateId | null>(null);
+  const [challengeForm, setChallengeForm] = useState<ChallengeFormState>(() => createDefaultForm("visit", brandName, locations));
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [currentDraftId, setCurrentDraftId] = useState<string | null>(draftId ?? null);
+  const [isDirty, setIsDirty] = useState(false);
+  const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+
+  const selectedTitle = selectedTemplate ? templateTitles[selectedTemplate] : null;
+  const canGoNext =
+    (currentStep === 1 && Boolean(selectedTemplate)) ||
+    (currentStep === 2 &&
+      Boolean(challengeForm.title.trim()) &&
+      Boolean(challengeForm.description.trim()) &&
+      Boolean(challengeForm.mechanicType) &&
+      Boolean(challengeForm.rewardDescription.trim()) &&
+      challengeForm.selectedLocationIds.length > 0) ||
+    currentStep > 2;
+
+  useEffect(() => {
+    if (!draftId) return;
+
+    const timer = window.setTimeout(() => {
+      const draft = getBrandChallengeDraft(draftId);
+      if (!draft) return;
+
+      setSelectedTemplate(draft.category);
+      setChallengeForm(formFromDraft(draft, brandName, locations));
+      setCurrentDraftId(draft.id);
+      setCurrentStep(2);
+      setIsDirty(false);
+    }, 0);
+
+    return () => window.clearTimeout(timer);
+  }, [brandName, draftId, locations]);
+
+  useEffect(() => {
+    if (!isDirty) return;
+
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty]);
+
+  function handleTemplateSelect(template: TemplateId) {
+    if (selectedTemplate !== template) {
+      setChallengeForm(createDefaultForm(template, brandName, locations));
+      setIsDirty(true);
+    }
+
+    setSelectedTemplate(template);
+  }
+
+  function updateChallengeForm<K extends keyof ChallengeFormState>(field: K, value: ChallengeFormState[K]) {
+    setChallengeForm((currentForm) => ({
+      ...currentForm,
+      [field]: value,
+    }));
+    setDraftSaved(false);
+    setIsDirty(true);
+  }
+
+  function buildDraft() {
+    const now = new Date().toISOString();
+    const draft: BrandChallengeDraft = {
+      id: currentDraftId ?? `draft-${Date.now()}`,
+      status: "draft",
+      category: selectedTemplate ?? "visit",
+      title: challengeForm.title,
+      description: challengeForm.description,
+      mechanicType: challengeForm.mechanicType,
+      mechanicParams: {
+        visitsCount: challengeForm.visitsCount,
+        stepsCount: challengeForm.stepsCount,
+        dailyStepsCount: challengeForm.dailyStepsCount,
+        activeDaysCount: challengeForm.activeDaysCount,
+        purchaseCount: challengeForm.purchaseCount,
+        minPurchaseAmount: challengeForm.minPurchaseAmount,
+        purchaseAmount: challengeForm.purchaseAmount,
+        taskDescription: challengeForm.taskDescription,
+        visitInterval: challengeForm.visitInterval,
+        allowDifferentLocations: challengeForm.allowDifferentLocations,
+        purchaseConfirmation: challengeForm.purchaseConfirmation,
+      },
+      selectedLocationIds: challengeForm.selectedLocationIds,
+      reward: {
+        mode: challengeForm.useExistingReward ? "template" : "custom",
+        templateId: challengeForm.useExistingReward ? challengeForm.rewardTemplateId : null,
+        title: challengeForm.rewardTitle,
+        description: challengeForm.rewardDescription,
+        limit: challengeForm.rewardUnlimited ? null : challengeForm.rewardLimit,
+        points: challengeForm.rewardCoins,
+        expiresInDays: challengeForm.rewardExpiresInDays,
+      },
+      period: {
+        startDate: challengeForm.startDate,
+        endDate: challengeForm.endDate,
+      },
+      createdAt: currentDraftId ? getBrandChallengeDraft(currentDraftId)?.createdAt ?? now : now,
+      updatedAt: now,
+    };
+
+    return draft;
+  }
+
+  function saveDraft() {
+    const draft = saveBrandChallengeDraft(buildDraft());
+    setCurrentDraftId(draft.id);
+    setDraftSaved(true);
+    setIsDirty(false);
+    return draft;
+  }
+
+  function requestNavigation(href: string) {
+    if (isDirty) {
+      setPendingNavigation(href);
+      return;
+    }
+
+    router.push(href);
+  }
+
+  function leaveWithoutSaving() {
+    const href = pendingNavigation;
+    setPendingNavigation(null);
+    setIsDirty(false);
+    if (href) router.push(href);
+  }
+
+  function saveAndLeave() {
+    const href = pendingNavigation;
+    saveDraft();
+    setPendingNavigation(null);
+    if (href) router.push(href);
+  }
+
+  function goNext() {
+    if (!canGoNext) return;
+    setDraftSaved(false);
+    setCurrentStep((step) => Math.min(step + 1, 4) as StepId);
+  }
+
+  function goBack() {
+    setDraftSaved(false);
+    setCurrentStep((step) => Math.max(step - 1, 1) as StepId);
+  }
+
+  return (
+    <main className="space-y-8">
+      <header className="flex flex-col gap-4 xl:flex-row xl:items-end xl:justify-between">
+        <div>
+          <div className="text-sm font-semibold text-slate-400">Конструктор кампании · {brandName}</div>
+          <h1 className="mt-1 text-3xl font-black tracking-tight text-slate-950">Создание челленджа</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+            Настройте механику, награду и условия. Все значения демонстрационные — ничего не публикуется.
+          </p>
+        </div>
+        <button
+          type="button"
+          className={buttonClasses({ variant: "ghost" })}
+          onClick={() => requestNavigation(routes.brand.challenges)}
+        >
+          К списку челленджей
+        </button>
+      </header>
+
+      <Stepper currentStep={currentStep} />
+
+      <section className="min-h-[430px]">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentStep}
+            variants={contentVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.22, ease: "easeOut" }}
+          >
+            {currentStep === 1 ? (
+              <TemplateStep selectedTemplate={selectedTemplate} onSelect={handleTemplateSelect} />
+            ) : null}
+            {currentStep === 2 ? (
+              <RulesStep
+                brandName={brandName}
+                category={selectedTemplate ?? "visit"}
+                form={challengeForm}
+                locations={locations}
+                rewards={rewards}
+                selectedTitle={selectedTitle}
+                onChange={updateChallengeForm}
+              />
+            ) : null}
+            {currentStep === 3 ? <PreviewStep selectedTitle={selectedTitle} brandName={brandName} /> : null}
+            {currentStep === 4 ? <PublishStep draftSaved={draftSaved} selectedTitle={selectedTitle} /> : null}
+          </motion.div>
+        </AnimatePresence>
+      </section>
+
+      <footer className="flex flex-col gap-3 border-t border-slate-200/70 pt-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          {currentStep === 1 ? (
+            <button
+              type="button"
+              className={buttonClasses({
+                variant: "secondary",
+                size: "lg",
+                className: "min-h-14 rounded-lg px-7 shadow-slate-900/8",
+              })}
+              onClick={() => requestNavigation(routes.brand.dashboard)}
+            >
+              Отмена
+            </button>
+          ) : (
+            <div className="flex flex-wrap gap-3">
+              <Button className="min-h-14 rounded-lg px-7 shadow-slate-900/8" size="lg" variant="secondary" onClick={goBack}>
+                Назад
+              </Button>
+              {currentStep === 2 ? (
+                <button
+                  type="button"
+                  className={buttonClasses({
+                    variant: "ghost",
+                    size: "lg",
+                    className: "min-h-14 rounded-lg px-7",
+                  })}
+                  onClick={() => requestNavigation(routes.brand.dashboard)}
+                >
+                  Отмена
+                </button>
+              ) : null}
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:items-center">
+          {draftSaved ? (
+            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-extrabold text-emerald-700">
+              Черновик челленджа сохранён
+            </span>
+          ) : null}
+          {currentStep >= 2 && currentStep < 4 ? (
+            <Button className="min-h-14 rounded-lg px-7" size="lg" variant="secondary" onClick={saveDraft}>
+              <Save className="h-4 w-4" />
+              Сохранить черновик
+            </Button>
+          ) : null}
+          {currentStep === 4 ? (
+            <Button className="min-h-14 rounded-lg px-7" size="lg" variant="primary" onClick={saveDraft}>
+              <Save className="h-4 w-4" />
+              Сохранить черновик
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="lg"
+              disabled={!canGoNext}
+              className="min-h-14 rounded-lg px-8 disabled:cursor-not-allowed disabled:opacity-45 disabled:hover:translate-y-0 disabled:hover:bg-blue-600"
+              onClick={goNext}
+            >
+              Далее
+            </Button>
+          )}
+        </div>
+      </footer>
+      {pendingNavigation ? (
+        <UnsavedChangesDialog
+          onCancel={() => setPendingNavigation(null)}
+          onLeave={leaveWithoutSaving}
+          onSave={saveAndLeave}
+        />
+      ) : null}
+    </main>
+  );
+}
+
+function UnsavedChangesDialog({
+  onCancel,
+  onLeave,
+  onSave,
+}: {
+  onCancel: () => void;
+  onLeave: () => void;
+  onSave: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/35 px-4 backdrop-blur-sm">
+      <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl shadow-slate-900/20">
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-amber-50 text-amber-700">
+          <Info className="h-5 w-5" />
+        </div>
+        <h2 className="mt-4 text-xl font-black text-slate-950">Несохранённые изменения</h2>
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          У вас есть несохранённые изменения. Сохранить черновик перед выходом?
+        </p>
+        <div className="mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
+          <Button className="rounded-lg" variant="secondary" onClick={onSave}>
+            Сохранить черновик
+          </Button>
+          <Button className="rounded-lg" variant="ghost" onClick={onLeave}>
+            Выйти без сохранения
+          </Button>
+          <Button className="rounded-lg" variant="dark" onClick={onCancel}>
+            Остаться
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Stepper({ currentStep }: { currentStep: StepId }) {
+  return (
+    <nav aria-label="Этапы создания челленджа" className="overflow-x-auto pb-1">
+      <ol className="flex min-w-[760px] items-start">
+        {steps.map((step, index) => {
+          const isCompleted = step.id < currentStep;
+          const isActive = step.id === currentStep;
+
+          return (
+            <li key={step.id} className="flex flex-1 items-start">
+              <div className="flex min-w-0 items-start gap-3">
+                <span
+                  className={cn(
+                    "relative grid h-9 w-9 shrink-0 place-items-center rounded-full border text-sm font-black transition duration-200",
+                    isCompleted && "border-emerald-500 bg-emerald-500 text-white shadow-sm shadow-emerald-500/20",
+                    isActive && "border-blue-600 bg-white text-blue-700",
+                    !isCompleted && !isActive && "border-slate-200 bg-slate-100 text-slate-400",
+                  )}
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {isCompleted ? (
+                      <motion.span
+                        key="check"
+                        initial={{ opacity: 0, scale: 0.65 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.65 }}
+                        transition={{ duration: 0.18, ease: "easeOut" }}
+                      >
+                        <Check className="h-4 w-4" />
+                      </motion.span>
+                    ) : (
+                      <motion.span key="number" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                        {step.id}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </span>
+                <div className="min-w-0 pt-0.5">
+                  <div className={cn("text-sm font-black transition-colors", isActive ? "text-blue-700" : "text-slate-700")}>
+                    {step.title}
+                  </div>
+                  <div className="mt-0.5 text-xs font-semibold text-slate-400">{step.subtitle}</div>
+                </div>
+              </div>
+              {index < steps.length - 1 ? (
+                <div className="mx-4 mt-4 h-px flex-1 bg-slate-200">
+                  <div
+                    className={cn(
+                      "h-full bg-emerald-400 transition-[width] duration-300",
+                      isCompleted ? "w-full" : "w-0",
+                    )}
+                  />
+                </div>
+              ) : null}
+            </li>
+          );
+        })}
+      </ol>
+    </nav>
+  );
+}
+
+function TemplateStep({
+  selectedTemplate,
+  onSelect,
+}: {
+  selectedTemplate: TemplateId | null;
+  onSelect: (template: TemplateId) => void;
+}) {
+  return (
+    <div>
+      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+        {templates.map((template) => {
+          const Icon = template.icon;
+          const selected = selectedTemplate === template.id;
+          const accent = accentClasses[template.accent];
+
+          return (
+            <motion.button
+              key={template.id}
+              type="button"
+              aria-pressed={selected}
+              whileHover="hover"
+              whileTap={{ scale: 0.992 }}
+              className={cn(
+                "brand-interactive group relative flex min-h-[340px] overflow-hidden rounded-2xl border bg-white p-6 text-center shadow-sm shadow-slate-900/[0.04] outline-none transition duration-200 sm:min-h-[360px] xl:min-h-[380px]",
+                "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-950",
+                selected ? accent.selected : "border-slate-200 hover:border-blue-200 hover:bg-white",
+              )}
+              onClick={() => onSelect(template.id)}
+            >
+              <div className={cn("absolute inset-x-0 top-0 h-36 bg-gradient-to-b opacity-90", accent.halo)} />
+              {selected ? (
+                <span className="absolute right-5 top-5 grid h-8 w-8 place-items-center rounded-full bg-blue-600 text-white shadow-sm shadow-blue-600/25">
+                  <Check className="h-4 w-4" />
+                </span>
+              ) : null}
+              <div className="relative flex min-h-full w-full flex-col items-center justify-between">
+                <div className="flex flex-col items-center">
+                  <motion.span
+                    className={cn(
+                      "grid h-24 w-24 place-items-center rounded-[1.75rem] ring-1 shadow-sm shadow-slate-900/[0.04] transition duration-200 group-hover:shadow-md group-hover:shadow-slate-900/10",
+                      accent.icon,
+                    )}
+                    variants={templateIconMotion[template.id]}
+                  >
+                    <Icon className="h-12 w-12 stroke-[1.8]" />
+                  </motion.span>
+                  <h3 className="mt-8 text-2xl font-black tracking-tight text-slate-950">{template.title}</h3>
+                  <p className="mx-auto mt-3 max-w-[260px] text-sm leading-6 text-slate-500">{template.description}</p>
+                </div>
+                <div className="mt-8 flex flex-wrap justify-center gap-2">
+                  {template.badges.map((badge) => (
+                    <Badge
+                      key={badge}
+                      variant="neutral"
+                      className={cn(
+                        "px-3.5 py-1.5",
+                        selected ? "border-blue-200 bg-white/80 text-blue-700" : "bg-white/75",
+                      )}
+                    >
+                      {badge}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            </motion.button>
+          );
+        })}
+      </div>
+      <div className="mt-5 flex items-start gap-3 rounded-2xl border border-blue-100 bg-blue-50/65 px-4 py-3.5 text-sm leading-6 text-slate-600">
+        <span className="mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white text-blue-700 shadow-sm shadow-blue-900/5">
+          <Info className="h-4 w-4" />
+        </span>
+        <p>
+          <span className="font-black text-slate-800">Подсказка:</span> выбранная категория определяет механику и тип
+          создаваемого челленджа.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function RulesStep({
+  brandName,
+  category,
+  form,
+  locations,
+  rewards,
+  selectedTitle,
+  onChange,
+}: {
+  brandName: string;
+  category: TemplateId;
+  form: ChallengeFormState;
+  locations: BrandLocationOption[];
+  rewards: BrandRewardDto[];
+  selectedTitle: string | null;
+  onChange: <K extends keyof ChallengeFormState>(field: K, value: ChallengeFormState[K]) => void;
+}) {
+  const mechanics = mechanicOptions[category];
+  const activeRewards = rewards;
+  const currentMechanicLabel = mechanics.find((option) => option.value === form.mechanicType)?.label ?? "Механика не выбрана";
+  const selectedLocationsText = getSelectedLocationsText(form.selectedLocationIds.length);
+
+  return (
+    <div className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+      <div className="space-y-5">
+        <FormSection
+          icon={Settings2}
+          title="Основная информация"
+          description="Название и описание, которые увидит участник в приложении."
+        >
+          <TextInput
+            required
+            label="Название челленджа"
+            placeholder="Например: Кофейная неделя"
+            value={form.title}
+            onChange={(value) => onChange("title", value)}
+          />
+          <TextAreaInput
+            required
+            label="Описание челленджа"
+            placeholder="Коротко объясните механику и пользу для участника"
+            value={form.description}
+            onChange={(value) => onChange("description", value)}
+          />
+        </FormSection>
+
+        <FormSection
+          icon={Target}
+          title="Условия челленджа"
+          description={`Категория: ${selectedTitle ?? "не выбрана"}. Список механик меняется под выбранный шаблон.`}
+        >
+          <SelectInput
+            required
+            label="Тип механики"
+            options={mechanics}
+            value={form.mechanicType}
+            onChange={(value) => onChange("mechanicType", value)}
+          />
+          <MechanicFields category={category} form={form} onChange={onChange} />
+          <SwitchField
+            checked={form.partialCoinsEnabled}
+            label="Разрешить частичное выполнение баллами"
+            text="Участник сможет получить небольшой бонус за промежуточный прогресс."
+            onChange={(value) => onChange("partialCoinsEnabled", value)}
+          />
+          {form.partialCoinsEnabled ? (
+            <NumberInput
+              label="Баллы за частичное выполнение"
+              min={0}
+              suffix="баллов"
+              value={form.partialCoinsAmount}
+              onChange={(value) => onChange("partialCoinsAmount", value)}
+            />
+          ) : null}
+        </FormSection>
+
+        <FormSection
+          icon={MapPinned}
+          title="Выбор точек"
+          description="Пока это демонстрационная настройка без реального выбора локаций."
+        >
+          <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm shadow-slate-900/[0.03]">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <div className="text-sm font-black text-slate-950">{selectedLocationsText}</div>
+                <div className="mt-1 text-xs font-semibold text-slate-400">
+                  {locations.length ? `${locations[0]?.title ?? brandName} и ещё ${Math.max(locations.length - 1, 0)} точек` : "Точки пока не добавлены"}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => onChange("selectedLocationIds", locations.map((location) => location.id))}
+                >
+                  Выбрать все
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => onChange("selectedLocationIds", [])}>
+                  Убрать все
+                </Button>
+              </div>
+            </div>
+            <div className="mt-4 space-y-2">
+              {locations.map((location) => {
+                const checked = form.selectedLocationIds.includes(location.id);
+
+                return (
+                  <label
+                    key={location.id}
+                    className={cn(
+                      "flex cursor-pointer items-start gap-3 rounded-xl border p-3 transition",
+                      checked ? "border-blue-200 bg-blue-50/70" : "border-slate-200 bg-white hover:border-blue-100 hover:bg-blue-50/35",
+                    )}
+                  >
+                    <input
+                      className="mt-1 h-4 w-4 accent-blue-600"
+                      checked={checked}
+                      type="checkbox"
+                      onChange={(event) => {
+                        const nextIds = event.target.checked
+                          ? [...form.selectedLocationIds, location.id]
+                          : form.selectedLocationIds.filter((id) => id !== location.id);
+                        onChange("selectedLocationIds", nextIds);
+                      }}
+                    />
+                    <span className="min-w-0">
+                      <span className="block text-sm font-black text-slate-950">{location.title}</span>
+                      <span className="mt-1 block text-xs leading-5 text-slate-500">{location.address} · {location.district}</span>
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+            {!form.selectedLocationIds.length ? (
+              <div className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-bold text-amber-800">
+                Выберите хотя бы одну точку
+              </div>
+            ) : null}
+          </div>
+        </FormSection>
+
+        <FormSection
+          icon={Trophy}
+          title="Награда"
+          description="Настройте ценность награды, лимиты и срок действия после выполнения."
+        >
+          <SwitchField
+            checked={form.useExistingReward}
+            label="Свои награды"
+            text="Выберите одну из заранее подготовленных наград бренда."
+            onChange={(value) => {
+              onChange("useExistingReward", value);
+              const reward = activeRewards[0];
+              if (value && reward) {
+                onChange("rewardTemplateId", reward.id);
+                onChange("rewardTitle", reward.title);
+                onChange("rewardDescription", reward.description);
+                onChange("rewardLimit", reward.limit);
+                onChange("rewardUnlimited", reward.limit === null);
+                onChange("rewardCoins", reward.points);
+                if (reward.expiresInDays !== null) onChange("rewardExpiresInDays", reward.expiresInDays);
+              }
+            }}
+          />
+          {form.useExistingReward ? (
+            activeRewards.length ? (
+              <SelectInput
+                label="Выберите награду"
+                options={activeRewards.map((reward) => ({ value: reward.id, label: reward.title }))}
+                value={form.rewardTemplateId}
+                onChange={(value) => {
+                  const reward = activeRewards.find((item) => item.id === value);
+                  onChange("rewardTemplateId", value);
+                  if (reward) {
+                    onChange("rewardTitle", reward.title);
+                    onChange("rewardDescription", reward.description);
+                    onChange("rewardLimit", reward.limit);
+                    onChange("rewardUnlimited", reward.limit === null);
+                    onChange("rewardCoins", reward.points);
+                    if (reward.expiresInDays !== null) onChange("rewardExpiresInDays", reward.expiresInDays);
+                  }
+                }}
+              />
+            ) : (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-5">
+                <div className="font-black text-slate-950">Нет активных наград</div>
+                <p className="mt-2 text-sm leading-6 text-slate-500">
+                  Создайте награду в разделе «Награды», чтобы использовать её в челлендже.
+                </p>
+                <Link href={routes.brand.rewards} className={buttonClasses({ variant: "secondary", size: "sm", className: "mt-4" })}>
+                  Перейти в награды
+                </Link>
+              </div>
+            )
+          ) : (
+            <TextInput
+              label="Название награды"
+              placeholder="Напиток на выбор"
+              value={form.rewardTitle}
+              onChange={(value) => onChange("rewardTitle", value)}
+            />
+          )}
+          <div className="grid gap-4 md:grid-cols-2">
+            <NumberInput
+              disabled={form.rewardUnlimited}
+              label="Лимит наград"
+              min={0}
+              suffix="штук"
+              value={form.rewardLimit ?? 0}
+              onChange={(value) => onChange("rewardLimit", value)}
+            />
+            <label className="flex items-center gap-3 self-end rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm font-black text-slate-700">
+              <input
+                checked={form.rewardUnlimited}
+                className="h-4 w-4 accent-blue-600"
+                type="checkbox"
+                onChange={(event) => {
+                  onChange("rewardUnlimited", event.target.checked);
+                  if (event.target.checked) onChange("rewardLimit", null);
+                  else onChange("rewardLimit", 500);
+                }}
+              />
+              Без лимита
+            </label>
+          </div>
+          <TextAreaInput
+            required
+            label="Описание награды"
+            placeholder="Любой напиток на выбор в сети Coffee Lover"
+            value={form.rewardDescription}
+            onChange={(value) => onChange("rewardDescription", value)}
+          />
+          <div className="grid gap-4 md:grid-cols-2">
+            <TextInput label="Дата старта" value={form.startDate} onChange={(value) => onChange("startDate", value)} />
+            <TextInput label="Дата окончания" value={form.endDate} onChange={(value) => onChange("endDate", value)} />
+          </div>
+          <div className="grid gap-4 md:grid-cols-2">
+            <NumberInput
+              hint={`Награда будет доступна в течение ${form.rewardExpiresInDays} дней с момента выполнения условий.`}
+              label="Срок получения награды"
+              min={1}
+              suffix="дней"
+              value={form.rewardExpiresInDays}
+              onChange={(value) => onChange("rewardExpiresInDays", value)}
+            />
+            <NumberInput
+              hint="Стоимость награды в баллах для участника."
+              label="Количество баллов за награду"
+              min={0}
+              suffix="баллов"
+              value={form.rewardCoins}
+              onChange={(value) => onChange("rewardCoins", value)}
+            />
+          </div>
+        </FormSection>
+      </div>
+
+      <ChallengeLivePreview
+        brandName={brandName}
+        category={category}
+        currentMechanicLabel={currentMechanicLabel}
+        form={form}
+        selectedTitle={selectedTitle ?? templateTitles[category]}
+      />
+    </div>
+  );
+}
+
+function MechanicFields({
+  category,
+  form,
+  onChange,
+}: {
+  category: TemplateId;
+  form: ChallengeFormState;
+  onChange: <K extends keyof ChallengeFormState>(field: K, value: ChallengeFormState[K]) => void;
+}) {
+  if (category === "activity") {
+    if (form.mechanicType === "steps_daily") {
+      return (
+        <div className="grid gap-4 md:grid-cols-2">
+          <NumberInput label="Дневная цель" min={0} suffix="шагов" value={form.dailyStepsCount} onChange={(value) => onChange("dailyStepsCount", value)} />
+          <NumberInput label="Количество дней" min={1} suffix="дней" value={form.activeDaysCount} onChange={(value) => onChange("activeDaysCount", value)} />
+        </div>
+      );
+    }
+
+    if (["video_task", "social_post", "workout_checkin"].includes(form.mechanicType)) {
+      return (
+        <TextAreaInput
+          label="Описание задания"
+          placeholder="Например: запишите короткое видео с прогулки или тренировки"
+          value={form.taskDescription}
+          onChange={(value) => onChange("taskDescription", value)}
+        />
+      );
+    }
+
+    return (
+      <NumberInput label="Количество шагов" min={0} suffix="шагов" value={form.stepsCount} onChange={(value) => onChange("stepsCount", value)} />
+    );
+  }
+
+  if (category === "purchase") {
+    return (
+      <div className="grid gap-4 md:grid-cols-2">
+        <NumberInput label="Количество покупок" min={1} suffix="покупок" value={form.purchaseCount} onChange={(value) => onChange("purchaseCount", value)} />
+        <NumberInput label="Минимальная сумма покупки" min={0} suffix="₽" value={form.minPurchaseAmount} onChange={(value) => onChange("minPurchaseAmount", value)} />
+        <NumberInput label="Общая сумма покупок" min={0} suffix="₽" value={form.purchaseAmount} onChange={(value) => onChange("purchaseAmount", value)} />
+        <SelectInput
+          label="Подтверждение"
+          options={purchaseConfirmationOptions}
+          value={form.purchaseConfirmation}
+          onChange={(value) => onChange("purchaseConfirmation", value)}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="grid gap-4 md:grid-cols-2">
+        <NumberInput label="Количество визитов" min={1} suffix="визитов" value={form.visitsCount} onChange={(value) => onChange("visitsCount", value)} />
+        <SelectInput
+          label="Минимальный интервал"
+          options={visitIntervalOptions}
+          value={form.visitInterval}
+          onChange={(value) => onChange("visitInterval", value)}
+        />
+      </div>
+      <SwitchField
+        checked={form.allowDifferentLocations}
+        label="Можно выполнять в разных точках"
+        text="Визиты засчитываются в любой выбранной точке бренда."
+        onChange={(value) => onChange("allowDifferentLocations", value)}
+      />
+    </>
+  );
+}
+
+function ChallengeLivePreview({
+  brandName,
+  category,
+  currentMechanicLabel,
+  form,
+  selectedTitle,
+}: {
+  brandName: string;
+  category: TemplateId;
+  currentMechanicLabel: string;
+  form: ChallengeFormState;
+  selectedTitle: string;
+}) {
+  const condition = getConditionSummary(category, form);
+  const rewardLabel = rewardOptions.find((option) => option.value === form.rewardType)?.label ?? "Награда";
+  const TemplateIcon = templates.find((template) => template.id === category)?.icon ?? Sparkles;
+  const rewardTitle = form.rewardTitle || rewardLabel;
+  const rewardLimitText = form.rewardUnlimited || form.rewardLimit === null ? "без лимита" : String(form.rewardLimit);
+
+  return (
+    <aside className="xl:sticky xl:top-28 xl:self-start">
+      <Card className="overflow-hidden p-0">
+        <div className="border-b border-slate-100 bg-white px-5 py-4">
+          <div className="text-sm font-black text-slate-950">Предпросмотр для пользователя</div>
+          <div className="mt-1 text-xs font-semibold text-slate-400">Обновляется по мере заполнения формы</div>
+        </div>
+        <div className="bg-slate-50/70 p-4 sm:p-5">
+          <div className="mx-auto max-w-[390px] overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-2xl shadow-slate-900/10">
+            <div className="bg-gradient-to-br from-blue-700 via-blue-600 to-sky-500 p-5 text-white">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-black uppercase tracking-[0.14em] text-white/65">{brandName}</div>
+                  <div className="mt-1 text-sm font-bold text-white/85">{selectedTitle}</div>
+                </div>
+                <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-white/15 text-white ring-1 ring-white/20">
+                  <TemplateIcon className="h-6 w-6" />
+                </span>
+              </div>
+              <h3 className="mt-7 text-2xl font-black leading-tight">{form.title || "Название челленджа"}</h3>
+              <p className="mt-3 text-sm leading-6 text-white/78">{form.description || "Описание челленджа появится здесь."}</p>
+            </div>
+
+            <div className="space-y-4 p-5">
+              <PreviewRow icon={Target} label="Условие" value={condition} />
+              <PreviewRow icon={Gift} label="Награда" value={`${rewardTitle} + ${form.rewardCoins} баллов`} />
+              <PreviewRow icon={Sparkles} label="Описание награды" value={form.rewardDescription || "Описание появится здесь"} />
+              <PreviewRow icon={CalendarDays} label="Период" value={`${form.startDate} — ${form.endDate}`} />
+              <PreviewRow icon={MapPinned} label="Точки" value={getSelectedLocationsText(form.selectedLocationIds.length)} />
+              <PreviewRow icon={Trophy} label="Лимит" value={`Лимит: ${rewardLimitText}`} />
+              <PreviewRow icon={Coins} label="Стоимость" value={`${form.rewardCoins} баллов`} />
+
+              {form.partialCoinsEnabled ? (
+                <div className="rounded-2xl border border-amber-100 bg-amber-50 p-3 text-sm font-bold text-amber-800">
+                  Частичный прогресс: {form.partialCoinsAmount} баллов
+                </div>
+              ) : null}
+
+              <div className="rounded-2xl bg-slate-50 p-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-black text-slate-950">Прогресс</span>
+                  <span className="font-bold text-blue-700">2 из 5</span>
+                </div>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-slate-200">
+                  <div className="h-full w-2/5 rounded-full bg-blue-600" />
+                </div>
+                <div className="mt-2 text-xs font-semibold text-slate-400">{currentMechanicLabel}</div>
+              </div>
+
+              <button className="w-full rounded-xl bg-slate-950 px-4 py-3 text-sm font-black text-white" type="button">
+                Участвовать
+              </button>
+            </div>
+          </div>
+        </div>
+      </Card>
+    </aside>
+  );
+}
+
+function getConditionSummary(category: TemplateId, form: ChallengeFormState) {
+  if (category === "activity") {
+    if (form.mechanicType === "steps_daily") {
+      return `${form.dailyStepsCount.toLocaleString("ru-RU")} шагов в день · ${form.activeDaysCount} дней`;
+    }
+
+    if (["video_task", "social_post", "workout_checkin"].includes(form.mechanicType)) {
+      return form.taskDescription || "Выполнить задание бренда";
+    }
+
+    return `${form.stepsCount.toLocaleString("ru-RU")} шагов`;
+  }
+
+  if (category === "purchase") {
+    if (form.mechanicType === "purchase_amount") {
+      return `${form.purchaseAmount.toLocaleString("ru-RU")} ₽ общей суммы`;
+    }
+
+    if (form.mechanicType === "receipt_upload") {
+      return `Загрузить чек от ${form.minPurchaseAmount.toLocaleString("ru-RU")} ₽`;
+    }
+
+    return `${form.purchaseCount} покупок`;
+  }
+
+  if (form.mechanicType === "qr_visit") {
+    return "1 QR-визит";
+  }
+
+  return `${form.visitsCount} визитов`;
+}
+
+function getSelectedLocationsText(count: number) {
+  if (count === 0) return "Выберите хотя бы одну точку";
+  const lastTwo = count % 100;
+  const last = count % 10;
+
+  if (lastTwo >= 11 && lastTwo <= 14) return `${count} точек выбрано`;
+  if (last === 1) return `${count} точка выбрана`;
+  if (last >= 2 && last <= 4) return `${count} точки выбрано`;
+  return `${count} точек выбрано`;
+}
+
+function formFromDraft(draft: BrandChallengeDraft, brandName: string, locations: BrandLocationOption[]): ChallengeFormState {
+  const fallback = createDefaultForm(draft.category, brandName, locations);
+
+  return {
+    ...fallback,
+    title: draft.title,
+    description: draft.description,
+    mechanicType: draft.mechanicType,
+    visitsCount: draft.mechanicParams.visitsCount,
+    stepsCount: draft.mechanicParams.stepsCount,
+    dailyStepsCount: draft.mechanicParams.dailyStepsCount,
+    activeDaysCount: draft.mechanicParams.activeDaysCount,
+    purchaseCount: draft.mechanicParams.purchaseCount,
+    minPurchaseAmount: draft.mechanicParams.minPurchaseAmount,
+    purchaseAmount: draft.mechanicParams.purchaseAmount,
+    taskDescription: draft.mechanicParams.taskDescription,
+    visitInterval: draft.mechanicParams.visitInterval,
+    allowDifferentLocations: draft.mechanicParams.allowDifferentLocations,
+    purchaseConfirmation: draft.mechanicParams.purchaseConfirmation,
+    selectedLocationIds: draft.selectedLocationIds,
+    useExistingReward: draft.reward.mode === "template",
+    rewardTemplateId: draft.reward.templateId ?? fallback.rewardTemplateId,
+    rewardTitle: draft.reward.title,
+    rewardDescription: draft.reward.description,
+    rewardLimit: draft.reward.limit,
+    rewardUnlimited: draft.reward.limit === null,
+    rewardCoins: draft.reward.points,
+    rewardExpiresInDays: draft.reward.expiresInDays,
+    startDate: draft.period.startDate,
+    endDate: draft.period.endDate,
+  };
+}
+
+function PreviewRow({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
+  return (
+    <div className="flex gap-3 rounded-2xl border border-slate-100 bg-white p-3 shadow-sm shadow-slate-900/[0.03]">
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
+        <Icon className="h-4 w-4" />
+      </span>
+      <div className="min-w-0">
+        <div className="text-xs font-black uppercase tracking-[0.1em] text-slate-400">{label}</div>
+        <div className="mt-1 text-sm font-black leading-5 text-slate-900">{value}</div>
+      </div>
+    </div>
+  );
+}
+
+function FormSection({
+  children,
+  description,
+  icon: Icon,
+  title,
+}: {
+  children: ReactNode;
+  description: string;
+  icon: LucideIcon;
+  title: string;
+}) {
+  return (
+    <Card className="p-5 sm:p-6">
+      <div className="flex items-start gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
+          <Icon className="h-5 w-5" />
+        </span>
+        <div>
+          <h2 className="text-lg font-black text-slate-950">{title}</h2>
+          <p className="mt-1 text-sm leading-6 text-slate-500">{description}</p>
+        </div>
+      </div>
+      <div className="mt-5 space-y-4">{children}</div>
+    </Card>
+  );
+}
+
+function FieldShell({
+  children,
+  hint,
+  label,
+  required = false,
+}: {
+  children: ReactNode;
+  hint?: string;
+  label: string;
+  required?: boolean;
+}) {
+  return (
+    <label className="block">
+      <span className="flex items-center gap-1 text-xs font-black uppercase tracking-[0.12em] text-slate-400">
+        {label}
+        {required ? <span className="text-blue-600">*</span> : null}
+      </span>
+      <div className="mt-2">{children}</div>
+      {hint ? <span className="mt-2 block text-xs leading-5 text-slate-400">{hint}</span> : null}
+    </label>
+  );
+}
+
+function TextInput({
+  hint,
+  label,
+  onChange,
+  placeholder,
+  required = false,
+  value,
+}: {
+  hint?: string;
+  label: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  value: string;
+}) {
+  return (
+    <FieldShell hint={hint} label={label} required={required}>
+      <input
+        className="brand-field h-12 w-full rounded-xl px-4 text-sm font-bold text-slate-800 outline-none placeholder:text-slate-400"
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </FieldShell>
+  );
+}
+
+function TextAreaInput({
+  label,
+  onChange,
+  placeholder,
+  required = false,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
+  required?: boolean;
+  value: string;
+}) {
+  return (
+    <FieldShell label={label} required={required}>
+      <textarea
+        className="brand-field min-h-28 w-full resize-none rounded-xl px-4 py-3 text-sm font-bold leading-6 text-slate-800 outline-none placeholder:text-slate-400"
+        placeholder={placeholder}
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      />
+    </FieldShell>
+  );
+}
+
+function SelectInput({
+  label,
+  onChange,
+  options,
+  required = false,
+  value,
+}: {
+  label: string;
+  onChange: (value: string) => void;
+  options: SelectOption[];
+  required?: boolean;
+  value: string;
+}) {
+  return (
+    <FieldShell label={label} required={required}>
+      <select
+        className="brand-field h-12 w-full rounded-xl px-4 text-sm font-bold text-slate-800 outline-none"
+        value={value}
+        onChange={(event) => onChange(event.target.value)}
+      >
+        {options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
+    </FieldShell>
+  );
+}
+
+function NumberInput({
+  disabled = false,
+  hint,
+  label,
+  min,
+  onChange,
+  suffix,
+  value,
+}: {
+  disabled?: boolean;
+  hint?: string;
+  label: string;
+  min?: number;
+  onChange: (value: number) => void;
+  suffix?: string;
+  value: number;
+}) {
+  return (
+    <FieldShell hint={hint} label={label}>
+      <div className="brand-field flex h-12 items-center rounded-xl px-4">
+        <input
+          className="min-w-0 flex-1 bg-transparent text-sm font-bold text-slate-800 outline-none disabled:cursor-not-allowed disabled:text-slate-400"
+          disabled={disabled}
+          min={min}
+          type="number"
+          value={value}
+          onChange={(event) => onChange(Number(event.target.value))}
+        />
+        {suffix ? <span className="ml-3 text-xs font-black uppercase tracking-[0.08em] text-slate-400">{suffix}</span> : null}
+      </div>
+    </FieldShell>
+  );
+}
+
+function SwitchField({
+  checked,
+  label,
+  onChange,
+  text,
+}: {
+  checked: boolean;
+  label: string;
+  onChange: (value: boolean) => void;
+  text: string;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={checked}
+      className="flex w-full items-center justify-between gap-4 rounded-2xl border border-slate-200 bg-white p-4 text-left shadow-sm shadow-slate-900/[0.03] transition hover:border-blue-200 hover:bg-blue-50/40"
+      onClick={() => onChange(!checked)}
+    >
+      <span>
+        <span className="block text-sm font-black text-slate-950">{label}</span>
+        <span className="mt-1 block text-sm leading-5 text-slate-500">{text}</span>
+      </span>
+      <span
+        className={cn(
+          "flex h-7 w-12 shrink-0 items-center rounded-full p-1 transition",
+          checked ? "bg-blue-600" : "bg-slate-200",
+        )}
+      >
+        <span
+          className={cn(
+            "h-5 w-5 rounded-full bg-white shadow-sm transition",
+            checked ? "translate-x-5" : "translate-x-0",
+          )}
+        />
+      </span>
+    </button>
+  );
+}
+
+function PreviewStep({ brandName, selectedTitle }: { brandName: string; selectedTitle: string | null }) {
+  return (
+    <PlaceholderShell
+      icon={Eye}
+      eyebrow="Шаг 3"
+      title="Предпросмотр"
+      text="Здесь будет предпросмотр того, как челлендж увидит пользователь в приложении."
+    >
+      <div className="mx-auto max-w-sm rounded-[2rem] border border-slate-200 bg-slate-950 p-3 shadow-2xl shadow-slate-900/12">
+        <div className="rounded-[1.5rem] bg-white p-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black uppercase tracking-[0.12em] text-slate-400">{brandName}</span>
+            <Badge variant="success">Черновик</Badge>
+          </div>
+          <div className="mt-5 grid h-16 w-16 place-items-center rounded-2xl bg-blue-50 text-blue-700">
+            <Sparkles className="h-8 w-8" />
+          </div>
+          <h3 className="mt-4 text-xl font-black text-slate-950">Новый челлендж</h3>
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Шаблон: {selectedTitle ?? "не выбран"}. Детали появятся после настройки условий.
+          </p>
+          <div className="mt-5 h-2 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full w-2/5 rounded-full bg-blue-600" />
+          </div>
+        </div>
+      </div>
+    </PlaceholderShell>
+  );
+}
+
+function PublishStep({ draftSaved, selectedTitle }: { draftSaved: boolean; selectedTitle: string | null }) {
+  return (
+    <PlaceholderShell
+      icon={Save}
+      eyebrow="Шаг 4"
+      title="Публикация"
+      text="Финальный шаг перед сохранением черновика или публикацией челленджа."
+    >
+      <div className="grid gap-4 md:grid-cols-[1fr_280px]">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="text-sm font-black text-slate-950">Демо-режим</div>
+          <p className="mt-2 text-sm leading-6 text-slate-500">
+            Настоящая публикация отключена. Можно сохранить локальный черновик-состояние, чтобы показать финальный сценарий.
+          </p>
+          <div className="mt-4 rounded-xl bg-slate-50 p-4 text-sm font-bold text-slate-600">
+            Шаблон: {selectedTitle ?? "не выбран"}
+          </div>
+        </div>
+        <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-5">
+          <Check className="h-6 w-6 text-emerald-600" />
+          <div className="mt-3 text-sm font-black text-emerald-800">
+            {draftSaved ? "Черновик сохранён" : "Готово к черновику"}
+          </div>
+          <p className="mt-2 text-sm leading-6 text-emerald-700/80">
+            Нажмите «Сохранить черновик», чтобы показать успешное завершение без отправки данных.
+          </p>
+        </div>
+      </div>
+    </PlaceholderShell>
+  );
+}
+
+function PlaceholderShell({
+  children,
+  eyebrow,
+  icon: Icon,
+  text,
+  title,
+}: {
+  children: ReactNode;
+  eyebrow: string;
+  icon: LucideIcon;
+  text: string;
+  title: string;
+}) {
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[280px_1fr] lg:p-8">
+        <div className="rounded-3xl border border-blue-100 bg-blue-50/70 p-6">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-blue-700 shadow-sm shadow-blue-900/5">
+            <Icon className="h-6 w-6" />
+          </div>
+          <div className="mt-6 text-xs font-black uppercase tracking-[0.14em] text-blue-500">{eyebrow}</div>
+          <h2 className="mt-2 text-2xl font-black text-slate-950">{title}</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-500">{text}</p>
+        </div>
+        <div className="min-w-0 self-center">{children}</div>
+      </div>
+    </Card>
+  );
+}

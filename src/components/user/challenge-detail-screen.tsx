@@ -1,9 +1,9 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Check, Heart, MapPin, QrCode, Share2, X } from "lucide-react";
+import { ArrowLeft, Heart, QrCode, Share2, X } from "lucide-react";
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import type { Challenge } from "@/data/challenges";
 import type { Location } from "@/data/locations";
 import { useCurrentUser } from "@/lib/auth-client";
@@ -14,6 +14,7 @@ import {
   toggleFavoriteChallenge,
   useUserChallengeStates,
 } from "@/lib/user-challenge-storage";
+import { ChallengeDetailCard } from "./challenge-detail-card";
 import styles from "./challenge-detail-screen.module.css";
 
 type Props = {
@@ -37,8 +38,7 @@ export function ChallengeDetailScreen({ challenge, locations }: Props) {
   const isFavorite = challengeState?.isFavorite ?? false;
   const progressTotal = challengeState?.progressTotal ?? challenge.progress?.total ?? 1;
   const progressCurrent = isActive ? (challengeState?.progressCurrent ?? 0) : 0;
-  const progressPercent = Math.min(100, (progressCurrent / progressTotal) * 100);
-  const remaining = Math.max(0, progressTotal - progressCurrent);
+  const overlayRoot = typeof document === "undefined" ? null : document.getElementById("user-app-overlay-root");
 
   async function shareChallenge() {
     const shareData = { title: challenge.title, text: challenge.description, url: window.location.href };
@@ -76,80 +76,33 @@ export function ChallengeDetailScreen({ challenge, locations }: Props) {
 
   return (
     <main className={styles.page}>
-      <section className={styles.hero}>
-        <Image
-          src={challenge.image ?? "/landing/challenges/coffee.webp"}
-          alt={challenge.title}
-          fill
-          priority
-          sizes="(max-width: 639px) 100vw, 390px"
-          className={styles.heroImage}
-        />
-        <div className={styles.heroShade} />
-        <Link href={routes.user.challenges} className={styles.iconButton} aria-label="Назад">
-          <ArrowLeft size={20} />
-        </Link>
-        <div className={styles.heroActions}>
-          <button type="button" className={styles.iconButton} onClick={shareChallenge} aria-label="Поделиться">
-            <Share2 size={18} />
-          </button>
-          <button type="button" className={`${styles.iconButton} ${isFavorite ? styles.favorite : ""}`} onClick={toggleFavorite} aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"} aria-pressed={isFavorite}>
-            <Heart size={18} fill={isFavorite ? "currentColor" : "none"} />
-          </button>
-        </div>
-        <span className={styles.status}>{isActive ? "Активирован" : "Можно начать"}</span>
-      </section>
-
-      <section className={styles.intro}>
-        <div className={styles.brandIsland} aria-label={challenge.brandName}>
-          <span>{challenge.emoji}</span>
-        </div>
-        <p className={styles.brand}>{challenge.brandName}</p>
-        <h1>{challenge.title}</h1>
-        <p className={styles.shortDescription}>{challenge.shortDescription ?? challenge.condition}</p>
-        <p className={styles.description}>{challenge.fullDescription ?? challenge.description}</p>
-      </section>
-
-      <section className={styles.surface}>
-        <div className={styles.sectionHeading}>
-          <h2>Награда</h2>
-          <strong>{challenge.coinsReward} 🪙</strong>
-        </div>
-        <div className={styles.rewardContent}>
-          <span>🎁</span>
-          <div><small>Подарок от бренда</small><p>{challenge.reward}</p></div>
-        </div>
-      </section>
-
-      <section className={styles.surface}>
-        <div className={styles.sectionHeading}>
-          <h2>Прогресс</h2>
-          <strong>{progressCurrent}/{progressTotal}</strong>
-        </div>
-        <div className={styles.progressTrack}><i style={{ width: `${progressPercent}%` }} /></div>
-        <div className={styles.progressMeta}>
-          <span>{remaining ? `${remaining} ${remaining === 1 ? "визит остался" : "визита осталось"}` : "Все условия выполнены"}</span>
-          <span>Осталось {challenge.daysLeft} дн.</span>
-        </div>
-      </section>
-
-      <section className={styles.surface}>
-        <div className={styles.sectionHeading}><h2>{locations.length ? "Адреса для визитов" : "Условия выполнения"}</h2></div>
-        <div className={styles.checklist}>
-          {locations.length ? locations.map((location, index) => {
-            const completed = isActive && index < progressCurrent;
-            return (
-              <div className={styles.checkItem} key={location.id}>
-                <span className={completed ? styles.checkDone : styles.checkPending}>{completed ? <Check size={16} /> : index + 1}</span>
-                <div><p>{location.title}</p><small>{completed ? location.visitTime : location.address}</small></div>
-                {!completed ? <MapPin size={16} /> : null}
-              </div>
-            );
-          }) : (
-            <div className={styles.checkItem}><span className={styles.checkPending}>1</span><div><p>{challenge.condition}</p><small>Выполните условие до окончания челленджа</small></div></div>
-          )}
-        </div>
-      </section>
+      <svg className={styles.liquidGlassDefs} aria-hidden="true" focusable="false">
+        <filter id="challenge-liquid-distortion" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="0.012 0.028" numOctaves="2" seed="7" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="14" xChannelSelector="R" yChannelSelector="G" />
+        </filter>
+      </svg>
+      <ChallengeDetailCard
+        challenge={challenge}
+        isActive={isActive}
+        locations={locations}
+        progress={{ current: progressCurrent, total: progressTotal }}
+        heroControls={
+          <>
+            <Link href={routes.user.challenges} className={styles.iconButton} aria-label="Назад">
+              <ArrowLeft size={20} />
+            </Link>
+            <div className={styles.heroActions}>
+              <button type="button" className={styles.iconButton} onClick={shareChallenge} aria-label="Поделиться">
+                <Share2 size={18} />
+              </button>
+              <button type="button" className={`${styles.iconButton} ${isFavorite ? styles.favorite : ""}`} onClick={toggleFavorite} aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"} aria-pressed={isFavorite}>
+                <Heart size={18} fill={isFavorite ? "currentColor" : "none"} />
+              </button>
+            </div>
+          </>
+        }
+      />
 
       <section className={styles.ctaPanel}>
         {isActive ? (
@@ -157,12 +110,16 @@ export function ChallengeDetailScreen({ challenge, locations }: Props) {
             <button type="button" className={styles.cancelPrimary} onClick={() => setIsCancelOpen(true)}>Отменить челлендж</button>
             <button type="button" className={styles.qrButton} onClick={() => setIsQrOpen(true)}><QrCode size={19} />Показать QR код</button>
           </>
-        ) : <button type="button" className={styles.primaryButton} onClick={activateChallenge}>Принять челлендж</button>}
+        ) : (
+          <button type="button" className={styles.liquidCta} onClick={activateChallenge}>
+            <span className={styles.liquidCtaLabel}>Принять челлендж</span>
+          </button>
+        )}
       </section>
 
       {notice ? <div className={styles.toast} role="status">{notice}</div> : null}
 
-      {isCancelOpen ? (
+      {isCancelOpen && overlayRoot ? createPortal(
         <div className={styles.overlay} role="presentation" onMouseDown={() => setIsCancelOpen(false)}>
           <section className={styles.sheet} role="dialog" aria-modal="true" aria-labelledby="cancel-title" onMouseDown={(event) => event.stopPropagation()}>
             <button className={styles.close} type="button" onClick={() => setIsCancelOpen(false)} aria-label="Закрыть"><X size={18} /></button>
@@ -172,10 +129,11 @@ export function ChallengeDetailScreen({ challenge, locations }: Props) {
             <button type="button" className={styles.dangerButton} onClick={cancelChallenge}>Да, отменить</button>
             <button type="button" className={styles.ghostButton} onClick={() => setIsCancelOpen(false)}>Нет</button>
           </section>
-        </div>
+        </div>,
+        overlayRoot,
       ) : null}
 
-      {isQrOpen ? (
+      {isQrOpen && overlayRoot ? createPortal(
         <div className={styles.overlay} role="presentation" onMouseDown={() => setIsQrOpen(false)}>
           <section className={styles.sheet} role="dialog" aria-modal="true" aria-labelledby="qr-title" onMouseDown={(event) => event.stopPropagation()}>
             <button className={styles.close} type="button" onClick={() => setIsQrOpen(false)} aria-label="Закрыть"><X size={18} /></button>
@@ -184,7 +142,8 @@ export function ChallengeDetailScreen({ challenge, locations }: Props) {
             <div className={styles.qr} aria-label={`QR-код ${challenge.qrCodeValue ?? challenge.id}`}>{qrCells.map((filled, index) => <i key={index} className={filled ? styles.qrFilled : ""} />)}</div>
             <small className={styles.qrValue}>{challenge.qrCodeValue ?? `CHALLENGER:${challenge.id}:DEMO`}</small>
           </section>
-        </div>
+        </div>,
+        overlayRoot,
       ) : null}
     </main>
   );

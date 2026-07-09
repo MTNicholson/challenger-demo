@@ -105,6 +105,7 @@ export function UserAppLayout({ children }: UserAppLayoutProps) {
           <div
             key={pathname}
             ref={scrollViewportRef}
+            data-user-scroll-viewport
             className={isMapPage ? `${styles.appViewport} ${styles.appViewportMap}` : styles.appViewport}
           >
             <div className={isMapPage ? `${styles.appContent} ${styles.appContentMap}` : styles.appContent}>{children}</div>

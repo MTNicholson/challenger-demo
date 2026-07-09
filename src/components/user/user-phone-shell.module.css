@@ -105,6 +105,9 @@
 .screen {
   --user-bottom-nav-bottom: 17px;
   --user-bottom-nav-extra-bottom: 0px;
+  --user-bottom-nav-height: 74px;
+  --challenge-cta-nav-gap: 8px;
+  --challenge-cta-height: 56px;
 
   position: relative;
   display: flex;

@@ -35,6 +35,7 @@ model Brand {
   members       BrandMember[]
   challenges    BrandChallenge[]
   locations     BrandLocation[]
+  rewards       BrandReward[]
 }
 
 model BrandLocation {
@@ -88,4 +89,26 @@ model BrandChallenge {
   brand       Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
+}
+
+model BrandReward {
+  id            String    @id @default(cuid())
+  brandId       String
+  title         String
+  type          String
+  description   String
+  status        String    @default("active")
+  limit         Int?
+  points        Int       @default(0)
+  expiresInDays Int?
+  usageTerms    String?
+  issuedCount   Int       @default(0)
+  redeemedCount Int       @default(0)
+  archivedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  brand         Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId])
+  @@index([status])
 }
