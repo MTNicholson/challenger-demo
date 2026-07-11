@@ -9,6 +9,7 @@ export const routes = {
   brandAuth: {
     register: "/brand/auth/register",
     login: "/brand/auth/login",
+    forgotPassword: "/brand/auth/forgot-password",
   },
   onboarding: "/onboarding",
   user: {

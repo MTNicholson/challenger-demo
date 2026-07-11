@@ -67,6 +67,9 @@ export default function BrandLoginPage() {
             {pending ? "Входим..." : "Войти в кабинет"}
           </button>
         </form>
+        <Link className={styles.secondary} href={routes.brandAuth.forgotPassword}>
+          Забыли пароль?
+        </Link>
         <Link className={styles.secondary} href={routes.brandAuth.register}>
           <Building2 className="inline h-4 w-4 align-[-3px]" /> <strong>Зарегистрировать бренд</strong>
         </Link>

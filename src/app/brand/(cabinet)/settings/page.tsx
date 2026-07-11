@@ -9,6 +9,7 @@ export default async function BrandSettingsPage() {
 
   return (
     <BrandSettingsClient
+      memberEmail={session.member.email}
       brand={{
         id: session.brand.id,
         name: session.brand.name,
