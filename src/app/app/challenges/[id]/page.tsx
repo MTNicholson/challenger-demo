@@ -13,5 +13,5 @@ export default async function ChallengeDetailPage({ params, searchParams }: Page
   if (!challenge) notFound();
   const brand = await getPublicBrandById(challenge.brandId);
 
-  return <ChallengeDetailScreen challenge={challenge} locations={getBrandLocations(challenge.brandId).slice(0, 5)} backHref={from === "favorites" ? routes.user.favorites : routes.user.challenges} brandHref={brand ? routes.user.brandDetail(brand.slug) : undefined} />;
+  return <ChallengeDetailScreen challenge={challenge} locations={getBrandLocations(challenge.brandId).slice(0, 5)} backHref={from === "favorites" ? routes.user.favorites : routes.user.challenges} brandHref={brand ? routes.user.brandDetail(brand.id) : undefined} />;
 }

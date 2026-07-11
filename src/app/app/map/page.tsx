@@ -30,7 +30,6 @@ export default async function UserMapPage({ searchParams }: UserMapPageProps) {
         select: {
           id: true,
           name: true,
-          slug: true,
           category: true,
           logoUrl: true,
           coverImageUrl: true,
@@ -55,7 +54,6 @@ export default async function UserMapPage({ searchParams }: UserMapPageProps) {
             select: {
               id: true,
               name: true,
-              slug: true,
               category: true,
               logoUrl: true,
               coverImageUrl: true,

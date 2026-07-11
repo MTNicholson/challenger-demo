@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { ArrowLeft, ExternalLink, Globe, Sparkles } from "lucide-react";
 import { getBrandCategoryFallback } from "@/lib/brand-visuals";
 import { getCurrentUser } from "@/lib/auth-server";
-import { getPublicBrandBySlug } from "@/lib/public-brands";
+import { getPublicBrandById, getPublicBrandBySlug } from "@/lib/public-brands";
 import { routes } from "@/lib/routes";
 import { buttonClasses } from "@/components/ui/button";
 import { BrandLocationsList } from "@/components/user/brand-locations-list";
@@ -23,19 +23,15 @@ function formatStatus(status: string) {
   return status;
 }
 
-function decodeSlugParam(slug: string) {
-  try {
-    return decodeURIComponent(slug);
-  } catch {
-    return slug;
-  }
-}
-
 export default async function UserBrandPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ from?: string }> }) {
-  const { slug } = await params;
+  const { slug: id } = await params;
   const { from } = await searchParams;
-  const decodedSlug = decodeSlugParam(slug);
-  const [brand, user] = await Promise.all([getPublicBrandBySlug(decodedSlug), getCurrentUser()]);
+  const [brand, user] = await Promise.all([getPublicBrandById(id), getCurrentUser()]);
+
+  if (!brand) {
+    const legacyBrand = await getPublicBrandBySlug(id);
+    if (legacyBrand) redirect(`${routes.user.brandDetail(legacyBrand.id)}${from === "favorites" ? "?from=favorites" : ""}`);
+  }
 
   if (!brand) notFound();
 

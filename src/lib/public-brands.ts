@@ -149,10 +149,14 @@ export async function getPublicBrandBySlug(slug: string): Promise<PublicBrandDet
   };
 }
 
-export async function getPublicBrandById(id: string): Promise<PublicBrandSummary | null> {
+export async function getPublicBrandById(id: string): Promise<PublicBrandDetail | null> {
   const brand = await prisma.brand.findUnique({
     where: { id },
-    include: { locations: { orderBy: [{ isMain: "desc" }, { createdAt: "asc" }] }, _count: { select: { challenges: true } } },
+    include: {
+      challenges: { orderBy: { createdAt: "desc" } },
+      locations: { orderBy: [{ isMain: "desc" }, { createdAt: "asc" }] },
+      _count: { select: { challenges: true } },
+    },
   });
-  return brand ? serializeBrand(brand) : null;
+  return brand ? { ...serializeBrand(brand), challenges: brand.challenges.map(serializeChallenge) } : null;
 }

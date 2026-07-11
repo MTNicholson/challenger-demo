@@ -27,7 +27,7 @@ export function BrandCard({ brand }: BrandCardProps) {
   const fallback = getBrandCategoryFallback(brand.category);
 
   return (
-    <Link className={styles.card} href={routes.user.brandDetail(brand.slug)}>
+    <Link className={styles.card} href={routes.user.brandDetail(brand.id)}>
       <div
         className={styles.cover}
         style={brand.coverImageUrl ? { backgroundImage: `url(${brand.coverImageUrl})` } : { background: fallback.coverGradient }}

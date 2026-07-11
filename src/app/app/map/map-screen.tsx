@@ -43,7 +43,6 @@ export type MapBrandLocation = {
   brand: {
     id: string;
     name: string;
-    slug: string;
     category: string | null;
     logoUrl: string | null;
     coverImageUrl: string | null;
@@ -202,7 +201,7 @@ export function ChallengeMapScreen({ initialSelectedLocation = null, locations, 
               <h1>{activeLocation.name ?? "Точка бренда"}</h1>
               <p>У этой точки пока нет координат</p>
             </div>
-            <Link href={routes.user.brandDetail(activeLocation.brand.slug)} className={styles.openButton}>
+            <Link href={routes.user.brandDetail(activeLocation.brand.id)} className={styles.openButton}>
               Открыть бренд
               <ArrowRight aria-hidden size={14} />
             </Link>
@@ -236,7 +235,7 @@ export function ChallengeMapScreen({ initialSelectedLocation = null, locations, 
               </div>
             </div>
 
-            <Link href={routes.user.brandDetail(activeLocation.brand.slug)} className={styles.openButton}>
+            <Link href={routes.user.brandDetail(activeLocation.brand.id)} className={styles.openButton}>
               Открыть бренд
               <ArrowRight aria-hidden size={14} />
             </Link>

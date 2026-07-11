@@ -1,11 +1,12 @@
 "use client";
 
 import L from "leaflet";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import {
   MapContainer,
   Marker,
   TileLayer,
+  useMapEvents,
   ZoomControl,
   useMap,
 } from "react-leaflet";
@@ -34,10 +35,6 @@ function escapeHtml(value: string) {
     .replace(/'/g, "&#039;");
 }
 
-function getInitial(value: string) {
-  return escapeHtml(value.trim()[0]?.toLocaleUpperCase("ru-RU") ?? "Б");
-}
-
 function MapSizeFix() {
   const map = useMap();
 
@@ -58,13 +55,22 @@ function createMarkerIcon(point: MapChallengePoint, selected: boolean) {
   });
 }
 
-function createLocationIcon(location: MapBrandLocation, selected: boolean) {
+function createLocationIcon(location: MapBrandLocation, selected: boolean, showBrandName: boolean) {
+  const logo = location.brand.logoUrl
+    ? `<img src="${escapeHtml(location.brand.logoUrl)}" alt="" />`
+    : `<span>${escapeHtml(location.brand.name.trim()[0]?.toLocaleUpperCase("ru-RU") ?? "Б")}</span>`;
   return L.divIcon({
     className: "challenge-map-marker-wrap",
-    html: `<span class="challenge-map-marker brand-location-marker${selected ? " is-selected" : ""}"><span>${getInitial(location.brand.name)}</span></span>`,
-    iconSize: selected ? [54, 60] : [46, 52],
+    html: `<span class="challenge-map-marker brand-location-marker${selected ? " is-selected" : ""}"><span class="brand-marker-logo">${logo}</span></span>${showBrandName ? `<span class="brand-marker-label">${escapeHtml(location.brand.name)}</span>` : ""}`,
+    iconSize: showBrandName ? [150, selected ? 80 : 72] : selected ? [54, 60] : [46, 52],
     iconAnchor: selected ? [27, 56] : [23, 48],
   });
+}
+
+function MapZoomObserver({ onChange }: { onChange: (zoom: number) => void }) {
+  const map = useMapEvents({ zoomend: () => onChange(map.getZoom()) });
+  useEffect(() => onChange(map.getZoom()), [map, onChange]);
+  return null;
 }
 
 function SelectedLocationCenter({
@@ -91,6 +97,7 @@ export function LeafletChallengeMap({
   onSelectPoint,
   onSelectLocation,
 }: LeafletChallengeMapProps) {
+  const [zoom, setZoom] = useState(12);
   const initialCenter: [number, number] =
     selectedLocation && selectedLocation.lat !== null && selectedLocation.lng !== null
       ? [selectedLocation.lat, selectedLocation.lng]
@@ -114,6 +121,7 @@ export function LeafletChallengeMap({
       />
       <ZoomControl position="topright" />
       <MapSizeFix />
+      <MapZoomObserver onChange={setZoom} />
       <SelectedLocationCenter selectedLocation={selectedLocation} />
 
       {locations.map((location) => (
@@ -121,7 +129,7 @@ export function LeafletChallengeMap({
           <Marker
             key={location.id}
             position={[location.lat, location.lng]}
-            icon={createLocationIcon(location, location.id === selectedLocationId)}
+            icon={createLocationIcon(location, location.id === selectedLocationId, zoom >= 15)}
             title={`${location.brand.name}: ${location.name ?? "Точка бренда"}`}
             eventHandlers={{ click: () => onSelectLocation(location) }}
           />
