@@ -3,15 +3,18 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  ArrowLeft,
   BarChart3,
   ChevronsLeft,
   ChevronsRight,
   Gift,
   LayoutDashboard,
+  MapPin,
   PlusCircle,
   QrCode,
   Settings,
   Sparkles,
+  Smartphone,
   Target,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
@@ -44,10 +47,11 @@ const items = [
     icon: Gift,
   },
   {
-    label: "Сканер",
-    href: routes.brand.scanner,
-    icon: QrCode,
+    label: "Точки",
+    href: routes.brand.locations,
+    icon: MapPin,
   },
+  { label: "Сканер", href: routes.brand.scanner, icon: QrCode },
   {
     label: "Превью гостя",
     href: routes.brand.preview,
@@ -59,6 +63,17 @@ const items = [
     icon: Settings,
   },
 ];
+
+const navigationOrder: Record<string, number> = {
+  [routes.brand.dashboard]: 0,
+  [routes.brand.analytics]: 1,
+  [routes.brand.challenges]: 2,
+  [routes.brand.newChallenge]: 3,
+  [routes.brand.rewards]: 4,
+  [routes.brand.locations]: 5,
+  [routes.brand.scanner]: 6,
+  [routes.brand.settings]: 7,
+};
 
 function isItemActive(pathname: string, href: string) {
   if (href === routes.brand.dashboard) return pathname === href;
@@ -105,7 +120,10 @@ export function BrandSidebar({ collapsed, onToggle }: BrandSidebarProps) {
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4" aria-label="Навигация кабинета бренда">
-        {items.map((item) => {
+        {items
+          .filter((item) => item.href !== routes.brand.preview)
+          .sort((first, second) => (navigationOrder[first.href] ?? 99) - (navigationOrder[second.href] ?? 99))
+          .map((item) => {
           const Icon = item.icon;
           const isActive = isItemActive(pathname, item.href);
 
@@ -136,6 +154,30 @@ export function BrandSidebar({ collapsed, onToggle }: BrandSidebarProps) {
           );
         })}
       </nav>
+      <div className="space-y-2 border-t border-slate-200 px-3 py-4">
+        <Link
+          href={routes.marketing.home}
+          className={cn(
+            "flex min-h-10 items-center gap-3 rounded-xl px-3 text-sm font-extrabold text-slate-600 transition hover:bg-slate-100 hover:text-slate-900",
+            collapsed ? "justify-center px-2" : "justify-center px-2 lg:justify-start lg:px-3",
+          )}
+          title={collapsed ? "Вернуться на главную" : undefined}
+        >
+          <ArrowLeft className="h-[18px] w-[18px] shrink-0" />
+          <span className={cn(collapsed ? "sr-only" : "sr-only lg:not-sr-only")}>Вернуться на главную</span>
+        </Link>
+        <Link
+          href={routes.user.home}
+          className={cn(
+            "flex min-h-10 items-center gap-3 rounded-xl bg-blue-50 px-3 text-sm font-extrabold text-blue-700 transition hover:bg-blue-100",
+            collapsed ? "justify-center px-2" : "justify-center px-2 lg:justify-start lg:px-3",
+          )}
+          title={collapsed ? "Перейти в приложение" : undefined}
+        >
+          <Smartphone className="h-[18px] w-[18px] shrink-0" />
+          <span className={cn(collapsed ? "sr-only" : "sr-only lg:not-sr-only")}>Перейти в приложение</span>
+        </Link>
+      </div>
     </aside>
   );
 }

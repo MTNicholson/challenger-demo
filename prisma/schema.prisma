@@ -75,20 +75,30 @@ model BrandMember {
 }
 
 model BrandChallenge {
-  id          String    @id @default(uuid())
-  brandId     String
-  title       String
-  description String?
-  status      String    @default("draft")
-  type        String?
-  reward      String?
-  startsAt    DateTime?
-  endsAt      DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  brand       Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  id              String    @id @default(uuid())
+  brandId         String
+  title           String
+  description     String?
+  status          String    @default("draft")
+  type            String?
+  category        String?
+  mechanicType    String?
+  mechanicParams  Json?
+  reward          String?
+  rewardData      Json?
+  heroImageUrl    String?
+  locationIds     String[]  @default([])
+  startsAt        DateTime?
+  endsAt          DateTime?
+  scheduledAt     DateTime?
+  publishedAt     DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  brand           Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
+  @@index([brandId, status])
+  @@index([scheduledAt])
 }
 
 model BrandReward {

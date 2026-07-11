@@ -1,5 +1,6 @@
 import { UserChallengesClient } from "./user-challenges-client";
+import { getPublishedUserChallenges } from "@/lib/public-challenges";
 
-export default function UserChallengesPage() {
-  return <UserChallengesClient />;
+export default async function UserChallengesPage() {
+  return <UserChallengesClient challenges={await getPublishedUserChallenges()} />;
 }

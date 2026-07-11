@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Search, SlidersHorizontal } from "lucide-react";
-import { challenges, type Challenge } from "@/data/challenges";
+import type { Challenge } from "@/data/challenges";
 import { routes } from "@/lib/routes";
 import { useCurrentUser } from "@/lib/auth-client";
 import { useUserChallengeStates } from "@/lib/user-challenge-storage";
@@ -10,18 +10,6 @@ import styles from "./user-challenges.module.css";
 
 const categories = ["Все", "Новые", "Еда", "Фитнес", "Beauty", "Книги"];
 
-const catalogOrder = [
-  "coffee-route",
-  "ten-thousand-steps",
-  "beauty-rewards",
-  "sweet-june",
-  "book-challenge",
-  "dessert-after-six",
-  "photo-walk",
-  "morning-filter",
-  "reading-weekend",
-  "stretch-break",
-];
 
 function getVisualClass(challenge: Challenge) {
   if (challenge.category === "Кофе") return styles.visualCoffee;
@@ -126,12 +114,10 @@ function StaggeredCards({ challenges }: { challenges: Challenge[] }) {
   );
 }
 
-export function UserChallengesClient() {
+export function UserChallengesClient({ challenges }: { challenges: Challenge[] }) {
   const { user } = useCurrentUser();
   const { states } = useUserChallengeStates(user?.id);
-  const orderedChallenges = catalogOrder
-    .map((id) => challenges.find((challenge) => challenge.id === id))
-    .filter((challenge): challenge is Challenge => Boolean(challenge))
+  const orderedChallenges = challenges
     .map((challenge) => {
       const state = states.find((item) => item.challengeId === challenge.id);
       return {

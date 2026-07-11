@@ -51,9 +51,10 @@ const items = [
 
 type UserBottomNavProps = {
   className?: string;
+  isPreview?: boolean;
 };
 
-export function UserBottomNav({ className }: UserBottomNavProps) {
+export function UserBottomNav({ className, isPreview = false }: UserBottomNavProps) {
   const pathname = usePathname();
 
   return (
@@ -82,6 +83,11 @@ export function UserBottomNav({ className }: UserBottomNavProps) {
               )}
               aria-current={isActive ? "page" : undefined}
               aria-label={item.primary ? item.label : undefined}
+              aria-disabled={isPreview || undefined}
+              onClick={isPreview ? (event) => {
+                event.preventDefault();
+                event.stopPropagation();
+              } : undefined}
             >
               <span className={styles.bottomNavIconWrap}>
                 <Icon

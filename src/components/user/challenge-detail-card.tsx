@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { CalendarDays, Check, Gift, MapPin, Trophy } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
@@ -14,7 +15,7 @@ type ChallengeDetailCardProps = {
   isActive?: boolean;
   progress?: { current: number; total: number };
   heroControls?: ReactNode;
-  mode?: "app" | "preview";
+  brandHref?: string;
 };
 
 export function ChallengeDetailCard({
@@ -23,7 +24,7 @@ export function ChallengeDetailCard({
   isActive = false,
   progress,
   heroControls,
-  mode = "app",
+  brandHref,
 }: ChallengeDetailCardProps) {
   const detailRef = useRef<HTMLElement>(null);
   const [scrollAmount, setScrollAmount] = useState(0);
@@ -31,7 +32,7 @@ export function ChallengeDetailCard({
   const progressCurrent = isActive ? progress?.current ?? 0 : 0;
   const progressPercent = Math.min(100, (progressCurrent / progressTotal) * 100);
   const remaining = Math.max(0, progressTotal - progressCurrent);
-  const periodText = "24 июня — 31 июля";
+  const periodText = challenge.startDate && challenge.endDate ? `${challenge.startDate} — ${challenge.endDate}` : "24 июня — 31 июля";
 
   useEffect(() => {
     const viewport = detailRef.current?.closest<HTMLElement>("[data-user-scroll-viewport]");
@@ -57,20 +58,29 @@ export function ChallengeDetailCard({
           src={challenge.image ?? "/landing/challenges/coffee.webp"}
           alt={challenge.title}
           fill
-          priority={mode === "app"}
+          priority
           sizes="(max-width: 639px) 100vw, 390px"
           className={styles.heroImage}
         />
         <div className={styles.heroShade} />
-        {mode === "app" ? heroControls : null}
+        {heroControls}
       </section>
 
       <div className={styles.contentFlow}>
         <div className={styles.brandIsland} aria-label={challenge.brandName}>
-          <span>{challenge.emoji}</span>
+          {challenge.brandLogo ? (
+            <Image
+              src={challenge.brandLogo}
+              alt={`Логотип ${challenge.brandName}`}
+              fill
+              sizes="64px"
+              unoptimized={challenge.brandLogo.startsWith("blob:")}
+              className={styles.brandLogo}
+            />
+          ) : <span>{challenge.emoji}</span>}
         </div>
         <section className={styles.intro}>
-          <p className={styles.brand}>{challenge.brandName}</p>
+          {brandHref ? <Link href={brandHref} className={styles.brand}>{challenge.brandName}</Link> : <p className={styles.brand}>{challenge.brandName}</p>}
           <h1>{challenge.title}</h1>
           <p className={styles.shortDescription}>{challenge.shortDescription ?? challenge.condition}</p>
           <p className={styles.description}>{challenge.fullDescription ?? challenge.description}</p>

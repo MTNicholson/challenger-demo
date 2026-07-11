@@ -39,6 +39,8 @@ export type Challenge = {
   isFeatured: boolean;
   image?: string;
   brandLogo?: string;
+  startDate?: string;
+  endDate?: string;
   qrCodeValue?: string;
 };
 

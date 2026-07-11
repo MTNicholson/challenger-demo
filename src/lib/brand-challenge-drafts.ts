@@ -4,6 +4,7 @@ export type BrandChallengeDraft = {
   category: "activity" | "visit" | "purchase";
   title: string;
   description: string;
+  heroImageUrl: string | null;
   mechanicType: string;
   mechanicParams: {
     visitsCount: number;

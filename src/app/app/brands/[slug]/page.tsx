@@ -31,8 +31,9 @@ function decodeSlugParam(slug: string) {
   }
 }
 
-export default async function UserBrandPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function UserBrandPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams: Promise<{ from?: string }> }) {
   const { slug } = await params;
+  const { from } = await searchParams;
   const decodedSlug = decodeSlugParam(slug);
   const [brand, user] = await Promise.all([getPublicBrandBySlug(decodedSlug), getCurrentUser()]);
 
@@ -44,11 +45,12 @@ export default async function UserBrandPage({ params }: { params: Promise<{ slug
 
   return (
     <main className={styles.page}>
-      <Link href={routes.user.brands} className={buttonClasses({ variant: "ghost", size: "sm", className: "w-fit" })}>
+      <Link href={from === "favorites" ? routes.user.favorites : routes.user.brands} className={buttonClasses({ variant: "ghost", size: "sm", className: "w-fit" })}>
         <ArrowLeft className="h-4 w-4" />
         К брендам
       </Link>
 
+      <section className={styles.brandCard}>
       <section className={styles.hero}>
         <div
           className={styles.cover}
@@ -84,8 +86,6 @@ export default async function UserBrandPage({ params }: { params: Promise<{ slug
         </div>
       </section>
 
-      <BrandLocationsList locations={brand.locations} userCity={user?.city} />
-
       <section className={styles.challengeList} aria-labelledby="brand-challenges-title">
         <div className={styles.sectionHeading}>
           <div>
@@ -117,6 +117,8 @@ export default async function UserBrandPage({ params }: { params: Promise<{ slug
             </div>
           </div>
         )}
+      </section>
+      <BrandLocationsList locations={brand.locations} userCity={user?.city} />
       </section>
     </main>
   );

@@ -1,24 +1,17 @@
 import { notFound } from "next/navigation";
-import { challenges, getChallengeById } from "@/data/challenges";
+import { getChallengeById } from "@/data/challenges";
 import { getBrandLocations } from "@/data/locations";
 import { ChallengeDetailScreen } from "@/components/user/challenge-detail-screen";
+import { getPublishedUserChallengeById } from "@/lib/public-challenges";
+import { getPublicBrandById } from "@/lib/public-brands";
+import { routes } from "@/lib/routes";
 
-export function generateStaticParams() {
-  return challenges.map((challenge) => ({
-    id: challenge.id,
-  }));
-}
-
-export default async function ChallengeDetailPage({
-  params,
-}: PageProps<"/app/challenges/[id]">) {
+export default async function ChallengeDetailPage({ params, searchParams }: PageProps<"/app/challenges/[id]">) {
   const { id } = await params;
-  const challenge = getChallengeById(id);
+  const { from } = await searchParams;
+  const challenge = await getPublishedUserChallengeById(id) ?? getChallengeById(id);
+  if (!challenge) notFound();
+  const brand = await getPublicBrandById(challenge.brandId);
 
-  if (!challenge) {
-    notFound();
-  }
-
-  const locations = getBrandLocations(challenge.brandId).slice(0, 5);
-  return <ChallengeDetailScreen challenge={challenge} locations={locations} />;
+  return <ChallengeDetailScreen challenge={challenge} locations={getBrandLocations(challenge.brandId).slice(0, 5)} backHref={from === "favorites" ? routes.user.favorites : routes.user.challenges} brandHref={brand ? routes.user.brandDetail(brand.slug) : undefined} />;
 }

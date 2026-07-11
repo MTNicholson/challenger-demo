@@ -20,13 +20,16 @@ import styles from "./challenge-detail-screen.module.css";
 type Props = {
   challenge: Challenge;
   locations: Location[];
+  isPreview?: boolean;
+  backHref?: string;
+  brandHref?: string;
 };
 
 const qrCells = Array.from({ length: 121 }, (_, index) =>
   [0, 1, 2, 9, 10, 11, 12, 14, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120].includes(index),
 );
 
-export function ChallengeDetailScreen({ challenge, locations }: Props) {
+export function ChallengeDetailScreen({ challenge, locations, isPreview = false, backHref = routes.user.challenges, brandHref }: Props) {
   const { user } = useCurrentUser();
   const { states } = useUserChallengeStates(user?.id);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
@@ -70,12 +73,13 @@ export function ChallengeDetailScreen({ challenge, locations }: Props) {
   }
 
   function toggleFavorite() {
+    if (isPreview) return;
     if (!user) return;
     toggleFavoriteChallenge(user.id, challenge.id);
   }
 
   return (
-    <main className={styles.page}>
+    <main className={`${styles.page} ${isPreview ? styles.previewPage : ""}`}>
       <svg className={styles.liquidGlassDefs} aria-hidden="true" focusable="false">
         <filter id="challenge-liquid-distortion" x="-20%" y="-20%" width="140%" height="140%">
           <feTurbulence type="fractalNoise" baseFrequency="0.012 0.028" numOctaves="2" seed="7" result="noise" />
@@ -84,19 +88,22 @@ export function ChallengeDetailScreen({ challenge, locations }: Props) {
       </svg>
       <ChallengeDetailCard
         challenge={challenge}
+        brandHref={brandHref}
         isActive={isActive}
         locations={locations}
         progress={{ current: progressCurrent, total: progressTotal }}
         heroControls={
           <>
-            <Link href={routes.user.challenges} className={styles.iconButton} aria-label="Назад">
-              <ArrowLeft size={20} />
-            </Link>
+            {isPreview ? (
+              <button type="button" className={styles.iconButton} aria-label="Назад" aria-disabled="true"><ArrowLeft size={20} /></button>
+            ) : (
+              <Link href={backHref} className={styles.iconButton} aria-label="Назад"><ArrowLeft size={20} /></Link>
+            )}
             <div className={styles.heroActions}>
-              <button type="button" className={styles.iconButton} onClick={shareChallenge} aria-label="Поделиться">
+              <button type="button" className={styles.iconButton} onClick={isPreview ? undefined : shareChallenge} aria-label="Поделиться" aria-disabled={isPreview}>
                 <Share2 size={18} />
               </button>
-              <button type="button" className={`${styles.iconButton} ${isFavorite ? styles.favorite : ""}`} onClick={toggleFavorite} aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"} aria-pressed={isFavorite}>
+              <button type="button" className={`${styles.iconButton} ${isFavorite ? styles.favorite : ""}`} onClick={isPreview ? undefined : toggleFavorite} aria-label={isFavorite ? "Убрать из избранного" : "Добавить в избранное"} aria-pressed={isFavorite} aria-disabled={isPreview}>
                 <Heart size={18} fill={isFavorite ? "currentColor" : "none"} />
               </button>
             </div>
@@ -107,11 +114,11 @@ export function ChallengeDetailScreen({ challenge, locations }: Props) {
       <section className={styles.ctaPanel}>
         {isActive ? (
           <>
-            <button type="button" className={styles.cancelPrimary} onClick={() => setIsCancelOpen(true)}>Отменить челлендж</button>
-            <button type="button" className={styles.qrButton} onClick={() => setIsQrOpen(true)}><QrCode size={19} />Показать QR код</button>
+            <button type="button" className={styles.cancelPrimary} onClick={isPreview ? undefined : () => setIsCancelOpen(true)} aria-disabled={isPreview}>Отменить челлендж</button>
+            <button type="button" className={styles.qrButton} onClick={isPreview ? undefined : () => setIsQrOpen(true)} aria-disabled={isPreview}><QrCode size={19} />Показать QR код</button>
           </>
         ) : (
-          <button type="button" className={styles.liquidCta} onClick={activateChallenge}>
+          <button type="button" className={styles.liquidCta} onClick={isPreview ? undefined : activateChallenge} aria-disabled={isPreview}>
             <span className={styles.liquidCtaLabel}>Принять челлендж</span>
           </button>
         )}

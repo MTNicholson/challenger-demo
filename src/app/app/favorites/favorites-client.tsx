@@ -80,7 +80,7 @@ export function FavoritesClient({ brands }: FavoritesClientProps) {
             const city = item.brand.city ?? "Город не указан";
 
             return (
-              <Link href={routes.user.brandDetail(item.brand.slug)} className={styles.brandFavoriteCard} key={`brand-${item.id}`}>
+              <Link href={`${routes.user.brandDetail(item.brand.slug)}?from=favorites`} className={styles.brandFavoriteCard} key={`brand-${item.id}`}>
                 <span
                   className={styles.brandVisual}
                   style={item.brand.logoUrl ? { backgroundImage: `url(${item.brand.logoUrl})` } : undefined}
@@ -105,7 +105,7 @@ export function FavoritesClient({ brands }: FavoritesClientProps) {
           }
 
           return (
-            <Link href={routes.user.challengeDetail(item.challenge.id)} className={styles.favoriteCard} key={`challenge-${item.id}`}>
+            <Link href={`${routes.user.challengeDetail(item.challenge.id)}?from=favorites`} className={styles.favoriteCard} key={`challenge-${item.id}`}>
               <span className={styles.challengeVisual}>{item.challenge.emoji}</span>
               <div>
                 <small>{item.challenge.brandName}</small>

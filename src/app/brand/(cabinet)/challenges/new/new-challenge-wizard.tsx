@@ -8,30 +8,35 @@ import { AnimatePresence, motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import {
   CalendarDays,
+  CalendarClock,
   Check,
   Coins,
   Eye,
   Footprints,
   Gift,
   Info,
+  ImagePlus,
   MapPin,
   MapPinned,
   Save,
+  Rocket,
   Settings2,
   ShoppingBag,
   Sparkles,
   Target,
   Trophy,
+  X,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { routes } from "@/lib/routes";
 import { cn } from "@/lib/cn";
 import type { BrandRewardDto } from "@/lib/brand-rewards";
-import {
-  getBrandChallengeDraft,
-  saveBrandChallengeDraft,
-  type BrandChallengeDraft,
-} from "@/lib/brand-challenge-drafts";
+import type { BrandChallengeDto, BrandChallengePayload, BrandChallengeStatus } from "@/lib/brand-challenges";
+import type { BrandChallengeDraft } from "@/lib/brand-challenge-drafts";
+import type { Challenge, ChallengeType } from "@/data/challenges";
+import type { Location } from "@/data/locations";
+import { PhoneFrame } from "@/components/user/challenge-phone-preview";
+import { ChallengeDetailScreen } from "@/components/user/challenge-detail-screen";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonClasses } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -49,6 +54,8 @@ type Template = {
 };
 
 type ChallengeFormState = {
+  heroImageUrl: string | null;
+  heroImageFileName: string | null;
   title: string;
   description: string;
   mechanicType: string;
@@ -176,6 +183,8 @@ const purchaseConfirmationOptions: SelectOption[] = [
 
 function createDefaultForm(category: TemplateId, brandName: string, locations: BrandLocationOption[] = []): ChallengeFormState {
   const common = {
+    heroImageUrl: null,
+    heroImageFileName: null,
     rewardType: "drink",
     rewardTitle: "Напиток на выбор",
     useExistingReward: false,
@@ -280,24 +289,32 @@ const templateIconMotion: Record<TemplateId, Variants> = {
 };
 
 export function NewChallengeWizard({
+  brandLogo,
   brandName,
-  draftId,
+  initialChallenge,
   locations,
   rewards,
 }: {
+  brandLogo: string | null;
   brandName: string;
-  draftId?: string;
+  initialChallenge?: BrandChallengeDto;
   locations: BrandLocationOption[];
   rewards: BrandRewardDto[];
 }) {
   const router = useRouter();
-  const [currentStep, setCurrentStep] = useState<StepId>(1);
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateId | null>(null);
-  const [challengeForm, setChallengeForm] = useState<ChallengeFormState>(() => createDefaultForm("visit", brandName, locations));
+  const initialCategory = (initialChallenge?.category as TemplateId | undefined) ?? "visit";
+  const [currentStep, setCurrentStep] = useState<StepId>(initialChallenge ? 2 : 1);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateId | null>(initialChallenge ? initialCategory : null);
+  const [challengeForm, setChallengeForm] = useState<ChallengeFormState>(() => initialChallenge ? formFromPersistedChallenge(initialChallenge, brandName, locations) : createDefaultForm("visit", brandName, locations));
   const [draftSaved, setDraftSaved] = useState(false);
-  const [currentDraftId, setCurrentDraftId] = useState<string | null>(draftId ?? null);
+  const [currentChallengeId, setCurrentChallengeId] = useState<string | null>(initialChallenge?.id ?? null);
   const [isDirty, setIsDirty] = useState(false);
   const [pendingNavigation, setPendingNavigation] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [isPublishDialogOpen, setIsPublishDialogOpen] = useState(false);
+  const [isScheduleDialogOpen, setIsScheduleDialogOpen] = useState(false);
+  const [scheduledAt, setScheduledAt] = useState("");
 
   const selectedTitle = selectedTemplate ? templateTitles[selectedTemplate] : null;
   const canGoNext =
@@ -309,23 +326,6 @@ export function NewChallengeWizard({
       Boolean(challengeForm.rewardDescription.trim()) &&
       challengeForm.selectedLocationIds.length > 0) ||
     currentStep > 2;
-
-  useEffect(() => {
-    if (!draftId) return;
-
-    const timer = window.setTimeout(() => {
-      const draft = getBrandChallengeDraft(draftId);
-      if (!draft) return;
-
-      setSelectedTemplate(draft.category);
-      setChallengeForm(formFromDraft(draft, brandName, locations));
-      setCurrentDraftId(draft.id);
-      setCurrentStep(2);
-      setIsDirty(false);
-    }, 0);
-
-    return () => window.clearTimeout(timer);
-  }, [brandName, draftId, locations]);
 
   useEffect(() => {
     if (!isDirty) return;
@@ -360,14 +360,11 @@ export function NewChallengeWizard({
     setIsDirty(true);
   }
 
-  function buildDraft() {
-    const now = new Date().toISOString();
-    const draft: BrandChallengeDraft = {
-      id: currentDraftId ?? `draft-${Date.now()}`,
-      status: "draft",
-      category: selectedTemplate ?? "visit",
+  function buildPayload(status: BrandChallengeStatus, publishAt?: string | null): BrandChallengePayload {
+    return {
       title: challengeForm.title,
       description: challengeForm.description,
+      category: selectedTemplate ?? "visit",
       mechanicType: challengeForm.mechanicType,
       mechanicParams: {
         visitsCount: challengeForm.visitsCount,
@@ -382,7 +379,7 @@ export function NewChallengeWizard({
         allowDifferentLocations: challengeForm.allowDifferentLocations,
         purchaseConfirmation: challengeForm.purchaseConfirmation,
       },
-      selectedLocationIds: challengeForm.selectedLocationIds,
+      locationIds: challengeForm.selectedLocationIds,
       reward: {
         mode: challengeForm.useExistingReward ? "template" : "custom",
         templateId: challengeForm.useExistingReward ? challengeForm.rewardTemplateId : null,
@@ -392,23 +389,42 @@ export function NewChallengeWizard({
         points: challengeForm.rewardCoins,
         expiresInDays: challengeForm.rewardExpiresInDays,
       },
-      period: {
-        startDate: challengeForm.startDate,
-        endDate: challengeForm.endDate,
-      },
-      createdAt: currentDraftId ? getBrandChallengeDraft(currentDraftId)?.createdAt ?? now : now,
-      updatedAt: now,
+      heroImageUrl: challengeForm.heroImageUrl,
+      startDate: challengeForm.startDate,
+      endDate: challengeForm.endDate,
+      status,
+      scheduledAt: publishAt ?? null,
     };
-
-    return draft;
   }
 
-  function saveDraft() {
-    const draft = saveBrandChallengeDraft(buildDraft());
-    setCurrentDraftId(draft.id);
-    setDraftSaved(true);
-    setIsDirty(false);
-    return draft;
+  async function persistChallenge(status: BrandChallengeStatus, publishAt?: string | null) {
+    const isNewChallenge = !currentChallengeId;
+    setIsSaving(true);
+    setSaveError(null);
+    try {
+      const response = await fetch(currentChallengeId ? `/api/brand/challenges/${currentChallengeId}` : "/api/brand/challenges", {
+        method: currentChallengeId ? "PATCH" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildPayload(status, publishAt)),
+      });
+      const result = await response.json().catch(() => null) as { challenge?: BrandChallengeDto; error?: string } | null;
+      if (!response.ok || !result?.challenge) throw new Error(result?.error ?? "Не удалось сохранить челлендж.");
+
+      setCurrentChallengeId(result.challenge.id);
+      setDraftSaved(status === "draft");
+      setIsDirty(false);
+      if (isNewChallenge) router.replace(`${routes.brand.newChallenge}?challengeId=${encodeURIComponent(result.challenge.id)}`);
+      return result.challenge;
+    } catch (error) {
+      setSaveError(error instanceof Error ? error.message : "Не удалось сохранить челлендж.");
+      return null;
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function saveDraft() {
+    return persistChallenge("draft");
   }
 
   function requestNavigation(href: string) {
@@ -429,7 +445,7 @@ export function NewChallengeWizard({
 
   function saveAndLeave() {
     const href = pendingNavigation;
-    saveDraft();
+    void saveDraft();
     setPendingNavigation(null);
     if (href) router.push(href);
   }
@@ -481,6 +497,7 @@ export function NewChallengeWizard({
             ) : null}
             {currentStep === 2 ? (
               <RulesStep
+                brandLogo={brandLogo}
                 brandName={brandName}
                 category={selectedTemplate ?? "visit"}
                 form={challengeForm}
@@ -490,8 +507,8 @@ export function NewChallengeWizard({
                 onChange={updateChallengeForm}
               />
             ) : null}
-            {currentStep === 3 ? <PreviewStep selectedTitle={selectedTitle} brandName={brandName} /> : null}
-            {currentStep === 4 ? <PublishStep draftSaved={draftSaved} selectedTitle={selectedTitle} /> : null}
+            {currentStep === 3 ? <PreviewStep brandLogo={brandLogo} brandName={brandName} category={selectedTemplate ?? "visit"} form={challengeForm} locations={locations} selectedTitle={selectedTitle} /> : null}
+            {currentStep === 4 ? <PublishStepActual draftSaved={draftSaved} selectedTitle={selectedTitle} /> : null}
           </motion.div>
         </AnimatePresence>
       </section>
@@ -544,10 +561,20 @@ export function NewChallengeWizard({
             </Button>
           ) : null}
           {currentStep === 4 ? (
-            <Button className="min-h-14 rounded-lg px-7" size="lg" variant="primary" onClick={saveDraft}>
+            <>
+              <Button className="min-h-14 rounded-lg px-6" size="lg" variant="secondary" disabled={isSaving} onClick={() => void saveDraft()}>
               <Save className="h-4 w-4" />
               Сохранить черновик
-            </Button>
+              </Button>
+              <Button className="min-h-14 rounded-lg px-6" size="lg" variant="secondary" disabled={isSaving} onClick={() => setIsScheduleDialogOpen(true)}>
+                <CalendarClock className="h-4 w-4" />
+                Запланировать публикацию
+              </Button>
+              <Button className="min-h-14 rounded-lg px-7" size="lg" variant="primary" disabled={isSaving} onClick={() => setIsPublishDialogOpen(true)}>
+                <Rocket className="h-4 w-4" />
+                Опубликовать
+              </Button>
+            </>
           ) : (
             <Button
               variant="primary"
@@ -566,6 +593,31 @@ export function NewChallengeWizard({
           onCancel={() => setPendingNavigation(null)}
           onLeave={leaveWithoutSaving}
           onSave={saveAndLeave}
+        />
+      ) : null}
+      {saveError ? <p role="alert" className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">{saveError}</p> : null}
+      {isPublishDialogOpen ? (
+        <ConfirmPublishDialog
+          isSaving={isSaving}
+          title={challengeForm.title || "Этот челлендж"}
+          onCancel={() => setIsPublishDialogOpen(false)}
+          onConfirm={async () => {
+            const saved = await persistChallenge("active");
+            if (saved) router.push(routes.brand.challenges);
+          }}
+        />
+      ) : null}
+      {isScheduleDialogOpen ? (
+        <SchedulePublishDialog
+          value={scheduledAt}
+          isSaving={isSaving}
+          onChange={setScheduledAt}
+          onCancel={() => setIsScheduleDialogOpen(false)}
+          onConfirm={async () => {
+            if (!scheduledAt) return;
+            const saved = await persistChallenge("scheduled", new Date(scheduledAt).toISOString());
+            if (saved) router.push(routes.brand.challenges);
+          }}
         />
       ) : null}
     </main>
@@ -603,6 +655,69 @@ function UnsavedChangesDialog({
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+function ConfirmPublishDialog({
+  isSaving,
+  onCancel,
+  onConfirm,
+  title,
+}: {
+  isSaving: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+  title: string;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/35 px-4 backdrop-blur-sm" role="presentation">
+      <section role="dialog" aria-modal="true" aria-labelledby="publish-title" className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-900/20">
+        <div className="flex items-start justify-between gap-4">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-blue-50 text-blue-700"><Rocket className="h-6 w-6" /></span>
+          <button type="button" aria-label="Закрыть" onClick={onCancel} className="grid h-10 w-10 place-items-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"><X className="h-5 w-5" /></button>
+        </div>
+        <h2 id="publish-title" className="mt-5 text-2xl font-black text-slate-950">Опубликовать челлендж?</h2>
+        <p className="mt-3 text-sm leading-6 text-slate-500">«{title}» появится у пользователей бренда сразу после публикации. Проверьте период, награду и выбранные точки.</p>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button variant="ghost" className="rounded-lg" disabled={isSaving} onClick={onCancel}>Вернуться к редактированию</Button>
+          <Button variant="primary" className="rounded-lg" disabled={isSaving} onClick={onConfirm}><Rocket className="h-4 w-4" />{isSaving ? "Публикуем…" : "Да, опубликовать"}</Button>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function SchedulePublishDialog({
+  isSaving,
+  onCancel,
+  onChange,
+  onConfirm,
+  value,
+}: {
+  isSaving: boolean;
+  onCancel: () => void;
+  onChange: (value: string) => void;
+  onConfirm: () => void;
+  value: string;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-950/35 px-4 backdrop-blur-sm" role="presentation">
+      <section role="dialog" aria-modal="true" aria-labelledby="schedule-title" className="w-full max-w-md rounded-3xl border border-slate-200 bg-white p-6 shadow-2xl shadow-slate-900/20">
+        <div className="flex items-start justify-between gap-4">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-violet-50 text-violet-700"><CalendarClock className="h-6 w-6" /></span>
+          <button type="button" aria-label="Закрыть" onClick={onCancel} className="grid h-10 w-10 place-items-center rounded-xl text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"><X className="h-5 w-5" /></button>
+        </div>
+        <h2 id="schedule-title" className="mt-5 text-2xl font-black text-slate-950">Запланировать публикацию</h2>
+        <p className="mt-3 text-sm leading-6 text-slate-500">Укажите дату и время. До публикации челлендж будет отображаться во вкладке «Запланированные».</p>
+        <label className="mt-5 block text-xs font-black uppercase tracking-[0.12em] text-slate-400">Дата и время
+          <input type="datetime-local" value={value} min={new Date().toISOString().slice(0, 16)} onChange={(event) => onChange(event.target.value)} className="brand-field mt-2 h-12 w-full rounded-xl px-4 text-sm font-bold text-slate-800 outline-none" />
+        </label>
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <Button variant="ghost" className="rounded-lg" disabled={isSaving} onClick={onCancel}>Отмена</Button>
+          <Button variant="primary" className="rounded-lg" disabled={isSaving || !value} onClick={onConfirm}><CalendarClock className="h-4 w-4" />{isSaving ? "Сохраняем…" : "Запланировать"}</Button>
+        </div>
+      </section>
     </div>
   );
 }
@@ -751,6 +866,7 @@ function TemplateStep({
 }
 
 function RulesStep({
+  brandLogo,
   brandName,
   category,
   form,
@@ -759,6 +875,7 @@ function RulesStep({
   selectedTitle,
   onChange,
 }: {
+  brandLogo: string | null;
   brandName: string;
   category: TemplateId;
   form: ChallengeFormState;
@@ -795,6 +912,19 @@ function RulesStep({
             onChange={(value) => onChange("description", value)}
           />
         </FormSection>
+
+        <PromoImageUpload
+          fileName={form.heroImageFileName}
+          imageUrl={form.heroImageUrl}
+          onUploaded={(url, filename) => {
+            onChange("heroImageUrl", url);
+            onChange("heroImageFileName", filename);
+          }}
+          onRemove={() => {
+            onChange("heroImageUrl", null);
+            onChange("heroImageFileName", null);
+          }}
+        />
 
         <FormSection
           icon={Target}
@@ -1008,10 +1138,12 @@ function RulesStep({
       </div>
 
       <ChallengeLivePreview
+        brandLogo={brandLogo}
         brandName={brandName}
         category={category}
         currentMechanicLabel={currentMechanicLabel}
         form={form}
+        locations={locations}
         selectedTitle={selectedTitle ?? templateTitles[category]}
       />
     </div>
@@ -1090,17 +1222,99 @@ function MechanicFields({
   );
 }
 
+function PromoImageUpload({
+  fileName,
+  imageUrl,
+  onRemove,
+  onUploaded,
+}: {
+  fileName: string | null;
+  imageUrl: string | null;
+  onRemove: () => void;
+  onUploaded: (url: string, filename: string) => void;
+}) {
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
+  async function uploadImage(file: File) {
+    const formData = new FormData();
+    formData.set("heroImage", file);
+    setIsUploading(true);
+    setUploadError(null);
+    const response = await fetch("/api/brand/challenges/hero-image", { method: "POST", body: formData });
+    const data = (await response.json().catch(() => null)) as { error?: string; filename?: string; url?: string } | null;
+    setIsUploading(false);
+
+    if (!response.ok || !data?.url) {
+      setUploadError(data?.error ?? "Не удалось загрузить изображение.");
+      return;
+    }
+
+    onUploaded(data.url, data.filename ?? file.name);
+  }
+
+  return (
+    <FormSection
+      icon={ImagePlus}
+      title="Промо-изображение челленджа"
+      description="Это изображение будет показано в верхней части карточки челленджа у пользователя."
+    >
+      <div className="overflow-hidden rounded-2xl border border-dashed border-slate-300 bg-slate-50">
+        <div
+          className="grid min-h-44 place-items-center bg-cover bg-center p-5"
+          style={imageUrl ? { backgroundImage: `linear-gradient(rgba(15, 23, 42, .12), rgba(15, 23, 42, .12)), url(${imageUrl})` } : undefined}
+        >
+          {imageUrl ? (
+            <span className="rounded-full bg-slate-950/75 px-3 py-1.5 text-xs font-black text-white">Изображение выбрано</span>
+          ) : (
+            <div className="text-center text-slate-400">
+              <ImagePlus className="mx-auto h-7 w-7" />
+              <div className="mt-2 text-sm font-black text-slate-600">Загрузите изображение</div>
+              <p className="mt-1 text-xs font-semibold">Рекомендуемый формат: горизонтальное изображение 1200×700 или близкое по пропорциям.</p>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 bg-white p-3">
+          <span className="min-w-0 truncate text-xs font-bold text-slate-500">{isUploading ? "Загружаем изображение…" : fileName ?? "Файл не выбран"}</span>
+          <div className="flex gap-2">
+            <label className={buttonClasses({ variant: "secondary", size: "sm" })}>
+              {imageUrl ? "Заменить" : "Выбрать файл"}
+              <input
+                className="sr-only"
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                disabled={isUploading}
+                onChange={(event) => {
+                  const nextFile = event.target.files?.[0] ?? null;
+                  if (nextFile) void uploadImage(nextFile);
+                  event.currentTarget.value = "";
+                }}
+              />
+            </label>
+            {imageUrl ? <Button size="sm" variant="ghost" onClick={onRemove}>Удалить</Button> : null}
+          </div>
+        </div>
+        {uploadError ? <div className="border-t border-rose-100 bg-rose-50 px-3 py-2 text-xs font-bold text-rose-600">{uploadError}</div> : null}
+      </div>
+    </FormSection>
+  );
+}
+
 function ChallengeLivePreview({
+  brandLogo,
   brandName,
   category,
   currentMechanicLabel,
   form,
+  locations,
   selectedTitle,
 }: {
+  brandLogo: string | null;
   brandName: string;
   category: TemplateId;
   currentMechanicLabel: string;
   form: ChallengeFormState;
+  locations: BrandLocationOption[];
   selectedTitle: string;
 }) {
   const condition = getConditionSummary(category, form);
@@ -1108,6 +1322,24 @@ function ChallengeLivePreview({
   const TemplateIcon = templates.find((template) => template.id === category)?.icon ?? Sparkles;
   const rewardTitle = form.rewardTitle || rewardLabel;
   const rewardLimitText = form.rewardUnlimited || form.rewardLimit === null ? "без лимита" : String(form.rewardLimit);
+
+  if (locations) {
+    return (
+      <aside className="sticky top-24 self-start">
+        <Card className="overflow-hidden p-0">
+          <div className="border-b border-slate-100 bg-white px-5 py-4">
+            <div className="text-sm font-black text-slate-950">Предпросмотр для пользователя</div>
+            <div className="mt-1 text-xs font-semibold text-slate-400">Так челлендж будет выглядеть в приложении.</div>
+          </div>
+          <div className="flex max-h-[calc(100dvh-10rem)] justify-center overflow-hidden bg-slate-50/70 p-4">
+            <PhoneFrame resetKey={`${form.title}-${form.heroImageUrl ?? "fallback"}`}>
+              <ChallengeDetailScreen challenge={buildPreviewChallenge({ brandLogo, brandName, category, form })} locations={toPreviewLocations(locations, form.selectedLocationIds)} isPreview />
+            </PhoneFrame>
+          </div>
+        </Card>
+      </aside>
+    );
+  }
 
   return (
     <aside className="xl:sticky xl:top-28 xl:self-start">
@@ -1169,6 +1401,56 @@ function ChallengeLivePreview({
   );
 }
 
+function buildPreviewChallenge({
+  brandLogo,
+  brandName,
+  category,
+  form,
+}: {
+  brandLogo: string | null;
+  brandName: string;
+  category: TemplateId;
+  form: ChallengeFormState;
+}): Challenge {
+  const typeByCategory: Record<TemplateId, ChallengeType> = {
+    activity: "steps",
+    visit: "visit_series",
+    purchase: "coins",
+  };
+
+  return {
+    id: "challenge-preview",
+    title: form.title || "Название челленджа",
+    brandId: "brand-preview",
+    brandName,
+    brandLogo: brandLogo ?? undefined,
+    category: templateTitles[category],
+    type: typeByCategory[category],
+    difficulty: "easy",
+    description: form.description || "Описание челленджа появится здесь.",
+    fullDescription: form.description || "Описание челленджа появится здесь.",
+    shortDescription: getConditionSummary(category, form),
+    condition: getConditionSummary(category, form),
+    reward: form.rewardTitle || "Награда будет указана позже",
+    coinsReward: form.rewardCoins,
+    emoji: "✦",
+    cardClassName: "",
+    daysLeft: 14,
+    participants: 0,
+    isActive: false,
+    isFeatured: false,
+    image: form.heroImageUrl ?? "/landing/challenges/coffee.webp",
+    startDate: form.startDate,
+    endDate: form.endDate,
+  };
+}
+
+function toPreviewLocations(locations: BrandLocationOption[], selectedIds: string[]): Location[] {
+  return locations
+    .filter((location) => selectedIds.includes(location.id))
+    .map((location) => ({ ...location, brandId: "brand-preview", distance: "Точка бренда" }));
+}
+
 function getConditionSummary(category: TemplateId, form: ChallengeFormState) {
   if (category === "activity") {
     if (form.mechanicType === "steps_daily") {
@@ -1212,6 +1494,61 @@ function getSelectedLocationsText(count: number) {
   return `${count} точек выбрано`;
 }
 
+function formFromPersistedChallenge(challenge: BrandChallengeDto, brandName: string, locations: BrandLocationOption[]): ChallengeFormState {
+  const category = (challenge.category as TemplateId) ?? "visit";
+  const fallback = createDefaultForm(category, brandName, locations);
+  const params = challenge.mechanicParams ?? {};
+  const reward = challenge.rewardData ?? fallbackRewardFromForm(fallback);
+  const numberParam = (key: string, fallbackValue: number) => typeof params[key] === "number" ? params[key] : fallbackValue;
+  const stringParam = (key: string, fallbackValue: string) => typeof params[key] === "string" ? params[key] : fallbackValue;
+  const booleanParam = (key: string, fallbackValue: boolean) => typeof params[key] === "boolean" ? params[key] : fallbackValue;
+
+  return {
+    ...fallback,
+    title: challenge.title,
+    description: challenge.description ?? "",
+    heroImageUrl: challenge.heroImageUrl,
+    heroImageFileName: challenge.heroImageUrl ? "Загруженное изображение" : null,
+    mechanicType: challenge.mechanicType ?? fallback.mechanicType,
+    visitsCount: numberParam("visitsCount", fallback.visitsCount),
+    stepsCount: numberParam("stepsCount", fallback.stepsCount),
+    dailyStepsCount: numberParam("dailyStepsCount", fallback.dailyStepsCount),
+    activeDaysCount: numberParam("activeDaysCount", fallback.activeDaysCount),
+    purchaseCount: numberParam("purchaseCount", fallback.purchaseCount),
+    minPurchaseAmount: numberParam("minPurchaseAmount", fallback.minPurchaseAmount),
+    purchaseAmount: numberParam("purchaseAmount", fallback.purchaseAmount),
+    taskDescription: stringParam("taskDescription", fallback.taskDescription),
+    visitInterval: stringParam("visitInterval", fallback.visitInterval),
+    allowDifferentLocations: booleanParam("allowDifferentLocations", fallback.allowDifferentLocations),
+    purchaseConfirmation: stringParam("purchaseConfirmation", fallback.purchaseConfirmation),
+    selectedLocationIds: challenge.locationIds,
+    useExistingReward: reward.mode === "template",
+    rewardTemplateId: reward.templateId ?? fallback.rewardTemplateId,
+    rewardTitle: reward.title,
+    rewardDescription: reward.description,
+    rewardLimit: reward.limit,
+    rewardUnlimited: reward.limit === null,
+    rewardCoins: reward.points,
+    rewardExpiresInDays: reward.expiresInDays,
+    startDate: challenge.startsAt?.slice(0, 10) ?? fallback.startDate,
+    endDate: challenge.endsAt?.slice(0, 10) ?? fallback.endDate,
+  };
+}
+
+function fallbackRewardFromForm(form: ChallengeFormState): BrandChallengePayload["reward"] {
+  return {
+    mode: form.useExistingReward ? "template" : "custom",
+    templateId: form.useExistingReward ? form.rewardTemplateId : null,
+    title: form.rewardTitle,
+    description: form.rewardDescription,
+    limit: form.rewardUnlimited ? null : form.rewardLimit,
+    points: form.rewardCoins,
+    expiresInDays: form.rewardExpiresInDays,
+  };
+}
+
+// Legacy local drafts remain readable only for existing browser data; new saves use the API and PostgreSQL.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function formFromDraft(draft: BrandChallengeDraft, brandName: string, locations: BrandLocationOption[]): ChallengeFormState {
   const fallback = createDefaultForm(draft.category, brandName, locations);
 
@@ -1219,6 +1556,8 @@ function formFromDraft(draft: BrandChallengeDraft, brandName: string, locations:
     ...fallback,
     title: draft.title,
     description: draft.description,
+    heroImageUrl: draft.heroImageUrl ?? null,
+    heroImageFileName: draft.heroImageUrl ? "Загруженное изображение" : null,
     mechanicType: draft.mechanicType,
     visitsCount: draft.mechanicParams.visitsCount,
     stepsCount: draft.mechanicParams.stepsCount,
@@ -1464,7 +1803,60 @@ function SwitchField({
   );
 }
 
-function PreviewStep({ brandName, selectedTitle }: { brandName: string; selectedTitle: string | null }) {
+function PreviewStep({
+  brandLogo,
+  brandName,
+  category,
+  form,
+  locations,
+  selectedTitle,
+}: {
+  brandLogo: string | null;
+  brandName: string;
+  category: TemplateId;
+  form: ChallengeFormState;
+  locations: BrandLocationOption[];
+  selectedTitle: string | null;
+}) {
+  if (locations) {
+    const mechanic = mechanicOptions[category].find((item) => item.value === form.mechanicType)?.label ?? "Механика не выбрана";
+    const rewardLimit = form.rewardUnlimited || form.rewardLimit === null ? "Без лимита" : `${form.rewardLimit} шт.`;
+    return (
+      <div className="grid items-center gap-8 xl:grid-cols-[minmax(280px,0.8fr)_minmax(378px,1fr)] xl:gap-14">
+        <div className="space-y-4">
+          <div>
+            <div className="text-xs font-black uppercase tracking-[0.14em] text-blue-600">Шаг 3</div>
+            <h2 className="mt-2 text-3xl font-black tracking-tight text-slate-950">Предпросмотр челленджа</h2>
+            <p className="mt-3 max-w-lg text-sm leading-6 text-slate-500">Проверьте, как челлендж будет выглядеть для пользователя перед сохранением или публикацией.</p>
+          </div>
+          <Card className="p-5">
+            <h3 className="font-black text-slate-950">Что проверяем</h3>
+            <ul className="mt-3 space-y-2 text-sm font-semibold text-slate-600">
+              <li>Название и описание</li><li>Награду и баллы</li><li>Период выполнения и выбранные точки</li><li>Промо-изображение в верхней части карточки</li>
+            </ul>
+          </Card>
+          <Card className="p-5">
+            <h3 className="font-black text-slate-950">Сводка</h3>
+            <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+              <div><dt className="text-xs font-bold text-slate-400">Категория</dt><dd className="mt-1 font-black text-slate-800">{selectedTitle ?? templateTitles[category]}</dd></div>
+              <div><dt className="text-xs font-bold text-slate-400">Механика</dt><dd className="mt-1 font-black text-slate-800">{mechanic}</dd></div>
+              <div><dt className="text-xs font-bold text-slate-400">Награда</dt><dd className="mt-1 font-black text-slate-800">{form.rewardTitle || "Будет указана позже"}</dd></div>
+              <div><dt className="text-xs font-bold text-slate-400">Баллы</dt><dd className="mt-1 font-black text-slate-800">{form.rewardCoins}</dd></div>
+              <div><dt className="text-xs font-bold text-slate-400">Точки</dt><dd className="mt-1 font-black text-slate-800">{getSelectedLocationsText(form.selectedLocationIds.length)}</dd></div>
+              <div><dt className="text-xs font-bold text-slate-400">Лимит</dt><dd className="mt-1 font-black text-slate-800">{rewardLimit}</dd></div>
+            </dl>
+          </Card>
+          <div className="rounded-2xl border border-blue-100 bg-blue-50/70 p-4 text-sm font-bold leading-6 text-blue-800">Если всё выглядит корректно, переходите к публикации. Если нужно что-то поправить — вернитесь назад.</div>
+        </div>
+        <motion.div initial={{ opacity: 0, x: 48, scale: 0.96 }} animate={{ opacity: 1, x: 0, scale: 1 }} transition={{ duration: 0.32, ease: "easeOut" }} className="flex justify-center xl:justify-start">
+          <PhoneFrame className="mx-auto" resetKey={`${form.title}-${form.heroImageUrl ?? "fallback"}`}>
+            <ChallengeDetailScreen challenge={buildPreviewChallenge({ brandLogo, brandName, category, form })} locations={toPreviewLocations(locations, form.selectedLocationIds)} isPreview />
+          </PhoneFrame>
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <PlaceholderShell
       icon={Eye}
@@ -1494,6 +1886,33 @@ function PreviewStep({ brandName, selectedTitle }: { brandName: string; selected
   );
 }
 
+function PublishStepActual({ draftSaved, selectedTitle }: { draftSaved: boolean; selectedTitle: string | null }) {
+  return (
+    <Card className="overflow-hidden p-0">
+      <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[280px_1fr] lg:p-8">
+        <div className="rounded-3xl border border-blue-100 bg-blue-50/70 p-6">
+          <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-blue-700 shadow-sm shadow-blue-900/5"><Rocket className="h-6 w-6" /></span>
+          <div className="mt-6 text-xs font-black uppercase tracking-[0.14em] text-blue-500">Шаг 4</div>
+          <h2 className="mt-2 text-2xl font-black text-slate-950">Публикация</h2>
+          <p className="mt-3 text-sm leading-6 text-slate-500">Сохраните кампанию как черновик, назначьте дату или опубликуйте её для пользователей.</p>
+        </div>
+        <div className="grid gap-4 self-center md:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200 bg-white p-5">
+            <div className="flex items-center gap-2 text-sm font-black text-slate-950"><Check className="h-5 w-5 text-emerald-600" />Проверка завершена</div>
+            <p className="mt-2 text-sm leading-6 text-slate-500">Шаблон: {selectedTitle ?? "не выбран"}. Данные, награда, период и точки будут сохранены за вашим брендом.</p>
+          </div>
+          <div className="rounded-2xl border border-violet-100 bg-violet-50/70 p-5">
+            <div className="flex items-center gap-2 text-sm font-black text-violet-900"><CalendarClock className="h-5 w-5" />Гибкий запуск</div>
+            <p className="mt-2 text-sm leading-6 text-violet-800/75">{draftSaved ? "Черновик уже сохранён в базе данных." : "Можно сохранить черновик, опубликовать сразу или выбрать дату и время запуска."}</p>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+// Legacy presentation is retained for comparison while the new publish flow is active above.
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function PublishStep({ draftSaved, selectedTitle }: { draftSaved: boolean; selectedTitle: string | null }) {
   return (
     <PlaceholderShell

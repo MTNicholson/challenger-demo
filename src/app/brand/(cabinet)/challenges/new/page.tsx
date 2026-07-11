@@ -1,6 +1,7 @@
 import { companyBrand } from "@/data/brands";
 import { getBrandLocations } from "@/data/locations";
 import { getCurrentBrand } from "@/lib/auth-server";
+import { serializeBrandChallenge } from "@/lib/brand-challenges";
 import { prisma } from "@/lib/prisma";
 import type { BrandRewardDto, BrandRewardStatus, BrandRewardType } from "@/lib/brand-rewards";
 import { NewChallengeWizard } from "./new-challenge-wizard";
@@ -34,7 +35,7 @@ function serializeReward(reward: {
 export default async function NewChallengePage({
   searchParams,
 }: {
-  searchParams?: Promise<{ draftId?: string }>;
+  searchParams?: Promise<{ challengeId?: string; draftId?: string }>;
 }) {
   const session = await getCurrentBrand();
   const brandName = session?.brand.name ?? companyBrand.name;
@@ -51,6 +52,9 @@ export default async function NewChallengePage({
         orderBy: [{ updatedAt: "desc" }],
       })
     : [];
+  const initialChallenge = session && params?.challengeId
+    ? await prisma.brandChallenge.findFirst({ where: { id: params.challengeId, brandId: session.brand.id } })
+    : null;
   const fallbackLocations = getBrandLocations(companyBrand.id);
   const locations = databaseLocations.length
     ? databaseLocations.map((location) => ({
@@ -68,8 +72,9 @@ export default async function NewChallengePage({
 
   return (
     <NewChallengeWizard
+      brandLogo={session?.brand.logoUrl ?? null}
       brandName={brandName}
-      draftId={params?.draftId}
+      initialChallenge={initialChallenge ? serializeBrandChallenge(initialChallenge) : undefined}
       locations={locations}
       rewards={rewards.map(serializeReward)}
     />

@@ -34,6 +34,7 @@ export const routes = {
     scanner: "/brand/scanner",
     scanResult: "/brand/scan-result",
     preview: "/brand/preview",
+    locations: "/brand/locations",
     settings: "/brand/settings",
   },
 } as const;

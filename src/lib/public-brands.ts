@@ -148,3 +148,11 @@ export async function getPublicBrandBySlug(slug: string): Promise<PublicBrandDet
     challenges: brand.challenges.map(serializeChallenge),
   };
 }
+
+export async function getPublicBrandById(id: string): Promise<PublicBrandSummary | null> {
+  const brand = await prisma.brand.findUnique({
+    where: { id },
+    include: { locations: { orderBy: [{ isMain: "desc" }, { createdAt: "asc" }] }, _count: { select: { challenges: true } } },
+  });
+  return brand ? serializeBrand(brand) : null;
+}
