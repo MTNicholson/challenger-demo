@@ -38,4 +38,15 @@ export const routes = {
     locations: "/brand/locations",
     settings: "/brand/settings",
   },
+  location: {
+    dashboard: "/location",
+    analytics: "/location/analytics",
+    employees: "/location/employees",
+    scanner: "/location/scanner",
+    scanLog: "/location/scan-log",
+    challenges: "/location/challenges",
+    newChallenge: "/location/challenges/new",
+    rewards: "/location/rewards",
+    newReward: "/location/rewards/new",
+  },
 } as const;

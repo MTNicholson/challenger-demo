@@ -35,11 +35,11 @@ export default async function BrandRewardsPage() {
   const [rewards, archivedRewards] = session
     ? await Promise.all([
         prisma.brandReward.findMany({
-          where: { brandId: session.brand.id, status: { not: "archived" } },
+          where: { brandId: session.brand.id, status: { not: "archived" }, OR: [{ source: { not: "location" } }, { source: "location", status: "active" }] },
           orderBy: [{ updatedAt: "desc" }],
         }),
         prisma.brandReward.findMany({
-          where: { brandId: session.brand.id, status: "archived" },
+          where: { brandId: session.brand.id, status: "archived", OR: [{ source: { not: "location" } }, { source: "location", status: "active" }] },
           orderBy: [{ archivedAt: "desc" }, { updatedAt: "desc" }],
         }),
       ])

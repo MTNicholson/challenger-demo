@@ -76,10 +76,12 @@ const statusVariant: Record<BrandRewardStatus, BadgeVariant> = {
 
 export function BrandRewardsClient({
   archivedRewards: initialArchivedRewards,
+  apiBase = "/api/brand/rewards",
   brandName,
   rewards: initialRewards,
 }: {
   archivedRewards: BrandRewardDto[];
+  apiBase?: string;
   brandName: string;
   rewards: BrandRewardDto[];
 }) {
@@ -103,8 +105,8 @@ export function BrandRewardsClient({
 
     try {
       const [mainResponse, archiveResponse] = await Promise.all([
-        fetch("/api/brand/rewards", { cache: "no-store" }),
-        fetch("/api/brand/rewards?status=archived", { cache: "no-store" }),
+        fetch(apiBase, { cache: "no-store" }),
+        fetch(`${apiBase}?status=archived`, { cache: "no-store" }),
       ]);
       const mainData = (await mainResponse.json().catch(() => null)) as { rewards?: BrandRewardDto[]; error?: string } | null;
       const archiveData = (await archiveResponse.json().catch(() => null)) as { rewards?: BrandRewardDto[]; error?: string } | null;
@@ -165,7 +167,7 @@ export function BrandRewardsClient({
     setErrorMessage(null);
 
     try {
-      const response = await fetch(form.id ? `/api/brand/rewards/${form.id}` : "/api/brand/rewards", {
+      const response = await fetch(form.id ? `${apiBase}/${form.id}` : apiBase, {
         method: form.id ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formPayload()),
@@ -188,7 +190,7 @@ export function BrandRewardsClient({
     setErrorMessage(null);
 
     try {
-      const response = await fetch(`/api/brand/rewards/${id}`, {
+      const response = await fetch(`${apiBase}/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "archive" }),
@@ -209,7 +211,7 @@ export function BrandRewardsClient({
     setErrorMessage(null);
 
     try {
-      const response = await fetch(`/api/brand/rewards/${id}`, { method: "DELETE" });
+      const response = await fetch(`${apiBase}/${id}`, { method: "DELETE" });
       const data = (await response.json().catch(() => null)) as { error?: string } | null;
 
       if (!response.ok) throw new Error(data?.error ?? "Не удалось удалить награду");

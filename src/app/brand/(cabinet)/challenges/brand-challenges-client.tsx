@@ -96,7 +96,7 @@ export function BrandChallengesClient({ brandName, challenges }: { brandName: st
                       {challenge.heroImageUrl ? <Image src={challenge.heroImageUrl} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover" /> : <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700"><FileText className="h-5 w-5" /></span>}
                       <div className="min-w-0"><h2 className="truncate text-sm font-black text-slate-900">{challenge.title}</h2><p className="mt-1 truncate text-xs font-semibold text-slate-400">{challenge.reward ?? "Награда не указана"}</p></div>
                     </div>
-                    <span className={`w-fit rounded-lg border px-2.5 py-1 text-xs font-black ${statusStyles[status]}`}>{statusLabels[status]}</span>
+                    <span className={`w-fit rounded-lg border px-2.5 py-1 text-xs font-black ${statusStyles[status] ?? "border-slate-200 bg-slate-100 text-slate-600"}`}>{statusLabels[status] ?? "Без статуса"}</span>
                     <span className="text-sm font-bold text-slate-600">{status === "scheduled" && challenge.scheduledAt ? `Публикация ${new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(challenge.scheduledAt))}` : formatPeriod(challenge)}</span>
                     <span className="text-sm font-bold text-slate-600">{challenge.locationIds.length}</span>
                     <div className="flex justify-end gap-1">

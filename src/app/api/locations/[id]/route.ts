@@ -6,8 +6,8 @@ export const dynamic = "force-dynamic";
 
 export async function GET(_request: Request, context: RouteContext<"/api/locations/[id]">) {
   const { id } = await context.params;
-  const location = await prisma.brandLocation.findUnique({
-    where: { id },
+  const location = await prisma.brandLocation.findFirst({
+    where: { id, brand: { status: "approved", publicStatus: "ONLINE", archivedAt: null } },
     select: {
       id: true,
       name: true,

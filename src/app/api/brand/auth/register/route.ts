@@ -1,8 +1,7 @@
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
 import { Prisma } from "@prisma/client";
-import { AUTH_SESSION_DAYS, BRAND_AUTH_COOKIE_NAME, normalizeIdentifier, toPublicBrandMember } from "@/lib/auth-shared";
-import { createBrandSessionToken } from "@/lib/auth-server";
+import { normalizeIdentifier, toPublicBrandMember } from "@/lib/auth-shared";
 import { getImageFile, saveBrandImage, validateBrandImage } from "@/lib/brand-upload-server";
 import { getOptionalNumberField, isValidLatitude, isValidLongitude } from "@/lib/brand-settings-validation";
 import { BRAND_CATEGORIES } from "@/lib/brand-visuals";
@@ -122,6 +121,8 @@ export async function POST(request: Request) {
           logoUrl,
           coverImageUrl,
           website,
+          status: "pending",
+          publicStatus: "OFFLINE",
         },
       });
 
@@ -152,20 +153,7 @@ export async function POST(request: Request) {
       return { brand: createdBrand, member: createdMember };
     });
 
-    const response = NextResponse.json({ brand, member: toPublicBrandMember(member) }, { status: 201 });
-    response.cookies.set(
-      BRAND_AUTH_COOKIE_NAME,
-      await createBrandSessionToken({ brandMemberId: member.id, brandId: brand.id }),
-      {
-        httpOnly: true,
-        sameSite: "lax",
-        secure: false,
-        path: "/",
-        maxAge: AUTH_SESSION_DAYS * 24 * 60 * 60,
-      },
-    );
-
-    return response;
+    return NextResponse.json({ brand, member: toPublicBrandMember(member), pendingApproval: true }, { status: 201 });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return NextResponse.json({ error: "Бренд с такими данными уже существует." }, { status: 409 });

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowLeft, Gift, QrCode, Sparkles } from "lucide-react";
 import { rewards } from "@/data/rewards";
+import { getCurrentUser } from "@/lib/auth-server";
+import { prisma } from "@/lib/prisma";
 import { routes } from "@/lib/routes";
 import styles from "@/components/user/collection-screen.module.css";
 
@@ -10,7 +12,10 @@ const statusLabels = {
   expired: "Истекла",
 } as const;
 
-export default function RewardsPage() {
+export default async function RewardsPage() {
+  const user = await getCurrentUser();
+  const databaseRewards = user ? await prisma.userReward.findMany({ where: { userId: user.id }, include: { participation: { include: { challenge: { include: { brand: true } } } } }, orderBy: { createdAt: "desc" } }) : [];
+  const visibleRewards = databaseRewards.length ? databaseRewards.map((reward) => ({ id: reward.id, title: reward.title, brandId: reward.participation.challenge.brandId, brandName: reward.participation.challenge.brand.name, description: reward.description ?? "Награда за завершённый челлендж.", status: reward.status === "available" ? "available" as const : "used" as const, code: reward.qrToken, expiresAt: reward.expiresAt ? reward.expiresAt.toLocaleDateString("ru-RU") : "Без срока", type: "QR" as const, emoji: "🎁" })) : rewards;
   return (
     <main className={styles.page}>
       <header className={styles.header}>
@@ -18,9 +23,9 @@ export default function RewardsPage() {
         <div><small>Ваши бонусы</small><h1>Мои награды</h1></div>
       </header>
 
-      {rewards.length ? (
+      {visibleRewards.length ? (
         <section className={styles.list}>
-          {rewards.map((reward) => {
+          {visibleRewards.map((reward) => {
             const expiresSoon = reward.status === "available" && reward.expiresAt.includes("Сегодня");
             const status = expiresSoon ? "Истекает скоро" : statusLabels[reward.status];
             return (

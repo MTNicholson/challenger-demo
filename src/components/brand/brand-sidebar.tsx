@@ -88,9 +88,10 @@ function isItemActive(pathname: string, href: string) {
 type BrandSidebarProps = {
   collapsed: boolean;
   onToggle: () => void;
+  pendingLocationRequests: number;
 };
 
-export function BrandSidebar({ collapsed, onToggle }: BrandSidebarProps) {
+export function BrandSidebar({ collapsed, onToggle, pendingLocationRequests }: BrandSidebarProps) {
   const pathname = usePathname();
 
   return (
@@ -150,6 +151,7 @@ export function BrandSidebar({ collapsed, onToggle }: BrandSidebarProps) {
                 <Icon className="h-[18px] w-[18px]" />
               </span>
               <span className={cn("truncate", collapsed ? "sr-only" : "sr-only lg:not-sr-only")}>{item.label}</span>
+              {item.href === routes.brand.challenges && pendingLocationRequests > 0 ? <span className="grid h-5 min-w-5 place-items-center rounded-full bg-rose-600 px-1 text-[10px] font-black text-white">{pendingLocationRequests}</span> : null}
             </Link>
           );
         })}

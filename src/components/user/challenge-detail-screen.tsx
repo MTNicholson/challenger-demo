@@ -37,7 +37,8 @@ export function ChallengeDetailScreen({ challenge, locations, isPreview = false,
   const [notice, setNotice] = useState("");
 
   const challengeState = states.find((state) => state.challengeId === challenge.id);
-  const isActive = challengeState?.isActive ?? false;
+  const isCompleted = Boolean(challengeState?.completedAt);
+  const isActive = (challengeState?.isActive ?? false) && !isCompleted;
   const isFavorite = challengeState?.isFavorite ?? false;
   const progressTotal = challengeState?.progressTotal ?? challenge.progress?.total ?? 1;
   const progressCurrent = isActive ? (challengeState?.progressCurrent ?? 0) : 0;
@@ -112,7 +113,9 @@ export function ChallengeDetailScreen({ challenge, locations, isPreview = false,
       />
 
       <section className={styles.ctaPanel}>
-        {isActive ? (
+        {isCompleted ? (
+          <button type="button" className={styles.qrButton} onClick={isPreview ? undefined : () => setIsQrOpen(true)} aria-disabled={isPreview}><QrCode size={19} />Получить награду</button>
+        ) : isActive ? (
           <>
             <button type="button" className={styles.cancelPrimary} onClick={isPreview ? undefined : () => setIsCancelOpen(true)} aria-disabled={isPreview}>Отменить челлендж</button>
             <button type="button" className={styles.qrButton} onClick={isPreview ? undefined : () => setIsQrOpen(true)} aria-disabled={isPreview}><QrCode size={19} />Показать QR код</button>

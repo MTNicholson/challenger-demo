@@ -14,6 +14,7 @@ export default async function UserMapPage({ searchParams }: UserMapPageProps) {
     where: {
       lat: { not: null },
       lng: { not: null },
+      brand: { status: "approved", publicStatus: "ONLINE", archivedAt: null },
     },
     orderBy: [{ isMain: "desc" }, { createdAt: "desc" }],
     select: {
@@ -38,8 +39,8 @@ export default async function UserMapPage({ searchParams }: UserMapPageProps) {
     },
   });
   const selectedLocation = locationId
-    ? await prisma.brandLocation.findUnique({
-        where: { id: locationId },
+    ? await prisma.brandLocation.findFirst({
+        where: { id: locationId, brand: { status: "approved", publicStatus: "ONLINE", archivedAt: null } },
         select: {
           id: true,
           name: true,

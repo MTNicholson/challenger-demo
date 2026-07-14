@@ -9,9 +9,10 @@ import type { BrandIdentity } from "./brand-types";
 type BrandLayoutShellProps = {
   children: ReactNode;
   brand: BrandIdentity;
+  pendingLocationRequests: number;
 };
 
-export function BrandLayoutShell({ children, brand }: BrandLayoutShellProps) {
+export function BrandLayoutShell({ children, brand, pendingLocationRequests }: BrandLayoutShellProps) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   return (
@@ -20,6 +21,7 @@ export function BrandLayoutShell({ children, brand }: BrandLayoutShellProps) {
         <BrandSidebar
           collapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed((value) => !value)}
+          pendingLocationRequests={pendingLocationRequests}
         />
 
         <div className="min-w-0 flex-1">

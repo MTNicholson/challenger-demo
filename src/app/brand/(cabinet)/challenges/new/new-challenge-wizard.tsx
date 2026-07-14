@@ -294,12 +294,14 @@ export function NewChallengeWizard({
   initialChallenge,
   locations,
   rewards,
+  locationScope,
 }: {
   brandLogo: string | null;
   brandName: string;
   initialChallenge?: BrandChallengeDto;
   locations: BrandLocationOption[];
   rewards: BrandRewardDto[];
+  locationScope?: { mode: "EXTENDED" | "FLAGSHIP"; locationName: string };
 }) {
   const router = useRouter();
   const initialCategory = (initialChallenge?.category as TemplateId | undefined) ?? "visit";
@@ -317,6 +319,8 @@ export function NewChallengeWizard({
   const [scheduledAt, setScheduledAt] = useState("");
 
   const selectedTitle = selectedTemplate ? templateTitles[selectedTemplate] : null;
+  const listHref = locationScope ? routes.location.challenges : routes.brand.challenges;
+  const cancelHref = locationScope ? routes.location.challenges : routes.brand.challenges;
   const canGoNext =
     (currentStep === 1 && Boolean(selectedTemplate)) ||
     (currentStep === 2 &&
@@ -402,8 +406,8 @@ export function NewChallengeWizard({
     setIsSaving(true);
     setSaveError(null);
     try {
-      const response = await fetch(currentChallengeId ? `/api/brand/challenges/${currentChallengeId}` : "/api/brand/challenges", {
-        method: currentChallengeId ? "PATCH" : "POST",
+      const response = await fetch(locationScope ? (currentChallengeId ? `/api/location/challenges/${currentChallengeId}` : "/api/location/challenges") : currentChallengeId ? `/api/brand/challenges/${currentChallengeId}` : "/api/brand/challenges", {
+        method: locationScope ? (currentChallengeId ? "PATCH" : "POST") : currentChallengeId ? "PATCH" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(buildPayload(status, publishAt)),
       });
@@ -413,7 +417,7 @@ export function NewChallengeWizard({
       setCurrentChallengeId(result.challenge.id);
       setDraftSaved(status === "draft");
       setIsDirty(false);
-      if (isNewChallenge) router.replace(`${routes.brand.newChallenge}?challengeId=${encodeURIComponent(result.challenge.id)}`);
+      if (isNewChallenge && !locationScope) router.replace(`${routes.brand.newChallenge}?challengeId=${encodeURIComponent(result.challenge.id)}`);
       return result.challenge;
     } catch (error) {
       setSaveError(error instanceof Error ? error.message : "Не удалось сохранить челлендж.");
@@ -474,7 +478,7 @@ export function NewChallengeWizard({
         <button
           type="button"
           className={buttonClasses({ variant: "ghost" })}
-          onClick={() => requestNavigation(routes.brand.challenges)}
+          onClick={() => requestNavigation(listHref)}
         >
           К списку челленджей
         </button>
@@ -505,10 +509,11 @@ export function NewChallengeWizard({
                 rewards={rewards}
                 selectedTitle={selectedTitle}
                 onChange={updateChallengeForm}
+                fixedLocation={Boolean(locationScope)}
               />
             ) : null}
             {currentStep === 3 ? <PreviewStep brandLogo={brandLogo} brandName={brandName} category={selectedTemplate ?? "visit"} form={challengeForm} locations={locations} selectedTitle={selectedTitle} /> : null}
-            {currentStep === 4 ? <PublishStepActual draftSaved={draftSaved} selectedTitle={selectedTitle} /> : null}
+            {currentStep === 4 ? <PublishStepActual draftSaved={draftSaved} selectedTitle={selectedTitle} locationScope={locationScope} /> : null}
           </motion.div>
         </AnimatePresence>
       </section>
@@ -523,7 +528,7 @@ export function NewChallengeWizard({
                 size: "lg",
                 className: "min-h-14 rounded-lg px-7 shadow-slate-900/8",
               })}
-              onClick={() => requestNavigation(routes.brand.dashboard)}
+              onClick={() => requestNavigation(cancelHref)}
             >
               Отмена
             </button>
@@ -540,7 +545,7 @@ export function NewChallengeWizard({
                     size: "lg",
                     className: "min-h-14 rounded-lg px-7",
                   })}
-                  onClick={() => requestNavigation(routes.brand.dashboard)}
+                  onClick={() => requestNavigation(cancelHref)}
                 >
                   Отмена
                 </button>
@@ -566,11 +571,12 @@ export function NewChallengeWizard({
               <Save className="h-4 w-4" />
               Сохранить черновик
               </Button>
-              <Button className="min-h-14 rounded-lg px-6" size="lg" variant="secondary" disabled={isSaving} onClick={() => setIsScheduleDialogOpen(true)}>
+              <Button className={cn("min-h-14 rounded-lg px-6", locationScope && "hidden")} size="lg" variant="secondary" disabled={isSaving} onClick={() => setIsScheduleDialogOpen(true)}>
                 <CalendarClock className="h-4 w-4" />
                 Запланировать публикацию
               </Button>
-              <Button className="min-h-14 rounded-lg px-7" size="lg" variant="primary" disabled={isSaving} onClick={() => setIsPublishDialogOpen(true)}>
+              {locationScope ? <Button className="min-h-14 rounded-lg px-7" size="lg" variant="primary" disabled={isSaving} onClick={() => setIsPublishDialogOpen(true)}><Rocket className="h-4 w-4" />{locationScope.mode === "EXTENDED" ? "Отправить на подтверждение" : "Опубликовать для этой точки"}</Button> : null}
+              <Button className={cn("min-h-14 rounded-lg px-7", locationScope && "hidden")} size="lg" variant="primary" disabled={isSaving} onClick={() => setIsPublishDialogOpen(true)}>
                 <Rocket className="h-4 w-4" />
                 Опубликовать
               </Button>
@@ -603,7 +609,7 @@ export function NewChallengeWizard({
           onCancel={() => setIsPublishDialogOpen(false)}
           onConfirm={async () => {
             const saved = await persistChallenge("active");
-            if (saved) router.push(routes.brand.challenges);
+            if (saved) router.push(locationScope ? routes.location.challenges : routes.brand.challenges);
           }}
         />
       ) : null}
@@ -874,6 +880,7 @@ function RulesStep({
   rewards,
   selectedTitle,
   onChange,
+  fixedLocation = false,
 }: {
   brandLogo: string | null;
   brandName: string;
@@ -883,6 +890,7 @@ function RulesStep({
   rewards: BrandRewardDto[];
   selectedTitle: string | null;
   onChange: <K extends keyof ChallengeFormState>(field: K, value: ChallengeFormState[K]) => void;
+  fixedLocation?: boolean;
 }) {
   const mechanics = mechanicOptions[category];
   const activeRewards = rewards;
@@ -958,6 +966,7 @@ function RulesStep({
 
         <FormSection
           icon={MapPinned}
+          className={fixedLocation ? "hidden" : undefined}
           title="Выбор точек"
           description="Пока это демонстрационная настройка без реального выбора локаций."
         >
@@ -1599,18 +1608,20 @@ function PreviewRow({ icon: Icon, label, value }: { icon: LucideIcon; label: str
 }
 
 function FormSection({
+  className,
   children,
   description,
   icon: Icon,
   title,
 }: {
+  className?: string;
   children: ReactNode;
   description: string;
   icon: LucideIcon;
   title: string;
 }) {
   return (
-    <Card className="p-5 sm:p-6">
+    <Card className={cn("p-5 sm:p-6", className)}>
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700">
           <Icon className="h-5 w-5" />
@@ -1886,8 +1897,10 @@ function PreviewStep({
   );
 }
 
-function PublishStepActual({ draftSaved, selectedTitle }: { draftSaved: boolean; selectedTitle: string | null }) {
+function PublishStepActual({ draftSaved, selectedTitle, locationScope }: { draftSaved: boolean; selectedTitle: string | null; locationScope?: { mode: "EXTENDED" | "FLAGSHIP"; locationName: string } }) {
   return (
+    <>
+      {locationScope ? <div className="mb-4 rounded-2xl border border-blue-100 bg-blue-50 p-4 text-sm font-bold text-blue-800">{locationScope.mode === "EXTENDED" ? "После отправки основной кабинет бренда должен подтвердить челлендж. До этого пользователи его не увидят." : `Челлендж будет создан только для точки: ${locationScope.locationName}.`}</div> : null}
     <Card className="overflow-hidden p-0">
       <div className="grid gap-6 p-5 sm:p-7 lg:grid-cols-[280px_1fr] lg:p-8">
         <div className="rounded-3xl border border-blue-100 bg-blue-50/70 p-6">
@@ -1908,6 +1921,7 @@ function PublishStepActual({ draftSaved, selectedTitle }: { draftSaved: boolean;
         </div>
       </div>
     </Card>
+    </>
   );
 }
 

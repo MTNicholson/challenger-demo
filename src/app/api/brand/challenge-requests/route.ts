@@ -1,0 +1,6 @@
+import { NextResponse } from "next/server";
+import { getCurrentBrand } from "@/lib/auth-server";
+import { prisma } from "@/lib/prisma";
+
+export const dynamic = "force-dynamic";
+export async function GET() { const session = await getCurrentBrand(); if (!session) return NextResponse.json({ error: "Требуется вход бренда." }, { status: 401 }); const requests = await prisma.locationChallengeRequest.findMany({ where: { brandId: session.brand.id }, orderBy: { createdAt: "desc" } }); const locationIds = [...new Set(requests.map((item) => item.locationId))]; const userIds = [...new Set(requests.map((item) => item.createdByLocationUserId))]; const [locations, users] = await Promise.all([prisma.brandLocation.findMany({ where: { id: { in: locationIds }, brandId: session.brand.id }, select: { id: true, name: true, address: true } }), prisma.locationUser.findMany({ where: { id: { in: userIds }, brandId: session.brand.id }, select: { id: true, name: true, email: true } })]); const locationMap = new Map(locations.map((item) => [item.id, item])); const userMap = new Map(users.map((item) => [item.id, item])); return NextResponse.json({ requests: requests.map((item) => ({ ...item, location: locationMap.get(item.locationId) ?? null, author: userMap.get(item.createdByLocationUserId) ?? null })) }); }

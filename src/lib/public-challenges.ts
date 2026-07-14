@@ -73,7 +73,7 @@ function serializeChallenge(challenge: BrandChallenge & { brand: Brand }, index:
 
 export async function getPublishedUserChallenges(): Promise<Challenge[]> {
   const challenges = await prisma.brandChallenge.findMany({
-    where: { status: "active" },
+    where: { status: "active", brand: { status: "approved", publicStatus: "ONLINE", archivedAt: null } },
     include: { brand: true },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
   });
@@ -82,7 +82,7 @@ export async function getPublishedUserChallenges(): Promise<Challenge[]> {
 
 export async function getPublishedUserChallengeById(id: string): Promise<Challenge | null> {
   const challenge = await prisma.brandChallenge.findFirst({
-    where: { id, status: "active" },
+    where: { id, status: "active", brand: { status: "approved", publicStatus: "ONLINE", archivedAt: null } },
     include: { brand: true },
   });
   return challenge ? serializeChallenge(challenge, 0) : null;

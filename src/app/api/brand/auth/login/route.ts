@@ -30,6 +30,11 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Неверный email или пароль." }, { status: 401 });
   }
 
+  if (member.brand.status !== "approved") {
+    const message = member.brand.status === "pending" ? "Аккаунт компании ожидает подтверждения администратором." : "Вход в кабинет компании временно запрещён.";
+    return NextResponse.json({ error: message }, { status: 403 });
+  }
+
   const response = NextResponse.json({ brand: member.brand, member: toPublicBrandMember(member) });
   response.cookies.set(
     BRAND_AUTH_COOKIE_NAME,

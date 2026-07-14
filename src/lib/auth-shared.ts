@@ -2,6 +2,7 @@ import type { Brand, BrandMember, User } from "@prisma/client";
 
 export const AUTH_COOKIE_NAME = "challenger_session";
 export const BRAND_AUTH_COOKIE_NAME = "challenger_brand_session";
+export const LOCATION_AUTH_COOKIE_NAME = "challenger_location_session";
 export const AUTH_SESSION_DAYS = 7;
 
 export type PublicUser = Omit<User, "passwordHash">;

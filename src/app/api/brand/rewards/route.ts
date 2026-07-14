@@ -15,6 +15,7 @@ export async function GET(request: Request) {
   const rewards = await prisma.brandReward.findMany({
     where: {
       brandId: session.brand.id,
+      OR: [{ source: { not: "location" } }, { source: "location", status: "active" }],
       status: archived ? "archived" : { not: "archived" },
     },
     orderBy: [{ updatedAt: "desc" }],

@@ -2,78 +2,15 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, KeyRound, LockKeyhole, Mail } from "lucide-react";
-import { useState, type FormEvent } from "react";
+import { Building2, CheckCircle2, KeyRound, LockKeyhole, LogOut, Mail, Store } from "lucide-react";
+import { useEffect, useState, type FormEvent } from "react";
 import { AuthCard } from "@/components/auth/auth-card";
 import { AuthInput } from "@/components/auth/auth-input";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { routes } from "@/lib/routes";
 import styles from "@/components/auth/auth.module.css";
 
-export default function BrandLoginPage() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [rememberMe, setRememberMe] = useState(false);
-  const [error, setError] = useState("");
-  const [pending, setPending] = useState(false);
-
-  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    if (!email.trim() || !password.trim()) {
-      setError("Введите email и пароль.");
-      return;
-    }
-
-    setPending(true);
-    const response = await fetch("/api/brand/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify({ email, password, rememberMe }),
-    });
-    const data = (await response.json().catch(() => null)) as { error?: string } | null;
-    setPending(false);
-
-    if (!response.ok) {
-      setError(data?.error ?? "Не удалось войти в кабинет бренда. Проверьте данные и попробуйте снова.");
-      return;
-    }
-
-    router.replace(routes.brand.dashboard);
-  }
-
-  return (
-    <AuthShell caption="B2B-кабинет Челленджера">
-      <AuthCard
-        icon={<KeyRound size={26} />}
-        title="Вход для бренда"
-        subtitle="Войдите в корпоративный кабинет, чтобы управлять челленджами и наградами."
-      >
-        <form onSubmit={handleSubmit}>
-          <AuthInput icon={<Mail size={19} />} label="Email" type="email" autoComplete="username" placeholder="Email владельца" value={email} error={Boolean(error)} disabled={pending} onChange={(event) => { setEmail(event.target.value); setError(""); }} />
-          <AuthInput icon={<LockKeyhole size={19} />} label="Пароль" type="password" autoComplete="current-password" placeholder="Ваш пароль" value={password} error={Boolean(error)} disabled={pending} onChange={(event) => { setPassword(event.target.value); setError(""); }} />
-          <label className={styles.remember}>
-            <input type="checkbox" checked={rememberMe} disabled={pending} onChange={(event) => setRememberMe(event.target.checked)} />
-            <span className={styles.rememberBox} aria-hidden="true" />
-            <span className={styles.rememberText}>
-              <strong>Запомнить меня</strong>
-              <small>Не выходить из кабинета бренда на этом устройстве</small>
-            </span>
-          </label>
-          {error && <p className={styles.error} role="alert">{error}</p>}
-          <button className={styles.primary} type="submit" disabled={pending}>
-            {pending ? "Входим..." : "Войти в кабинет"}
-          </button>
-        </form>
-        <Link className={styles.secondary} href={routes.brandAuth.forgotPassword}>
-          Забыли пароль?
-        </Link>
-        <Link className={styles.secondary} href={routes.brandAuth.register}>
-          <Building2 className="inline h-4 w-4 align-[-3px]" /> <strong>Зарегистрировать бренд</strong>
-        </Link>
-      </AuthCard>
-    </AuthShell>
-  );
-}
+type Mode = "brand"|"location";
+type BrandSession = { brand: { name:string } } | null;
+type LocationSession = { user:{name:string;role:"LOCATION_ADMIN"|"LOCATION_STAFF"};brand:{name:string};location:{name:string|null} } | null;
+export default function BrandLoginPage(){const router=useRouter();const [mode,setMode]=useState<Mode>(()=>typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("mode")==="location"?"location":"brand");const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [rememberMe,setRememberMe]=useState(false);const [error,setError]=useState("");const [pending,setPending]=useState(false);const [ready,setReady]=useState(false);const [brandSession,setBrandSession]=useState<BrandSession>(null);const [locationSession,setLocationSession]=useState<LocationSession>(null);const [pendingNotice]=useState(()=>typeof window!=="undefined"&&new URLSearchParams(window.location.search).get("pending")==="1");useEffect(()=>{let active=true;void Promise.all([fetch("/api/brand/auth/me",{credentials:"include"}).then(async r=>r.ok?await r.json():null).catch(()=>null),fetch("/api/location/auth/me",{credentials:"include"}).then(async r=>r.ok?await r.json():null).catch(()=>null)]).then(([brand,location])=>{if(active){setBrandSession(brand);setLocationSession(location);setReady(true)}});return()=>{active=false}},[]);const isLocation=mode==="location";const session=isLocation?locationSession:brandSession;async function submit(event:FormEvent){event.preventDefault();if(!email.trim()||!password.trim()){setError("Введите логин и пароль.");return}setPending(true);const response=await fetch(isLocation?"/api/location/auth/login":"/api/brand/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},credentials:"include",body:JSON.stringify({email,password,rememberMe})});const data=await response.json().catch(()=>null) as {error?:string;redirectTo?:string}|null;setPending(false);if(!response.ok){setError(data?.error??"Не удалось выполнить вход.");return}router.replace(isLocation?data?.redirectTo??routes.location.scanner:routes.brand.dashboard)}async function logout(){await fetch(isLocation?"/api/location/auth/logout":"/api/brand/auth/logout",{method:"POST",credentials:"include"});if(isLocation)setLocationSession(null);else setBrandSession(null)}function switchMode(next:Mode){setMode(next);setError("")}return <AuthShell caption="B2B-кабинет Челленджера"><AuthCard icon={isLocation?<Store size={26}/>:<KeyRound size={26}/>} title={isLocation?"Вход в кабинет точки":"Вход для бренда"} subtitle={isLocation?"Для администраторов и сотрудников конкретной точки.":"Вход в основной кабинет компании."}><div className="grid grid-cols-2 rounded-2xl bg-slate-100 p-1 text-sm font-black"><button type="button" onClick={()=>switchMode("brand")} className={`rounded-xl px-3 py-2.5 ${!isLocation?"bg-white text-blue-700 shadow-sm":"text-slate-500"}`}>Кабинет бренда</button><button type="button" onClick={()=>switchMode("location")} className={`rounded-xl px-3 py-2.5 ${isLocation?"bg-white text-blue-700 shadow-sm":"text-slate-500"}`}>Кабинет точки</button></div>{ready&&session?<div className={styles.success}><span className={styles.successIcon}><CheckCircle2 size={16}/></span><div><strong>{isLocation?"Вы уже залогинены в кабинет точки":"Вы уже залогинены в кабинет бренда"}</strong><p className="mt-1 text-xs font-bold">{isLocation?`${locationSession!.brand.name} · ${locationSession!.location.name??"Точка"} · ${locationSession!.user.role==="LOCATION_ADMIN"?"администратор точки":"сотрудник точки"}`:brandSession!.brand.name}</p><div className="mt-3 flex gap-3"><button type="button" className="font-black underline" onClick={()=>router.push(isLocation?(locationSession!.user.role==="LOCATION_ADMIN"?routes.location.dashboard:routes.location.scanner):routes.brand.dashboard)}>{isLocation?(locationSession!.user.role==="LOCATION_ADMIN"?"Войти в кабинет точки":"Открыть сканер"):"Войти в кабинет"}</button><button type="button" className="font-black underline" onClick={logout}><LogOut className="mr-1 inline h-3.5 w-3.5"/>Выйти</button></div></div></div>:<><form onSubmit={submit}><AuthInput icon={<Mail size={19}/>} label={isLocation?"Email администратора или сотрудника":"Email"} type="email" autoComplete="username" placeholder={isLocation?"name@company.ru":"Email владельца"} value={email} error={Boolean(error)} disabled={pending} onChange={e=>{setEmail(e.target.value);setError("")}}/><AuthInput icon={<LockKeyhole size={19}/>} label="Пароль" type="password" autoComplete="current-password" placeholder="Ваш пароль" value={password} error={Boolean(error)} disabled={pending} onChange={e=>{setPassword(e.target.value);setError("")}}/><label className={styles.remember}><input type="checkbox" checked={rememberMe} disabled={pending} onChange={e=>setRememberMe(e.target.checked)}/><span className={styles.rememberBox}/><span className={styles.rememberText}><strong>Запомнить меня</strong><small>Не выходить из кабинета на этом устройстве</small></span></label>{error?<p className={styles.error}>{error}</p>:null}<button className={styles.primary} type="submit" disabled={pending}>{pending?"Входим…":isLocation?"Войти в кабинет точки":"Войти в кабинет"}</button>{pendingNotice&&!isLocation&&!error?<p className={styles.helper}>Заявка бренда отправлена на проверку. После подтверждения вы сможете войти в кабинет.</p>:null}</form>{!isLocation?<><Link className={styles.secondary} href={routes.brandAuth.forgotPassword}>Забыли пароль?</Link><Link className={styles.secondary} href={routes.brandAuth.register}><Building2 className="inline h-4 w-4 align-[-3px]"/> <strong>Зарегистрировать бренд</strong></Link></>:<p className={styles.helper}>Доступы для команды создаются в настройках конкретной точки.</p>}</>}</AuthCard></AuthShell>}

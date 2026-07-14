@@ -7,7 +7,8 @@ export type BadgeVariant =
   | "warning"
   | "danger"
   | "coin"
-  | "dark";
+  | "dark"
+  | "default";
 
 const variantClasses: Record<BadgeVariant, string> = {
   neutral: "border border-slate-200/70 bg-white/70 text-slate-600",
@@ -16,6 +17,7 @@ const variantClasses: Record<BadgeVariant, string> = {
   danger: "border border-rose-200/70 bg-rose-50/90 text-rose-600",
   coin: "bg-amber-100 text-amber-950",
   dark: "bg-slate-950 text-white",
+  default: "border border-slate-200/70 bg-white/70 text-slate-600",
 };
 
 type BadgeProps = HTMLAttributes<HTMLSpanElement> & {

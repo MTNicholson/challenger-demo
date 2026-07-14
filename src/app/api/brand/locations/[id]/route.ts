@@ -21,6 +21,15 @@ async function getOwnedLocation(id: string, brandId: string) {
   return prisma.brandLocation.findFirst({ where: { id, brandId } });
 }
 
+export async function GET(_request: Request, context: RouteContext<"/api/brand/locations/[id]">) {
+  const session = await getCurrentBrand();
+  if (!session) return NextResponse.json({ error: "Требуется вход бренда." }, { status: 401 });
+  const { id } = await context.params;
+  const location = await prisma.brandLocation.findFirst({ where: { id, brandId: session.brand.id }, include: { users: { select: { id: true, name: true, email: true, role: true, status: true, createdAt: true, lastLoginAt: true }, orderBy: { createdAt: "desc" } } } });
+  if (!location) return NextResponse.json({ error: "Точка не найдена." }, { status: 404 });
+  return NextResponse.json({ location });
+}
+
 export async function PATCH(request: Request, context: RouteContext<"/api/brand/locations/[id]">) {
   const session = await getCurrentBrand();
   if (!session) return NextResponse.json({ error: "Требуется вход бренда." }, { status: 401 });
@@ -41,6 +50,8 @@ export async function PATCH(request: Request, context: RouteContext<"/api/brand/
   const geoPlaceId = getOptionalStringField(body, "geoPlaceId");
   const description = getOptionalStringField(body, "description");
   const requestedMain = getBooleanField(body, "isMain");
+  const mode = body?.mode === "EXTENDED" || body?.mode === "FLAGSHIP" ? body.mode : "STANDARD";
+  const cabinetEnabled = body?.cabinetEnabled !== false;
 
   if (!city || !address) {
     return NextResponse.json({ error: "Заполните город и адрес точки." }, { status: 400 });
@@ -75,6 +86,8 @@ export async function PATCH(request: Request, context: RouteContext<"/api/brand/
         geoPlaceId,
         description,
         isMain: requestedMain,
+        mode,
+        cabinetEnabled,
       },
     });
   });

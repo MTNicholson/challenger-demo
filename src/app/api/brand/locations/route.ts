@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import bcrypt from "bcryptjs";
 import { getCurrentBrand } from "@/lib/auth-server";
 import {
   getOptionalNumberField,
@@ -9,6 +10,7 @@ import {
   validateRussianCity,
 } from "@/lib/brand-settings-validation";
 import { prisma } from "@/lib/prisma";
+import { normalizeIdentifier } from "@/lib/auth-shared";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,9 +26,10 @@ export async function GET() {
   const locations = await prisma.brandLocation.findMany({
     where: { brandId: session.brand.id },
     orderBy: [{ isMain: "desc" }, { createdAt: "asc" }],
+    include: { users: { where: { role: "LOCATION_ADMIN", status: "ACTIVE" }, select: { id: true, name: true, email: true, status: true } }, _count: { select: { users: { where: { status: "ACTIVE" } } } } },
   });
 
-  return NextResponse.json({ locations });
+  return NextResponse.json({ locations: locations.map((location) => ({ ...location, locationAdmin: location.users[0] ?? null, staffCount: location._count.users })) });
 }
 
 export async function POST(request: Request) {
@@ -44,10 +47,21 @@ export async function POST(request: Request) {
   const geoPlaceId = getOptionalStringField(body, "geoPlaceId");
   const description = getOptionalStringField(body, "description");
   const requestedMain = getBooleanField(body, "isMain");
+  const mode = body?.mode === "EXTENDED" || body?.mode === "FLAGSHIP" ? body.mode : "STANDARD";
+  const adminName = getStringField(body, "locationAdminName");
+  const adminEmail = normalizeIdentifier(getStringField(body, "locationAdminEmail"));
+  const adminPassword = getStringField(body, "locationAdminPassword");
+  const adminPasswordConfirmation = getStringField(body, "locationAdminPasswordConfirmation");
 
   if (!city || !address) {
     return NextResponse.json({ error: "Заполните город и адрес точки." }, { status: 400 });
   }
+
+  if (!adminName || !adminEmail || !adminEmail.includes("@") || adminPassword.length < 6 || adminPassword !== adminPasswordConfirmation) {
+    return NextResponse.json({ error: "Для новой точки заполните данные администратора и подтвердите пароль не короче 6 символов." }, { status: 400 });
+  }
+
+  if (await prisma.locationUser.findUnique({ where: { email: adminEmail }, select: { id: true } })) return NextResponse.json({ error: "Этот email уже используется для кабинета точки." }, { status: 409 });
 
   if (!validateRussianCity(city)) {
     return NextResponse.json({ error: "Выберите город из списка." }, { status: 400 });
@@ -65,7 +79,7 @@ export async function POST(request: Request) {
       });
     }
 
-    return tx.brandLocation.create({
+    const location = await tx.brandLocation.create({
       data: {
         brandId: session.brand.id,
         name,
@@ -78,8 +92,12 @@ export async function POST(request: Request) {
         geoPlaceId,
         description,
         isMain: requestedMain,
+        mode,
+        cabinetEnabled: true,
       },
     });
+    await tx.locationUser.create({ data: { brandId: session.brand.id, locationId: location.id, name: adminName, email: adminEmail, passwordHash: await bcrypt.hash(adminPassword, 12), role: "LOCATION_ADMIN" } });
+    return location;
   });
 
   return NextResponse.json({ location }, { status: 201 });

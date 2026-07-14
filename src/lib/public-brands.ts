@@ -109,6 +109,7 @@ export function normalizePublicBrandSlug(slug: string) {
 
 export async function getPublicBrands(): Promise<PublicBrandSummary[]> {
   const brands = await prisma.brand.findMany({
+    where: { status: "approved", publicStatus: "ONLINE", archivedAt: null },
     orderBy: { createdAt: "desc" },
     include: {
       locations: {
@@ -127,7 +128,7 @@ export async function getPublicBrandBySlug(slug: string): Promise<PublicBrandDet
   const normalizedSlug = normalizePublicBrandSlug(slug);
 
   const brand = await prisma.brand.findFirst({
-    where: { slug: normalizedSlug },
+    where: { slug: normalizedSlug, status: "approved", publicStatus: "ONLINE", archivedAt: null },
     include: {
       challenges: {
         orderBy: { createdAt: "desc" },
@@ -150,8 +151,8 @@ export async function getPublicBrandBySlug(slug: string): Promise<PublicBrandDet
 }
 
 export async function getPublicBrandById(id: string): Promise<PublicBrandDetail | null> {
-  const brand = await prisma.brand.findUnique({
-    where: { id },
+  const brand = await prisma.brand.findFirst({
+    where: { id, status: "approved", publicStatus: "ONLINE", archivedAt: null },
     include: {
       challenges: { orderBy: { createdAt: "desc" } },
       locations: { orderBy: [{ isMain: "desc" }, { createdAt: "asc" }] },

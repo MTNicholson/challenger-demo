@@ -97,7 +97,7 @@ export function isChallengeActive(userId: string, challengeId: string) {
 }
 
 export function activateChallenge(userId: string, challengeId: string, progressTotal = 1) {
-  return updateChallengeState(userId, challengeId, (current) => ({
+  const result = updateChallengeState(userId, challengeId, (current) => ({
     ...current,
     challengeId,
     isActive: true,
@@ -106,6 +106,8 @@ export function activateChallenge(userId: string, challengeId: string, progressT
     activatedAt: new Date().toISOString(),
     cancelledAt: undefined,
   }));
+  void fetch("/api/user/challenges", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ challengeId, progressTotal }), credentials: "include" });
+  return result;
 }
 
 export function cancelChallenge(userId: string, challengeId: string) {
@@ -146,8 +148,9 @@ export function useUserChallengeStates(userId?: string | null) {
   const [states, setStates] = useState<UserChallengeState[]>([]);
 
   useEffect(() => {
-    const sync = () => {
+    const sync = async () => {
       setStates(userId ? getUserChallengeStates(userId) : []);
+      if (userId) { const response = await fetch("/api/user/challenges", { credentials: "include", cache: "no-store" }).catch(() => null); const data = response?.ok ? await response.json().catch(() => null) : null; if (data?.challenges) { const database = readDatabase(); const local = database[userId] ?? []; database[userId] = data.challenges.map((item: UserChallengeState & { activatedAt: string; completedAt?: string; status: string; progressCurrent: number; progressTotal: number }) => ({ ...local.find((state) => state.challengeId === item.challengeId), challengeId: item.challengeId, isActive: item.status === "active" || item.status === "completed", progressCurrent: item.progressCurrent, progressTotal: item.progressTotal, activatedAt: item.activatedAt, completedAt: item.completedAt })); localStorage.setItem(STORAGE_KEY, JSON.stringify(database)); setStates(database[userId]); } }
       setReady(true);
     };
     sync();

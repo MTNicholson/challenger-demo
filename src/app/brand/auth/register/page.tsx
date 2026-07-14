@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, Camera, FileText, Globe, LockKeyhole, Mail, MapPin, UploadCloud } from "lucide-react";
+import { Building2, Camera, CheckCircle2, FileText, Globe, LockKeyhole, Mail, MapPin, UploadCloud, X } from "lucide-react";
 import { useMemo, useState, type ChangeEvent, type FormEvent } from "react";
 import { BRAND_CATEGORIES, getBrandCategoryFallback } from "@/lib/brand-visuals";
 import { RUSSIAN_CITIES } from "@/lib/russian-cities";
@@ -61,6 +61,7 @@ export default function BrandRegisterPage() {
   const [coverPreviewUrl, setCoverPreviewUrl] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
+  const [registrationComplete, setRegistrationComplete] = useState(false);
   const fallback = useMemo(() => getBrandCategoryFallback(category), [category]);
   const brandInitial = name.trim()[0]?.toLocaleUpperCase("ru-RU") ?? fallback.mark;
 
@@ -143,7 +144,7 @@ export default function BrandRegisterPage() {
       return;
     }
 
-    router.replace(routes.brand.dashboard);
+    setRegistrationComplete(true);
   }
 
   return (
@@ -315,6 +316,21 @@ export default function BrandRegisterPage() {
           </aside>
         </form>
       </section>
+      {registrationComplete ? (
+        <div className={styles.modalOverlay} role="presentation">
+          <section className={styles.modal} role="dialog" aria-modal="true" aria-labelledby="registration-complete-title">
+            <button className={styles.modalClose} type="button" onClick={() => setRegistrationComplete(false)} aria-label="Закрыть">
+              <X size={18} />
+            </button>
+            <span className={styles.modalIcon}><CheckCircle2 size={28} /></span>
+            <h2 id="registration-complete-title">Благодарим за регистрацию!</h2>
+            <p>Ваша заявка отправлена на проверку. После подтверждения администрацией вы сможете войти в кабинет бренда.</p>
+            <button className={styles.primary} type="button" onClick={() => router.replace(`${routes.brandAuth.login}?pending=1`)}>
+              Перейти к входу
+            </button>
+          </section>
+        </div>
+      ) : null}
     </main>
   );
 }

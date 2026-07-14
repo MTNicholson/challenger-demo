@@ -62,6 +62,8 @@ async function main() {
       city: "Москва",
       address: "ул. Арбат, д.3",
       description: "Тестовая булочная для локальной разработки",
+      status: "approved",
+      publicStatus: "ONLINE",
     },
     create: {
       name: "Хлебник Dev",
@@ -70,6 +72,8 @@ async function main() {
       city: "Москва",
       address: "ул. Арбат, д.3",
       description: "Тестовая булочная для локальной разработки",
+      status: "approved",
+      publicStatus: "ONLINE",
     },
   });
 
@@ -81,6 +85,8 @@ async function main() {
       city: "Москва",
       address: "Пятницкая, 10",
       description: "Тестовая кофейня для локального демо",
+      status: "approved",
+      publicStatus: "ONLINE",
     },
     create: {
       name: "Coffee Dev",
@@ -89,6 +95,8 @@ async function main() {
       city: "Москва",
       address: "Пятницкая, 10",
       description: "Тестовая кофейня для локального демо",
+      status: "approved",
+      publicStatus: "ONLINE",
     },
   });
 
@@ -122,7 +130,7 @@ async function main() {
     brandId: coffee.id,
     title: "Кофейный маршрут",
     description: "Загляните за кофе и отметьте визит в приложении.",
-    status: "draft",
+    status: "active",
     type: "visit",
     reward: "100 монет",
   });

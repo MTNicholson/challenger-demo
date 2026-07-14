@@ -17,6 +17,10 @@ model User {
   coinsBalance Int      @default(1250)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  challenges   UserChallenge[]
+  rewards      UserReward[]
+  walletTransactions WalletTransaction[]
+  events       UserChallengeEvent[]
 }
 
 model Brand {
@@ -36,6 +40,36 @@ model Brand {
   challenges    BrandChallenge[]
   locations     BrandLocation[]
   rewards       BrandReward[]
+  locationChallengeRequests LocationChallengeRequest[]
+  status        String           @default("approved")
+  publicStatus  BrandPublicStatus @default(OFFLINE)
+  approvedAt    DateTime?
+  approvedBy    String?
+  rejectionReason String?
+  archivedAt    DateTime?
+  adminActions  AdminAction[]
+  locationUsers LocationUser[]
+}
+
+enum BrandPublicStatus {
+  OFFLINE
+  ONLINE
+}
+
+enum LocationMode {
+  STANDARD
+  EXTENDED
+  FLAGSHIP
+}
+
+enum LocationUserRole {
+  LOCATION_ADMIN
+  LOCATION_STAFF
+}
+
+enum LocationUserStatus {
+  ACTIVE
+  DISABLED
 }
 
 model BrandLocation {
@@ -52,12 +86,34 @@ model BrandLocation {
   geoRaw      Json?
   description String?
   isMain      Boolean  @default(false)
+  mode        LocationMode @default(STANDARD)
+  cabinetEnabled Boolean @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   brand       Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  users       LocationUser[]
 
   @@index([brandId])
   @@index([city])
+}
+
+model LocationUser {
+  id           String             @id @default(uuid())
+  brandId      String
+  locationId   String
+  name         String
+  email        String             @unique
+  passwordHash String
+  role         LocationUserRole   @default(LOCATION_STAFF)
+  status       LocationUserStatus @default(ACTIVE)
+  lastLoginAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  brand        Brand              @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  location     BrandLocation      @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@index([brandId])
+  @@index([locationId, role])
 }
 
 model BrandMember {
@@ -77,6 +133,8 @@ model BrandMember {
 model BrandChallenge {
   id              String    @id @default(uuid())
   brandId         String
+  source          String    @default("brand")
+  createdByLocationUserId String?
   title           String
   description     String?
   status          String    @default("draft")
@@ -95,15 +153,99 @@ model BrandChallenge {
   createdAt       DateTime  @default(now())
   updatedAt       DateTime  @updatedAt
   brand           Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  participations UserChallenge[]
+  events         UserChallengeEvent[]
 
   @@index([brandId])
   @@index([brandId, status])
+  @@index([brandId, source])
   @@index([scheduledAt])
+}
+
+model UserChallenge {
+  id            String   @id @default(cuid())
+  userId        String
+  challengeId   String
+  status        String   @default("active")
+  progressCurrent Int    @default(0)
+  progressTotal Int      @default(1)
+  activatedAt   DateTime @default(now())
+  completedAt   DateTime?
+  completionSource String?
+  rewardIssuedAt DateTime?
+  qrToken       String?  @unique
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge     BrandChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  events        UserChallengeEvent[]
+  reward        UserReward?
+  @@unique([userId, challengeId])
+  @@index([userId, status])
+  @@index([challengeId, status])
+}
+
+model UserChallengeEvent {
+  id            String   @id @default(cuid())
+  userId        String
+  challengeId   String
+  participationId String
+  type          String
+  metadata      Json?
+  createdAt     DateTime @default(now())
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge     BrandChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  participation UserChallenge @relation(fields: [participationId], references: [id], onDelete: Cascade)
+  @@index([userId, createdAt])
+}
+
+model UserReward {
+  id            String   @id @default(cuid())
+  userId        String
+  participationId String @unique
+  title         String
+  description   String?
+  status        String   @default("available")
+  qrToken       String   @unique
+  createdAt     DateTime @default(now())
+  usedAt        DateTime?
+  expiresAt     DateTime?
+  user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  participation UserChallenge @relation(fields: [participationId], references: [id], onDelete: Cascade)
+}
+
+model WalletTransaction {
+  id        String   @id @default(cuid())
+  userId    String
+  amount    Int
+  type      String
+  metadata  Json?
+  createdAt DateTime @default(now())
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@index([userId, createdAt])
+}
+
+model AdminAction {
+  id         String   @id @default(cuid())
+  adminEmail String
+  actionType String
+  entityType String
+  entityId   String?
+  before     Json?
+  after      Json?
+  metadata   Json?
+  comment    String?
+  createdAt  DateTime @default(now())
+  brand      Brand?   @relation(fields: [brandId], references: [id], onDelete: SetNull)
+  brandId    String?
+  @@index([createdAt])
+  @@index([entityType, entityId])
 }
 
 model BrandReward {
   id            String    @id @default(cuid())
   brandId       String
+  locationId    String?
+  createdByLocationUserId String?
+  source        String    @default("brand")
   title         String
   type          String
   description   String
@@ -120,5 +262,33 @@ model BrandReward {
   brand         Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
 
   @@index([brandId])
+  @@index([locationId])
   @@index([status])
+}
+
+model LocationChallengeRequest {
+  id                      String   @id @default(cuid())
+  brandId                 String
+  locationId              String
+  createdByLocationUserId String
+  title                   String
+  description             String?
+  category                String?
+  mechanicType            String?
+  mechanicParams          Json?
+  rewardData              Json?
+  rewardId                String?
+  startsAt                DateTime?
+  endsAt                  DateTime?
+  status                  String   @default("submitted")
+  brandReviewComment      String?
+  reviewedByBrandUserId   String?
+  reviewedAt              DateTime?
+  sourceChallengeId       String?
+  createdAt               DateTime @default(now())
+  updatedAt               DateTime @updatedAt
+  brand                   Brand    @relation(fields: [brandId], references: [id], onDelete: Cascade)
+
+  @@index([brandId, status])
+  @@index([locationId, status])
 }

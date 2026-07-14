@@ -7,6 +7,7 @@ import {
   AUTH_COOKIE_NAME,
   AUTH_SESSION_DAYS,
   BRAND_AUTH_COOKIE_NAME,
+  LOCATION_AUTH_COOKIE_NAME,
   toPublicBrandMember,
   toPublicUser,
   type PublicBrand,
@@ -21,6 +22,12 @@ type SessionPayload = {
 
 type BrandSessionPayload = {
   brandMemberId: string;
+  brandId: string;
+};
+
+type LocationSessionPayload = {
+  locationUserId: string;
+  locationId: string;
   brandId: string;
 };
 
@@ -53,6 +60,11 @@ export async function createBrandSessionToken(payload: BrandSessionPayload, sess
     .sign(getJwtSecret());
 }
 
+export async function createLocationSessionToken(payload: LocationSessionPayload, sessionDays = AUTH_SESSION_DAYS) {
+  const expiresAt = Math.floor(Date.now() / 1000) + sessionDays * 24 * 60 * 60;
+  return new SignJWT(payload).setProtectedHeader({ alg: "HS256" }).setIssuedAt().setExpirationTime(expiresAt).sign(getJwtSecret());
+}
+
 export async function verifySessionToken(token?: string) {
   if (!token) return null;
 
@@ -78,6 +90,17 @@ export async function verifyBrandSessionToken(token?: string) {
   }
 }
 
+export async function verifyLocationSessionToken(token?: string) {
+  if (!token) return null;
+  try {
+    const { payload } = await jwtVerify(token, getJwtSecret());
+    const locationUserId = typeof payload.locationUserId === "string" ? payload.locationUserId : null;
+    const locationId = typeof payload.locationId === "string" ? payload.locationId : null;
+    const brandId = typeof payload.brandId === "string" ? payload.brandId : null;
+    return locationUserId && locationId && brandId ? { locationUserId, locationId, brandId } : null;
+  } catch { return null; }
+}
+
 export const getCurrentUser = cache(async (): Promise<PublicUser | null> => {
   const cookieStore = await cookies();
   const session = await verifySessionToken(cookieStore.get(AUTH_COOKIE_NAME)?.value);
@@ -101,10 +124,19 @@ export const getCurrentBrand = cache(async (): Promise<{ member: PublicBrandMemb
     include: { brand: true },
   });
 
-  if (!member || member.brandId !== session.brandId) return null;
+  if (!member || member.brandId !== session.brandId || member.brand.status !== "approved") return null;
 
   return {
     member: toPublicBrandMember(member),
     brand: member.brand,
   };
+});
+
+export const getCurrentLocationSession = cache(async () => {
+  const cookieStore = await cookies();
+  const session = await verifyLocationSessionToken(cookieStore.get(LOCATION_AUTH_COOKIE_NAME)?.value);
+  if (!session) return null;
+  const user = await prisma.locationUser.findUnique({ where: { id: session.locationUserId }, include: { location: true, brand: true } });
+  if (!user || user.locationId !== session.locationId || user.brandId !== session.brandId || user.status !== "ACTIVE" || !user.location.cabinetEnabled || user.brand.status !== "approved") return null;
+  return { user, location: user.location, brand: user.brand };
 });

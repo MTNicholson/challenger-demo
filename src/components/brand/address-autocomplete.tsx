@@ -41,6 +41,7 @@ export function AddressAutocomplete({
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [hasManualInput, setHasManualInput] = useState(false);
 
   useEffect(() => {
     const onPointerDown = (event: PointerEvent) => {
@@ -54,7 +55,7 @@ export function AddressAutocomplete({
   useEffect(() => {
     const query = value.trim();
     const timer = window.setTimeout(async () => {
-      if (disabled || query.length < 3) {
+      if (disabled || !hasManualInput || query.length < 3) {
         setSuggestions([]);
         setLoading(false);
         setError(null);
@@ -92,9 +93,10 @@ export function AddressAutocomplete({
     }, 400);
 
     return () => window.clearTimeout(timer);
-  }, [city, disabled, value]);
+  }, [city, disabled, hasManualInput, value]);
 
   function handleInput(value: string) {
+    setHasManualInput(true);
     onChange(value);
     if (value.trim().length >= 3) setIsOpen(true);
   }
@@ -107,7 +109,7 @@ export function AddressAutocomplete({
     setError(null);
   }
 
-  const showDropdown = isOpen && !disabled && (loading || error || suggestions.length > 0 || value.trim().length >= 3);
+  const showDropdown = isOpen && hasManualInput && !disabled && (loading || error || suggestions.length > 0 || value.trim().length >= 3);
 
   return (
     <div ref={rootRef} className={cn("relative", className)}>
