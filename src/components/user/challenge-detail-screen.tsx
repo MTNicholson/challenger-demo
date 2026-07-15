@@ -25,19 +25,15 @@ type Props = {
   brandHref?: string;
 };
 
-const qrCells = Array.from({ length: 121 }, (_, index) =>
-  [0, 1, 2, 9, 10, 11, 12, 14, 20, 22, 24, 26, 28, 30, 32, 34, 36, 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98, 100, 102, 104, 106, 108, 110, 112, 114, 116, 118, 120].includes(index),
-);
-
 export function ChallengeDetailScreen({ challenge, locations, isPreview = false, backHref = routes.user.challenges, brandHref }: Props) {
   const { user } = useCurrentUser();
   const { states } = useUserChallengeStates(user?.id);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
-  const [isQrOpen, setIsQrOpen] = useState(false);
   const [notice, setNotice] = useState("");
 
   const challengeState = states.find((state) => state.challengeId === challenge.id);
   const isCompleted = Boolean(challengeState?.completedAt);
+  const isRewardUsed = Boolean(challengeState?.rewardUsed);
   const isActive = (challengeState?.isActive ?? false) && !isCompleted;
   const isFavorite = challengeState?.isFavorite ?? false;
   const progressTotal = challengeState?.progressTotal ?? challenge.progress?.total ?? 1;
@@ -113,12 +109,14 @@ export function ChallengeDetailScreen({ challenge, locations, isPreview = false,
       />
 
       <section className={styles.ctaPanel}>
-        {isCompleted ? (
-          <button type="button" className={styles.qrButton} onClick={isPreview ? undefined : () => setIsQrOpen(true)} aria-disabled={isPreview}><QrCode size={19} />Получить награду</button>
+        {isCompleted ? isRewardUsed ? (
+          <span className={styles.qrButton}><QrCode size={19} />Награда использована</span>
+        ) : (
+          isPreview ? <button type="button" className={styles.qrButton} aria-disabled="true"><QrCode size={19} />Получить награду</button> : <Link href={`/app/challenges/${challenge.id}/reward`} className={styles.qrButton}><QrCode size={19} />Получить награду</Link>
         ) : isActive ? (
           <>
             <button type="button" className={styles.cancelPrimary} onClick={isPreview ? undefined : () => setIsCancelOpen(true)} aria-disabled={isPreview}>Отменить челлендж</button>
-            <button type="button" className={styles.qrButton} onClick={isPreview ? undefined : () => setIsQrOpen(true)} aria-disabled={isPreview}><QrCode size={19} />Показать QR код</button>
+            <span className={styles.qrButton}><QrCode size={19} />Челлендж выполняется</span>
           </>
         ) : (
           <button type="button" className={styles.liquidCta} onClick={isPreview ? undefined : activateChallenge} aria-disabled={isPreview}>
@@ -143,18 +141,6 @@ export function ChallengeDetailScreen({ challenge, locations, isPreview = false,
         overlayRoot,
       ) : null}
 
-      {isQrOpen && overlayRoot ? createPortal(
-        <div className={styles.overlay} role="presentation" onMouseDown={() => setIsQrOpen(false)}>
-          <section className={styles.sheet} role="dialog" aria-modal="true" aria-labelledby="qr-title" onMouseDown={(event) => event.stopPropagation()}>
-            <button className={styles.close} type="button" onClick={() => setIsQrOpen(false)} aria-label="Закрыть"><X size={18} /></button>
-            <h2 id="qr-title">QR-код визита</h2>
-            <p>Покажите QR-код партнёру для отметки визита</p>
-            <div className={styles.qr} aria-label={`QR-код ${challenge.qrCodeValue ?? challenge.id}`}>{qrCells.map((filled, index) => <i key={index} className={filled ? styles.qrFilled : ""} />)}</div>
-            <small className={styles.qrValue}>{challenge.qrCodeValue ?? `CHALLENGER:${challenge.id}:DEMO`}</small>
-          </section>
-        </div>,
-        overlayRoot,
-      ) : null}
     </main>
   );
 }

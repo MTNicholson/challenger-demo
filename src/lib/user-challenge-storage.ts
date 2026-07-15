@@ -13,6 +13,7 @@ export type UserChallengeState = {
   completedAt?: string;
   isFavorite?: boolean;
   favoriteAddedAt?: string;
+  rewardUsed?: boolean;
 };
 
 type UserChallengeDatabase = Record<string, UserChallengeState[]>;
@@ -150,7 +151,7 @@ export function useUserChallengeStates(userId?: string | null) {
   useEffect(() => {
     const sync = async () => {
       setStates(userId ? getUserChallengeStates(userId) : []);
-      if (userId) { const response = await fetch("/api/user/challenges", { credentials: "include", cache: "no-store" }).catch(() => null); const data = response?.ok ? await response.json().catch(() => null) : null; if (data?.challenges) { const database = readDatabase(); const local = database[userId] ?? []; database[userId] = data.challenges.map((item: UserChallengeState & { activatedAt: string; completedAt?: string; status: string; progressCurrent: number; progressTotal: number }) => ({ ...local.find((state) => state.challengeId === item.challengeId), challengeId: item.challengeId, isActive: item.status === "active" || item.status === "completed", progressCurrent: item.progressCurrent, progressTotal: item.progressTotal, activatedAt: item.activatedAt, completedAt: item.completedAt })); localStorage.setItem(STORAGE_KEY, JSON.stringify(database)); setStates(database[userId]); } }
+      if (userId) { const response = await fetch("/api/user/challenges", { credentials: "include", cache: "no-store" }).catch(() => null); const data = response?.ok ? await response.json().catch(() => null) : null; if (data?.challenges) { const database = readDatabase(); const local = database[userId] ?? []; database[userId] = data.challenges.map((item: UserChallengeState & { activatedAt: string; completedAt?: string; status: string; progressCurrent: number; progressTotal: number; reward?: { status: string } | null }) => ({ ...local.find((state) => state.challengeId === item.challengeId), challengeId: item.challengeId, isActive: item.status === "active" || item.status === "completed", progressCurrent: item.progressCurrent, progressTotal: item.progressTotal, activatedAt: item.activatedAt, completedAt: item.completedAt, rewardUsed: item.reward?.status === "used" })); localStorage.setItem(STORAGE_KEY, JSON.stringify(database)); setStates(database[userId]); } }
       setReady(true);
     };
     sync();

@@ -19,6 +19,7 @@ model User {
   updatedAt    DateTime @updatedAt
   challenges   UserChallenge[]
   rewards      UserReward[]
+  rewardTokens RewardToken[]
   walletTransactions WalletTransaction[]
   events       UserChallengeEvent[]
 }
@@ -54,6 +55,25 @@ model Brand {
 enum BrandPublicStatus {
   OFFLINE
   ONLINE
+}
+
+enum RewardTokenStatus {
+  ACTIVE
+  REDEEMED
+  EXPIRED
+  CANCELLED
+}
+
+enum RewardScanLogStatus {
+  VALIDATED
+  REDEEMED
+  NOT_FOUND
+  EXPIRED
+  ALREADY_REDEEMED
+  WRONG_LOCATION
+  CHALLENGE_NOT_COMPLETED
+  CANCELLED
+  ERROR
 }
 
 enum LocationMode {
@@ -155,6 +175,7 @@ model BrandChallenge {
   brand           Brand     @relation(fields: [brandId], references: [id], onDelete: Cascade)
   participations UserChallenge[]
   events         UserChallengeEvent[]
+  rewardTokens   RewardToken[]
 
   @@index([brandId])
   @@index([brandId, status])
@@ -178,6 +199,7 @@ model UserChallenge {
   challenge     BrandChallenge @relation(fields: [challengeId], references: [id], onDelete: Cascade)
   events        UserChallengeEvent[]
   reward        UserReward?
+  rewardTokens  RewardToken[]
   @@unique([userId, challengeId])
   @@index([userId, status])
   @@index([challengeId, status])
@@ -210,6 +232,52 @@ model UserReward {
   expiresAt     DateTime?
   user          User @relation(fields: [userId], references: [id], onDelete: Cascade)
   participation UserChallenge @relation(fields: [participationId], references: [id], onDelete: Cascade)
+}
+
+model RewardToken {
+  id                          String            @id @default(cuid())
+  token                       String            @unique
+  shortCode                   String            @unique
+  userId                      String
+  brandId                     String
+  challengeId                 String
+  participationId             String
+  rewardId                    String?
+  locationId                  String?
+  status                      RewardTokenStatus @default(ACTIVE)
+  expiresAt                   DateTime
+  redeemedAt                  DateTime?
+  redeemedByLocationUserId    String?
+  redeemedAtLocationId        String?
+  createdAt                   DateTime          @default(now())
+  updatedAt                   DateTime          @updatedAt
+  user                        User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  challenge                   BrandChallenge    @relation(fields: [challengeId], references: [id], onDelete: Cascade)
+  participation               UserChallenge     @relation(fields: [participationId], references: [id], onDelete: Cascade)
+
+  @@index([participationId, status])
+  @@index([userId, status])
+  @@index([challengeId])
+}
+
+model RewardScanLog {
+  id             String              @id @default(cuid())
+  brandId        String
+  locationId     String
+  locationUserId String
+  userId         String?
+  rewardTokenId  String?
+  challengeId    String?
+  rewardId       String?
+  status         RewardScanLogStatus
+  codeRaw        String?
+  message        String?
+  metadata       Json?
+  createdAt      DateTime            @default(now())
+
+  @@index([locationId, createdAt])
+  @@index([brandId, createdAt])
+  @@index([rewardTokenId])
 }
 
 model WalletTransaction {

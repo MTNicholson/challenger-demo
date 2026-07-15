@@ -1,2 +1,5 @@
-import { QrCode } from "lucide-react";
-export default function LocationScanner() { return <div className="max-w-2xl"><QrCode className="h-9 w-9 text-blue-600"/><h1 className="mt-4 text-3xl font-black">Сканер QR</h1><p className="mt-2 text-slate-500">Сканирование QR будет подключено на следующем этапе.</p><div className="mt-6 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-8"><button disabled className="rounded-xl bg-slate-300 px-5 py-3 text-sm font-black text-slate-500">Открыть камеру</button><div className="mt-5"><input disabled placeholder="Ручной ввод кода" className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"/></div></div></div>; }
+import { LocationScannerClient } from "@/components/location/location-scanner-client";
+
+export default function LocationScanner() {
+  return <LocationScannerClient />;
+}
