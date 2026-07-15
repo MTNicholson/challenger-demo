@@ -380,7 +380,7 @@ export function NewChallengeWizard({
         purchaseAmount: challengeForm.purchaseAmount,
         taskDescription: challengeForm.taskDescription,
         visitInterval: challengeForm.visitInterval,
-        allowDifferentLocations: challengeForm.allowDifferentLocations,
+        allowDifferentLocations: locationScope ? false : challengeForm.allowDifferentLocations,
         purchaseConfirmation: challengeForm.purchaseConfirmation,
       },
       locationIds: challengeForm.selectedLocationIds,
@@ -946,7 +946,7 @@ function RulesStep({
             value={form.mechanicType}
             onChange={(value) => onChange("mechanicType", value)}
           />
-          <MechanicFields category={category} form={form} onChange={onChange} />
+          <MechanicFields category={category} form={form} onChange={onChange} fixedLocation={fixedLocation} />
           <SwitchField
             checked={form.partialCoinsEnabled}
             label="Разрешить частичное выполнение баллами"
@@ -1161,10 +1161,12 @@ function RulesStep({
 
 function MechanicFields({
   category,
+  fixedLocation = false,
   form,
   onChange,
 }: {
   category: TemplateId;
+  fixedLocation?: boolean;
   form: ChallengeFormState;
   onChange: <K extends keyof ChallengeFormState>(field: K, value: ChallengeFormState[K]) => void;
 }) {
@@ -1221,12 +1223,12 @@ function MechanicFields({
           onChange={(value) => onChange("visitInterval", value)}
         />
       </div>
-      <SwitchField
+      {!fixedLocation ? <SwitchField
         checked={form.allowDifferentLocations}
         label="Можно выполнять в разных точках"
         text="Визиты засчитываются в любой выбранной точке бренда."
         onChange={(value) => onChange("allowDifferentLocations", value)}
-      />
+      /> : null}
     </>
   );
 }

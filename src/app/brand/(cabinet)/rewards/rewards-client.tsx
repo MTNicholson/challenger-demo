@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
-import { Archive, Gift, Pencil, Plus, Sparkles, Trash2, X } from "lucide-react";
+import { Archive, Gift, Pencil, Plus, RotateCcw, Sparkles, Trash2, X } from "lucide-react";
 import {
   editableRewardStatuses,
   rewardStatusLabels,
@@ -16,7 +16,7 @@ import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
-type RewardFormState = {
+export type RewardFormState = {
   id?: string;
   title: string;
   type: BrandRewardType;
@@ -223,6 +223,15 @@ export function BrandRewardsClient({
     }
   }
 
+  async function restoreArchivedReward(id: string) {
+    if (!window.confirm("Вернуть награду из архива? Она снова появится в списке наград бренда.")) return;
+    const response = await fetch(`${apiBase}/${id}`, { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action: "restore" }) });
+    const data = await response.json().catch(() => null) as { error?: string } | null;
+    if (!response.ok) { setErrorMessage(data?.error ?? "Не удалось вернуть награду."); return; }
+    setSuccessMessage("Награда возвращена из архива");
+    await loadRewards();
+  }
+
   return (
     <main className="space-y-6">
       <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -303,6 +312,7 @@ export function BrandRewardsClient({
           rewards={archivedRewards}
           onClose={() => setIsArchiveOpen(false)}
           onDelete={deleteArchivedReward}
+          onRestore={restoreArchivedReward}
         />
       ) : null}
     </main>
@@ -377,14 +387,16 @@ function KpiCard({ label, value }: { label: string; value: number }) {
   );
 }
 
-function RewardFormModal({
+export function RewardFormModal({
   form,
+  locationName,
   onChange,
   onClose,
   onSave,
   saving,
 }: {
   form: RewardFormState;
+  locationName?: string;
   onChange: (form: RewardFormState) => void;
   onClose: () => void;
   onSave: () => void;
@@ -420,6 +432,7 @@ function RewardFormModal({
 
         <div className="grid gap-5 p-5 lg:grid-cols-[1fr_260px]">
           <div className="space-y-4">
+            {locationName ? <p className="rounded-xl bg-blue-50 px-4 py-3 text-sm font-bold text-blue-800">Награда будет создана только для точки: {locationName}</p> : null}
             <Field label="Название награды">
               <input className="brand-field h-12 w-full rounded-xl px-4 text-sm font-bold outline-none" placeholder="Напиток на выбор" value={form.title} onChange={(event) => update("title", event.target.value)} />
             </Field>
@@ -501,10 +514,12 @@ function RewardFormModal({
 function ArchiveModal({
   onClose,
   onDelete,
+  onRestore,
   rewards,
 }: {
   onClose: () => void;
   onDelete: (id: string) => void;
+  onRestore: (id: string) => void;
   rewards: BrandRewardDto[];
 }) {
   return (
@@ -543,6 +558,7 @@ function ArchiveModal({
                       <span>Архив: {formatDate(reward.archivedAt ?? reward.updatedAt)}</span>
                     </div>
                   </div>
+                  <Button size="sm" variant="secondary" onClick={() => onRestore(reward.id)}><RotateCcw className="h-4 w-4" />Вернуть</Button>
                   <Button size="sm" variant="ghost" onClick={() => onDelete(reward.id)}>
                     <Trash2 className="h-4 w-4" />
                     Удалить окончательно

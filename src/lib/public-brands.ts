@@ -131,13 +131,14 @@ export async function getPublicBrandBySlug(slug: string): Promise<PublicBrandDet
     where: { slug: normalizedSlug, status: "approved", publicStatus: "ONLINE", archivedAt: null },
     include: {
       challenges: {
+        where: { status: "active" },
         orderBy: { createdAt: "desc" },
       },
       locations: {
         orderBy: [{ isMain: "desc" }, { createdAt: "asc" }],
       },
       _count: {
-        select: { challenges: true },
+        select: { challenges: { where: { status: "active" } } },
       },
     },
   });
@@ -154,9 +155,9 @@ export async function getPublicBrandById(id: string): Promise<PublicBrandDetail 
   const brand = await prisma.brand.findFirst({
     where: { id, status: "approved", publicStatus: "ONLINE", archivedAt: null },
     include: {
-      challenges: { orderBy: { createdAt: "desc" } },
+      challenges: { where: { status: "active" }, orderBy: { createdAt: "desc" } },
       locations: { orderBy: [{ isMain: "desc" }, { createdAt: "asc" }] },
-      _count: { select: { challenges: true } },
+      _count: { select: { challenges: { where: { status: "active" } } } },
     },
   });
   return brand ? { ...serializeBrand(brand), challenges: brand.challenges.map(serializeChallenge) } : null;

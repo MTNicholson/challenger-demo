@@ -29,6 +29,11 @@ export async function PATCH(request: Request, context: RouteContext<"/api/brand/
 
     return NextResponse.json({ reward });
   }
+  if (action === "restore") {
+    if (existing.status !== "archived") return NextResponse.json({ error: "Вернуть можно только награду из архива." }, { status: 409 });
+    const reward = await prisma.brandReward.update({ where: { id }, data: { status: "active", archivedAt: null } });
+    return NextResponse.json({ reward });
+  }
 
   const payload = getRewardPayload(body);
   const error = validateRewardPayload(payload);

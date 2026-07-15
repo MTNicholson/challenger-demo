@@ -1,117 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useMemo, useState } from "react";
-import { BarChart3, CalendarClock, CheckCircle2, Eye, FileText, MoreHorizontal, PlusCircle, Search } from "lucide-react";
-import type { BrandChallengeDto, BrandChallengeStatus } from "@/lib/brand-challenges";
+import { Archive, Eye, PlusCircle, RotateCcw, Search, Trash2 } from "lucide-react";
+import type { BrandChallengeDto } from "@/lib/brand-challenges";
 import { routes } from "@/lib/routes";
 import { BrandPageHeader } from "@/components/brand/brand-page-header";
-import { buttonClasses } from "@/components/ui/button";
+import { Button, buttonClasses } from "@/components/ui/button";
 
-type Tab = "all" | BrandChallengeStatus;
+type RequestItem = { id:string; title:string; status:string; createdAt:string; locationName:string; authorName:string; rewardData:unknown; brandReviewComment:string|null };
+type Tab = "all"|"active"|"draft"|"scheduled"|"completed"|"requests"|"location"|"archived";
+const tabs: Array<{id:Tab;label:string}> = [{id:"all",label:"Все"},{id:"active",label:"Активные"},{id:"draft",label:"Черновики"},{id:"scheduled",label:"Запланированные"},{id:"completed",label:"Завершённые"},{id:"requests",label:"Заявки от точек"},{id:"location",label:"Запущенные КТ"},{id:"archived",label:"Архив"}];
+const labels: Record<string,string> = {draft:"Черновик",active:"Активен",published:"Активен",scheduled:"Запланирован",completed:"Завершён",archived:"Архив",submitted:"На подтверждении",pending_review:"На подтверждении",changes_requested:"Нужны правки",rejected:"Отклонён",approved:"Подтверждён"};
+function label(value:string){return labels[value] ?? "Черновик";}
+function period(item:BrandChallengeDto){return item.startsAt&&item.endsAt?`${new Intl.DateTimeFormat("ru-RU",{day:"2-digit",month:"2-digit"}).format(new Date(item.startsAt))} — ${new Intl.DateTimeFormat("ru-RU",{day:"2-digit",month:"2-digit"}).format(new Date(item.endsAt))}`:"Срок не указан";}
 
-const tabs: Array<{ id: Tab; label: string }> = [
-  { id: "all", label: "Все" },
-  { id: "active", label: "Активные" },
-  { id: "draft", label: "Черновики" },
-  { id: "scheduled", label: "Запланированные" },
-  { id: "completed", label: "Завершённые" },
-];
-
-const statusLabels: Record<BrandChallengeStatus, string> = {
-  active: "Активен",
-  draft: "Черновик",
-  scheduled: "Запланирован",
-  completed: "Завершён",
-};
-
-const statusStyles: Record<BrandChallengeStatus, string> = {
-  active: "border-emerald-100 bg-emerald-50 text-emerald-700",
-  draft: "border-slate-200 bg-slate-100 text-slate-600",
-  scheduled: "border-violet-100 bg-violet-50 text-violet-700",
-  completed: "border-blue-100 bg-blue-50 text-blue-700",
-};
-
-function formatPeriod(challenge: BrandChallengeDto) {
-  if (!challenge.startsAt || !challenge.endsAt) return "Период не указан";
-  const format = (value: string) => new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit" }).format(new Date(value));
-  return `${format(challenge.startsAt)} — ${format(challenge.endsAt)}`;
-}
-
-function getEffectiveStatus(challenge: BrandChallengeDto): BrandChallengeStatus {
-  if (challenge.status === "active" && challenge.endsAt && new Date(challenge.endsAt) < new Date()) return "completed";
-  return challenge.status as BrandChallengeStatus;
-}
-
-export function BrandChallengesClient({ brandName, challenges }: { brandName: string; challenges: BrandChallengeDto[] }) {
-  const [tab, setTab] = useState<Tab>("all");
-  const [query, setQuery] = useState("");
-  const filteredChallenges = useMemo(() => challenges.filter((challenge) => {
-    const status = getEffectiveStatus(challenge);
-    return (tab === "all" || status === tab) && challenge.title.toLocaleLowerCase("ru-RU").includes(query.trim().toLocaleLowerCase("ru-RU"));
-  }), [challenges, query, tab]);
-  const countFor = (status: Tab) => status === "all" ? challenges.length : challenges.filter((challenge) => getEffectiveStatus(challenge) === status).length;
-
-  return (
-    <main className="space-y-6">
-      <BrandPageHeader
-        actionHref={undefined}
-        actionIcon={PlusCircle}
-        actionLabel="Создать челлендж"
-        description={`Все кампании ${brandName}: от черновика до публикации и завершения.`}
-        eyebrow="Кампании"
-        title="Челленджи"
-      />
-
-      <section className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm shadow-slate-900/[0.03] sm:p-6">
-        <div className="flex flex-col gap-3 lg:flex-row">
-          <label className="brand-field flex h-12 flex-1 items-center gap-3 rounded-xl px-4 text-slate-500">
-            <Search className="h-5 w-5 shrink-0 text-slate-400" />
-            <span className="sr-only">Поиск по названию</span>
-            <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Поиск по названию" className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-slate-800 outline-none placeholder:text-slate-400" />
-          </label>
-          <Link href={routes.brand.newChallenge} className={buttonClasses({ variant: "primary", className: "h-12 rounded-xl px-5" })}><PlusCircle className="h-4 w-4" />Создать челлендж</Link>
-        </div>
-
-        <div className="mt-6 flex gap-1 overflow-x-auto border-b border-slate-100" role="tablist" aria-label="Статусы челленджей">
-          {tabs.map((item) => (
-            <button key={item.id} role="tab" aria-selected={tab === item.id} type="button" onClick={() => setTab(item.id)} className={`shrink-0 border-b-2 px-4 pb-3 text-sm font-black transition ${tab === item.id ? "border-blue-600 text-blue-700" : "border-transparent text-slate-400 hover:text-slate-700"}`}>
-              {item.label} <span className="ml-1 text-xs font-bold opacity-70">{countFor(item.id)}</span>
-            </button>
-          ))}
-        </div>
-
-        <div className="mt-5 overflow-x-auto">
-          <div className="min-w-[780px]">
-            <div className="grid grid-cols-[minmax(250px,1.5fr)_130px_160px_105px_130px] items-center gap-4 px-4 pb-3 text-xs font-black uppercase tracking-[0.1em] text-slate-400">
-              <span>Название</span><span>Статус</span><span>Период</span><span>Точки</span><span className="text-right">Действия</span>
-            </div>
-            <div className="space-y-2">
-              {filteredChallenges.map((challenge) => {
-                const status = getEffectiveStatus(challenge);
-                return (
-                  <article key={challenge.id} className="grid grid-cols-[minmax(250px,1.5fr)_130px_160px_105px_130px] items-center gap-4 rounded-2xl border border-slate-100 bg-white px-4 py-3 shadow-sm shadow-slate-900/[0.02] transition hover:border-blue-100 hover:bg-blue-50/[0.16]">
-                    <div className="flex min-w-0 items-center gap-3">
-                      {challenge.heroImageUrl ? <Image src={challenge.heroImageUrl} alt="" width={48} height={48} className="h-12 w-12 shrink-0 rounded-xl object-cover" /> : <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-blue-50 text-blue-700"><FileText className="h-5 w-5" /></span>}
-                      <div className="min-w-0"><h2 className="truncate text-sm font-black text-slate-900">{challenge.title}</h2><p className="mt-1 truncate text-xs font-semibold text-slate-400">{challenge.reward ?? "Награда не указана"}</p></div>
-                    </div>
-                    <span className={`w-fit rounded-lg border px-2.5 py-1 text-xs font-black ${statusStyles[status] ?? "border-slate-200 bg-slate-100 text-slate-600"}`}>{statusLabels[status] ?? "Без статуса"}</span>
-                    <span className="text-sm font-bold text-slate-600">{status === "scheduled" && challenge.scheduledAt ? `Публикация ${new Intl.DateTimeFormat("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }).format(new Date(challenge.scheduledAt))}` : formatPeriod(challenge)}</span>
-                    <span className="text-sm font-bold text-slate-600">{challenge.locationIds.length}</span>
-                    <div className="flex justify-end gap-1">
-                      <Link href={`${routes.brand.newChallenge}?challengeId=${encodeURIComponent(challenge.id)}`} aria-label="Открыть челлендж" className={buttonClasses({ variant: "ghost", size: "sm", className: "h-9 w-9 rounded-xl p-0" })}><Eye className="h-4 w-4" /></Link>
-                      <Link href={routes.brand.analytics} aria-label="Аналитика" className={buttonClasses({ variant: "ghost", size: "sm", className: "h-9 w-9 rounded-xl p-0" })}>{status === "scheduled" ? <CalendarClock className="h-4 w-4" /> : status === "completed" ? <CheckCircle2 className="h-4 w-4" /> : <BarChart3 className="h-4 w-4" />}</Link>
-                      <Link href={`${routes.brand.newChallenge}?challengeId=${encodeURIComponent(challenge.id)}`} aria-label="Ещё" className={buttonClasses({ variant: "ghost", size: "sm", className: "h-9 w-9 rounded-xl p-0" })}><MoreHorizontal className="h-4 w-4" /></Link>
-                    </div>
-                  </article>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        {!filteredChallenges.length ? <div className="grid place-items-center gap-2 py-16 text-center"><FileText className="h-8 w-8 text-slate-300" /><h2 className="font-black text-slate-800">Нет челленджей</h2><p className="max-w-sm text-sm leading-6 text-slate-500">Создайте новый челлендж или измените фильтр поиска.</p></div> : null}
-      </section>
-    </main>
-  );
+export function BrandChallengesClient({brandName,challenges,requests,locationNames}:{brandName:string;challenges:BrandChallengeDto[];requests:RequestItem[];locationNames:Record<string,string>}){
+  const [tab,setTab]=useState<Tab>("all"); const [query,setQuery]=useState(""); const [items,setItems]=useState(challenges); const [requestItems,setRequestItems]=useState(requests); const [notice,setNotice]=useState<string|null>(null);
+  const active = useMemo(()=>items.filter((item)=>{const title=item.title.toLocaleLowerCase("ru-RU");if(!title.includes(query.trim().toLocaleLowerCase("ru-RU")))return false;if(tab==="all")return item.status!=="archived";if(tab==="location")return item.source==="location"&&item.status!=="archived";if(tab==="archived")return item.status==="archived";return item.status===tab;}),[items,query,tab]);
+  const count=(id:Tab)=>id==="requests"?requestItems.length:id==="all"?items.filter(i=>i.status!=="archived").length:id==="location"?items.filter(i=>i.source==="location"&&i.status!=="archived").length:id==="archived"?items.filter(i=>i.status==="archived").length:items.filter(i=>i.status===id).length;
+  async function change(id:string,action:"archive"|"restore"|"delete"){if(action==="delete"&&window.prompt("Введите УДАЛИТЬ для безвозвратного удаления.")!=="УДАЛИТЬ")return;if(action!=="delete"&&!window.confirm(action==="archive"?"Архивировать челлендж? Его можно будет восстановить из архива.":"Восстановить челлендж как черновик?"))return;const response=await fetch(`/api/brand/challenges/${id}`,{method:action==="delete"?"DELETE":"PATCH",headers:{"Content-Type":"application/json"},body:JSON.stringify(action==="delete"?{confirmWord:"УДАЛИТЬ"}:{action})});const data=await response.json().catch(()=>null) as {challenge?:BrandChallengeDto;error?:string}|null;if(!response.ok){setNotice(data?.error??"Не удалось выполнить действие.");return;}if(action==="delete")setItems(v=>v.filter(i=>i.id!==id));else if(data?.challenge)setItems(v=>v.map(i=>i.id===id?data.challenge!:i));setNotice(action==="archive"?"Челлендж перемещён в архив.":action==="restore"?"Челлендж восстановлен в черновик.":"Челлендж удалён навсегда.");}
+  async function review(id:string,action:"approve"|"reject"|"changes_requested"){const comment=window.prompt("Комментарий для точки (необязательно):")??"";const r=await fetch(`/api/brand/challenge-requests/${id}`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({action,comment})});if(r.ok)setRequestItems(v=>v.map(i=>i.id===id?{...i,status:action==="approve"?"published":action,brandReviewComment:comment||null}:i));else setNotice("Не удалось обработать заявку.");}
+  return <main className="space-y-6"><BrandPageHeader actionHref={undefined} actionIcon={PlusCircle} actionLabel="Создать челлендж" description={`Все кампании ${brandName}.`} eyebrow="Кампании" title="Челленджи"/><section className="rounded-3xl border border-slate-200/80 bg-white p-4 shadow-sm sm:p-6"><div className="flex flex-col gap-3 lg:flex-row"><label className="brand-field flex h-12 flex-1 items-center gap-3 rounded-xl px-4 text-slate-500"><Search className="h-5 w-5"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="Поиск по названию" className="min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none"/></label><Link href={routes.brand.newChallenge} className={buttonClasses({variant:"primary",className:"h-12 rounded-xl px-5"})}><PlusCircle className="h-4 w-4"/>Создать челлендж</Link></div><div className="mt-6 flex gap-1 overflow-x-auto border-b border-slate-100">{tabs.map(item=><button key={item.id} type="button" onClick={()=>setTab(item.id)} className={`shrink-0 border-b-2 px-4 pb-3 text-sm font-black ${tab===item.id?"border-blue-600 text-blue-700":"border-transparent text-slate-400"}`}>{item.label} <span className="ml-1 text-xs">{count(item.id)}</span></button>)}</div>{notice?<p className="mt-4 rounded-xl bg-blue-50 px-4 py-3 text-sm font-bold text-blue-800">{notice}</p>:null}{tab==="requests"?<div className="mt-5 space-y-3">{requestItems.map(item=><article key={item.id} className="rounded-2xl border border-slate-100 p-4"><div className="flex flex-wrap justify-between gap-3"><div><h2 className="font-black">{item.title}</h2><p className="mt-1 text-sm text-slate-500">{item.locationName} · {item.authorName} · {new Date(item.createdAt).toLocaleDateString("ru-RU")}</p><p className="mt-1 text-sm text-slate-500">Награда: {item.rewardData&&typeof item.rewardData==="object"&&"title" in item.rewardData?String((item.rewardData as {title?:unknown}).title??"—"):"—"}</p></div><span className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-black">{label(item.status)}</span></div>{item.brandReviewComment?<p className="mt-3 text-sm text-slate-600">Комментарий: {item.brandReviewComment}</p>:null}{item.status==="submitted"?<div className="mt-4 flex flex-wrap gap-2"><Button size="sm" onClick={()=>review(item.id,"approve")}>Подтвердить</Button><Button size="sm" variant="secondary" onClick={()=>review(item.id,"changes_requested")}>На доработку</Button><Button size="sm" variant="ghost" onClick={()=>review(item.id,"reject")}>Отклонить</Button></div>:null}</article>)}{!requestItems.length?<p className="py-12 text-center text-sm font-bold text-slate-400">Заявок от точек пока нет.</p>:null}</div>:<div className="mt-5 space-y-2">{active.map(item=><article key={item.id} className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-slate-100 p-4"><div className="min-w-0"><h2 className="font-black">{item.title}</h2><p className="mt-1 text-sm text-slate-500">{item.reward??"Награда не указана"} · {period(item)}{item.source==="location"?` · Создан точкой: ${locationNames[item.locationIds[0]]??"Точка"}`:""}</p></div><div className="flex items-center gap-2"><span className="rounded-lg bg-slate-100 px-3 py-1 text-xs font-black">{label(item.status)}</span><Link href={`${routes.brand.newChallenge}?challengeId=${encodeURIComponent(item.id)}`} className={buttonClasses({variant:"ghost",size:"sm"})}><Eye className="h-4 w-4"/>Открыть</Link>{item.status==="archived"?<><Button size="sm" variant="secondary" onClick={()=>change(item.id,"restore")}><RotateCcw className="h-4 w-4"/>Восстановить</Button><Button size="sm" variant="ghost" onClick={()=>change(item.id,"delete")}><Trash2 className="h-4 w-4"/>Удалить навсегда</Button></>:<Button size="sm" variant="ghost" onClick={()=>change(item.id,"archive")}><Archive className="h-4 w-4"/>Архивировать</Button>}</div></article>)}{!active.length?<p className="py-12 text-center text-sm font-bold text-slate-400">В этой вкладке пока нет челленджей.</p>:null}</div>}</section></main>;
 }

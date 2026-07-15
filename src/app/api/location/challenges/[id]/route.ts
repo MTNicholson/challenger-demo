@@ -100,7 +100,7 @@ export async function DELETE(_request: Request, context: RouteContext<"/api/loca
     return NextResponse.json({ deleted: true });
   }
 
-  const challenge = await prisma.brandChallenge.findFirst({ where: { id, brandId: session.brand.id, locationIds: { has: session.location.id }, source: "location" } });
+  const challenge = await prisma.brandChallenge.findFirst({ where: { id, brandId: session.brand.id, locationIds: { has: session.location.id }, source: "location", status: "archived" } });
   if (!challenge) return NextResponse.json({ error: "Удалять можно только челленджи, созданные этой точкой." }, { status: 403 });
   await prisma.$transaction(async (tx) => {
     await tx.brandChallenge.delete({ where: { id } });
