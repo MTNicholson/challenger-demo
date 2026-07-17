@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { addFavoriteItem, removeFavoriteItem } from "@/lib/favorite-storage";
+import type { Challenge } from "@/data/challenges";
 
 export type UserChallengeState = {
   challengeId: string;
@@ -14,6 +15,9 @@ export type UserChallengeState = {
   isFavorite?: boolean;
   favoriteAddedAt?: string;
   rewardUsed?: boolean;
+  rewardStatus?: "available" | "used";
+  status?: "active" | "completed";
+  challenge?: Challenge;
 };
 
 type UserChallengeDatabase = Record<string, UserChallengeState[]>;
@@ -97,7 +101,14 @@ export function isChallengeActive(userId: string, challengeId: string) {
   return getUserChallengeState(userId, challengeId)?.isActive ?? false;
 }
 
-export function activateChallenge(userId: string, challengeId: string, progressTotal = 1) {
+export async function activateChallenge(userId: string, challengeId: string, progressTotal = 1) {
+  const response = await fetch("/api/user/challenges", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ challengeId, progressTotal }),
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error("Не удалось принять челлендж.");
   const result = updateChallengeState(userId, challengeId, (current) => ({
     ...current,
     challengeId,
@@ -107,11 +118,17 @@ export function activateChallenge(userId: string, challengeId: string, progressT
     activatedAt: new Date().toISOString(),
     cancelledAt: undefined,
   }));
-  void fetch("/api/user/challenges", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ challengeId, progressTotal }), credentials: "include" });
   return result;
 }
 
-export function cancelChallenge(userId: string, challengeId: string) {
+export async function cancelChallenge(userId: string, challengeId: string) {
+  const response = await fetch("/api/user/challenges", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ challengeId }),
+    credentials: "include",
+  });
+  if (!response.ok) throw new Error("Не удалось отменить челлендж.");
   return updateChallengeState(userId, challengeId, (current) => ({
     ...current,
     isActive: false,
@@ -151,7 +168,7 @@ export function useUserChallengeStates(userId?: string | null) {
   useEffect(() => {
     const sync = async () => {
       setStates(userId ? getUserChallengeStates(userId) : []);
-      if (userId) { const response = await fetch("/api/user/challenges", { credentials: "include", cache: "no-store" }).catch(() => null); const data = response?.ok ? await response.json().catch(() => null) : null; if (data?.challenges) { const database = readDatabase(); const local = database[userId] ?? []; database[userId] = data.challenges.map((item: UserChallengeState & { activatedAt: string; completedAt?: string; status: string; progressCurrent: number; progressTotal: number; reward?: { status: string } | null }) => ({ ...local.find((state) => state.challengeId === item.challengeId), challengeId: item.challengeId, isActive: item.status === "active" || item.status === "completed", progressCurrent: item.progressCurrent, progressTotal: item.progressTotal, activatedAt: item.activatedAt, completedAt: item.completedAt, rewardUsed: item.reward?.status === "used" })); localStorage.setItem(STORAGE_KEY, JSON.stringify(database)); setStates(database[userId]); } }
+      if (userId) { const response = await fetch("/api/user/challenges", { credentials: "include", cache: "no-store" }).catch(() => null); const data = response?.ok ? await response.json().catch(() => null) : null; if (data?.challenges) { const database = readDatabase(); const local = database[userId] ?? []; database[userId] = data.challenges.map((item: UserChallengeState & { activatedAt: string; completedAt?: string; status: "active" | "completed"; progressCurrent: number; progressTotal: number; reward?: { status: "available" | "used" } | null; challenge?: Challenge }) => ({ ...local.find((state) => state.challengeId === item.challengeId), challengeId: item.challengeId, isActive: item.status === "active" || item.status === "completed", progressCurrent: item.progressCurrent, progressTotal: item.progressTotal, activatedAt: item.activatedAt, completedAt: item.completedAt, status: item.status, rewardStatus: item.reward?.status, rewardUsed: item.reward?.status === "used", challenge: item.challenge })); localStorage.setItem(STORAGE_KEY, JSON.stringify(database)); setStates(database[userId]); } }
       setReady(true);
     };
     sync();

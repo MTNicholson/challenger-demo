@@ -1,4 +1,4 @@
-.page { display: grid; gap: 16px; }
+.page { display: grid; gap: 16px; padding-bottom: 124px; }
 .header { display: flex; align-items: center; gap: 12px; }
 .header > a { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid rgba(255,255,255,.88); border-radius: 15px; color: #59647f; background: rgba(255,255,255,.62); box-shadow: inset 0 1px 0 white,0 9px 22px rgba(61,73,115,.1); backdrop-filter: blur(18px); }
 .header small { color: #6d69c9; font-size: 9px; font-weight: 900; letter-spacing: .1em; text-transform: uppercase; }

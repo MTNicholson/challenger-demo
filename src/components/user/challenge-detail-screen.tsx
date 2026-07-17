@@ -6,7 +6,7 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import type { Challenge } from "@/data/challenges";
 import type { Location } from "@/data/locations";
-import { useCurrentUser } from "@/lib/auth-client";
+import { fetchCurrentUser, useCurrentUser } from "@/lib/auth-client";
 import { routes } from "@/lib/routes";
 import {
   activateChallenge as activateStoredChallenge,
@@ -30,6 +30,8 @@ export function ChallengeDetailScreen({ challenge, locations, isPreview = false,
   const { states } = useUserChallengeStates(user?.id);
   const [isCancelOpen, setIsCancelOpen] = useState(false);
   const [notice, setNotice] = useState("");
+  const [activating, setActivating] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
 
   const challengeState = states.find((state) => state.challengeId === challenge.id);
   const isCompleted = Boolean(challengeState?.completedAt);
@@ -54,19 +56,35 @@ export function ChallengeDetailScreen({ challenge, locations, isPreview = false,
     window.setTimeout(() => setNotice(""), 2200);
   }
 
-  function activateChallenge() {
-    if (!user) return;
-    activateStoredChallenge(user.id, challenge.id, challenge.progress?.total ?? 1);
-    setNotice("Челлендж активирован");
-    window.setTimeout(() => setNotice(""), 2200);
+  async function activateChallenge() {
+    if (activating) return;
+    setActivating(true);
+    try {
+      const activeUser = user ?? await fetchCurrentUser();
+      if (!activeUser) throw new Error("Войдите в аккаунт, чтобы принять челлендж.");
+      await activateStoredChallenge(activeUser.id, challenge.id, challenge.progress?.total ?? 1);
+      setNotice("Челлендж активирован");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Не удалось принять челлендж.");
+    } finally {
+      setActivating(false);
+      window.setTimeout(() => setNotice(""), 2200);
+    }
   }
 
-  function cancelChallenge() {
-    if (!user) return;
-    cancelStoredChallenge(user.id, challenge.id);
-    setIsCancelOpen(false);
-    setNotice("Челлендж отменён");
-    window.setTimeout(() => setNotice(""), 2200);
+  async function cancelChallenge() {
+    if (!user || cancelling) return;
+    setCancelling(true);
+    try {
+      await cancelStoredChallenge(user.id, challenge.id);
+      setIsCancelOpen(false);
+      setNotice("Челлендж отменён");
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "Не удалось отменить челлендж.");
+    } finally {
+      setCancelling(false);
+      window.setTimeout(() => setNotice(""), 2200);
+    }
   }
 
   function toggleFavorite() {
@@ -119,8 +137,8 @@ export function ChallengeDetailScreen({ challenge, locations, isPreview = false,
             <span className={styles.qrButton}><QrCode size={19} />Челлендж выполняется</span>
           </>
         ) : (
-          <button type="button" className={styles.liquidCta} onClick={isPreview ? undefined : activateChallenge} aria-disabled={isPreview}>
-            <span className={styles.liquidCtaLabel}>Принять челлендж</span>
+          <button type="button" className={styles.liquidCta} onClick={isPreview ? undefined : () => void activateChallenge()} aria-disabled={isPreview || activating} disabled={activating}>
+            <span className={styles.liquidCtaLabel}>{activating ? "Принимаем…" : "Принять челлендж"}</span>
           </button>
         )}
       </section>
@@ -134,7 +152,7 @@ export function ChallengeDetailScreen({ challenge, locations, isPreview = false,
             <span className={styles.sheetIcon}>?</span>
             <h2 id="cancel-title">Точно хотите отменить челлендж?</h2>
             <p>Текущий прогресс будет скрыт. Вы сможете принять челлендж снова.</p>
-            <button type="button" className={styles.dangerButton} onClick={cancelChallenge}>Да, отменить</button>
+            <button type="button" className={styles.dangerButton} onClick={() => void cancelChallenge()} disabled={cancelling}>{cancelling ? "Отменяем…" : "Да, отменить"}</button>
             <button type="button" className={styles.ghostButton} onClick={() => setIsCancelOpen(false)}>Нет</button>
           </section>
         </div>,

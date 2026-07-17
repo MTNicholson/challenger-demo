@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { Building2, Home, Map, Trophy, User } from "lucide-react";
 import { cn } from "@/lib/cn";
 import { routes } from "@/lib/routes";
@@ -12,10 +12,7 @@ const items = [
     label: "Челленджи",
     href: routes.user.challenges,
     icon: Trophy,
-    activePaths: [
-      routes.user.challenges,
-      routes.user.myChallenges,
-    ],
+    activePaths: [routes.user.challenges],
   },
   {
     label: "Бренды",
@@ -56,6 +53,8 @@ type UserBottomNavProps = {
 
 export function UserBottomNav({ className, isPreview = false }: UserBottomNavProps) {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const myChallengesSource = searchParams.get("from") === "profile" ? routes.user.profile : routes.user.home;
 
   return (
     <nav className={cn(styles.bottomNav, className)} aria-label="Основная навигация">
@@ -65,7 +64,9 @@ export function UserBottomNav({ className, isPreview = false }: UserBottomNavPro
       <div className={styles.bottomNavGrid}>
         {items.map((item) => {
           const Icon = item.icon;
-          const isActive = item.activePaths.some((activePath) =>
+          const isActive = pathname === routes.user.myChallenges
+            ? item.href === myChallengesSource
+            : item.activePaths.some((activePath) =>
             activePath === routes.user.home
               ? pathname === activePath
               : pathname === activePath || pathname.startsWith(`${activePath}/`),

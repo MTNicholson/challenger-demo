@@ -21,7 +21,7 @@ import { RUSSIAN_CITIES } from "@/lib/russian-cities";
 import styles from "@/components/user/profile-screen.module.css";
 
 const menu = [
-  { label: "Мои челленджи", description: "Активные и завершённые задания", icon: Trophy, href: routes.user.myChallenges, tone: "mint" },
+  { label: "Мои челленджи", description: "Активные и завершённые задания", icon: Trophy, href: `${routes.user.myChallenges}?from=profile`, tone: "mint" },
   { label: "Избранное", description: "Челленджи и бренды, которые вы сохранили", icon: Heart, href: routes.user.favorites, tone: "rose" },
   { label: "Мои награды", description: "Полученные награды и QR-коды", icon: Gift, href: routes.user.rewards, tone: "amber" },
 ] as const;

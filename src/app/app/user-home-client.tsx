@@ -31,7 +31,7 @@ export function UserHomeClient({ challenges }: { challenges: Challenge[] }) {
       <CoinBalanceCard href={routes.user.coins} coins={user?.coinsBalance ?? 0} />
       <Link href={routes.user.map} className={`${styles.dailyTask} ${styles.dailyTaskHighlight} ${glassPanelClasses}`}><span><Flame size={19} /></span><div><strong>Задача дня</strong><p>Открой карту и выбери место рядом</p></div><b className={glassPillClasses}>🪙 10</b></Link>
       <section>
-        <div className={styles.sectionHeading}><h2>Активные челленджи</h2><Link href={routes.user.myChallenges}>Смотреть все</Link></div>
+        <div className={styles.sectionHeading}><h2>Активные челленджи</h2><Link href={`${routes.user.myChallenges}?from=home`}>Смотреть все</Link></div>
         {activeChallenges.length ? <ActiveChallengeCarousel challenges={activeChallenges} /> : <Link href={routes.user.challenges} className={`${styles.dailyTask} ${glassPanelClasses}`}><span><Sparkles size={19} /></span><div><strong>Пока здесь тихо</strong><p>Выберите первый челлендж в каталоге</p></div></Link>}
       </section>
       <section><div className={styles.sectionHeading}><h2>Рядом с тобой</h2></div>{nearbyChallenges.length ? <NearbyChallengeCarousel challenges={nearbyChallenges} /> : <EmptyChallenges />}</section>

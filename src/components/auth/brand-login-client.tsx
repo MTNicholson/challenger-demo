@@ -73,7 +73,6 @@ export function BrandLoginClient({ initialMode, pendingNotice }: { initialMode: 
       <button type="button" role="tab" aria-selected={!isLocation} onClick={() => switchMode("brand")} className={`min-h-11 touch-manipulation rounded-xl px-3 py-2.5 transition ${!isLocation ? "bg-white text-blue-700 shadow-sm" : "text-slate-500"}`}>Кабинет бренда</button>
       <button type="button" role="tab" aria-selected={isLocation} onClick={() => switchMode("location")} className={`min-h-11 touch-manipulation rounded-xl px-3 py-2.5 transition ${isLocation ? "bg-white text-blue-700 shadow-sm" : "text-slate-500"}`}>Кабинет точки</button>
     </div>
-    {process.env.NODE_ENV !== "production" ? <p className="mt-2 text-center text-[10px] font-bold text-slate-400">mode: {mode}</p> : null}
     {ready && activeSession ? <SessionState mode={mode} brandSession={brandSession} locationSession={locationSession} onLogout={logout} /> : <>
       <form onSubmit={isLocation ? handleLocationLogin : handleBrandLogin} className="relative z-10">
         <AuthInput icon={<Mail size={19} />} label={isLocation ? "Email администратора или сотрудника точки" : "Email"} type="email" autoComplete="username" placeholder={isLocation ? "Email администратора точки" : "Email владельца"} value={email} error={Boolean(error)} disabled={pending} onChange={(event) => { setEmail(event.target.value); setError(""); }} />

@@ -44,7 +44,7 @@ function getDaysLeft(endsAt: Date | null) {
   return Math.max(0, Math.ceil((endsAt.getTime() - Date.now()) / 86_400_000));
 }
 
-function serializeChallenge(challenge: BrandChallenge & { brand: Brand }, index: number): Challenge {
+export function serializeUserChallenge(challenge: BrandChallenge & { brand: Brand }, index: number): Challenge {
   return {
     id: challenge.id,
     title: challenge.title,
@@ -77,7 +77,7 @@ export async function getPublishedUserChallenges(): Promise<Challenge[]> {
     include: { brand: true },
     orderBy: [{ publishedAt: "desc" }, { createdAt: "desc" }],
   });
-  return challenges.map(serializeChallenge);
+  return challenges.map(serializeUserChallenge);
 }
 
 export async function getPublishedUserChallengeById(id: string): Promise<Challenge | null> {
@@ -85,5 +85,5 @@ export async function getPublishedUserChallengeById(id: string): Promise<Challen
     where: { id, status: "active", brand: { status: "approved", publicStatus: "ONLINE", archivedAt: null } },
     include: { brand: true },
   });
-  return challenge ? serializeChallenge(challenge, 0) : null;
+  return challenge ? serializeUserChallenge(challenge, 0) : null;
 }

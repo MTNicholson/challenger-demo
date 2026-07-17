@@ -64,7 +64,7 @@ export function FavoritesClient({ brands }: FavoritesClientProps) {
     <main className={styles.page}>
       <header className={styles.header}>
         <Link href={routes.user.profile} aria-label="Назад"><ArrowLeft size={18} /></Link>
-        <div><small>Сохранённое</small><h1>Избранное</h1></div>
+        <div><h1>Избранное</h1></div>
       </header>
 
       <div className={styles.chips} aria-label="Тип избранного">
