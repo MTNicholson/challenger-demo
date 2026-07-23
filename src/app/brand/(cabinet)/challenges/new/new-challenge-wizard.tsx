@@ -1451,6 +1451,7 @@ function buildPreviewChallenge({
     isActive: false,
     isFeatured: false,
     image: form.heroImageUrl ?? "/landing/challenges/coffee.webp",
+    heroImageUrl: form.heroImageUrl ?? "/landing/challenges/coffee.webp",
     startDate: form.startDate,
     endDate: form.endDate,
   };

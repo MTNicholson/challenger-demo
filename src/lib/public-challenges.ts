@@ -66,6 +66,7 @@ export function serializeUserChallenge(challenge: BrandChallenge & { brand: Bran
     isActive: false,
     isFeatured: true,
     image: challenge.heroImageUrl ?? challenge.brand.coverImageUrl ?? "/landing/challenges/coffee.webp",
+    heroImageUrl: challenge.heroImageUrl ?? challenge.brand.coverImageUrl ?? "/landing/challenges/coffee.webp",
     startDate: challenge.startsAt?.toISOString().slice(0, 10),
     endDate: challenge.endsAt?.toISOString().slice(0, 10),
   };

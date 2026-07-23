@@ -21,6 +21,6 @@ export async function POST(request: Request) {
   const sessionDays = body?.rememberMe ? AUTH_SESSION_DAYS : 1;
   await prisma.locationUser.update({ where: { id: user.id }, data: { lastLoginAt: new Date() } });
   const response = NextResponse.json({ user: { id: user.id, name: user.name, role: user.role }, redirectTo: user.role === "LOCATION_ADMIN" ? "/location" : "/location/scanner" });
-  response.cookies.set(LOCATION_AUTH_COOKIE_NAME, await createLocationSessionToken({ locationUserId: user.id, locationId: user.locationId, brandId: user.brandId }, sessionDays), { httpOnly: true, sameSite: "lax", secure: process.env.NODE_ENV === "production", path: "/", maxAge: sessionDays * 24 * 60 * 60 });
+  response.cookies.set(LOCATION_AUTH_COOKIE_NAME, await createLocationSessionToken({ locationUserId: user.id, locationId: user.locationId, brandId: user.brandId }, sessionDays), { httpOnly: true, sameSite: "lax", secure: false, path: "/", maxAge: sessionDays * 24 * 60 * 60 });
   return response;
 }

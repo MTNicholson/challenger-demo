@@ -1,15 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
-import { Search, SlidersHorizontal, X } from "lucide-react";
+import Link from "next/link";
+import { CalendarDays, Coins, Footprints, MapPin, Search, ShoppingBag, SlidersHorizontal, Target, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import type { Challenge } from "@/data/challenges";
-import { routes } from "@/lib/routes";
 import { useCurrentUser } from "@/lib/auth-client";
+import { routes } from "@/lib/routes";
 import { useUserChallengeStates } from "@/lib/user-challenge-storage";
-import styles from "./user-challenges.module.css";
 import sortStyles from "../brands/user-brands.module.css";
+import styles from "./user-challenges.module.css";
 
 const categories = ["Все", "Новые", "Еда", "Фитнес", "Beauty", "Книги"];
 const sortOptions = [
@@ -21,16 +21,6 @@ const sortOptions = [
 ] as const;
 type SortValue = (typeof sortOptions)[number]["value"];
 
-function getVisualClass(challenge: Challenge) {
-  if (challenge.category === "Кофе") return styles.visualCoffee;
-  if (challenge.category === "Фитнес") return styles.visualFitness;
-  if (challenge.category === "Beauty") return styles.visualBeauty;
-  if (challenge.category === "Еда") return styles.visualFood;
-  if (challenge.category === "Книги") return styles.visualBooks;
-  if (challenge.category === "Питомцы") return styles.visualPets;
-  return styles.visualDefault;
-}
-
 function getChallengeImage(challenge: Challenge) {
   const imageFields = challenge as Challenge & {
     heroImageUrl?: string;
@@ -40,50 +30,74 @@ function getChallengeImage(challenge: Challenge) {
   return imageFields.heroImageUrl ?? challenge.image ?? imageFields.coverImageUrl ?? null;
 }
 
-function ChallengeCardImage({ challenge, size }: { challenge: Challenge; size: "large" | "small" }) {
+function ChallengeCardImage({ challenge }: { challenge: Challenge }) {
   const challengeImage = getChallengeImage(challenge);
 
   if (challengeImage) {
-    return <Image src={challengeImage} alt={`Изображение челленджа «${challenge.title}»`} fill sizes={size === "large" ? "(max-width: 639px) 100vw, 440px" : "(max-width: 639px) 50vw, 220px"} unoptimized={challengeImage.startsWith("blob:")} className={styles.cardImage} />;
+    return (
+      <Image
+        src={challengeImage}
+        alt={`Изображение челленджа «${challenge.title}»`}
+        fill
+        sizes="(max-width: 639px) 100vw, 440px"
+        unoptimized={challengeImage.startsWith("blob:")}
+        className={styles.cardImage}
+      />
+    );
   }
 
-  return <div className={`${styles.cardFallback} ${getVisualClass(challenge)}`} aria-hidden>
-    <span>{challenge.emoji}</span>
-  </div>;
+  return <div className={styles.cardFallback} aria-hidden />;
 }
 
-function LargeChallengeCard({ challenge }: { challenge: Challenge }) {
-  const progressPercent = challenge.progress ? Math.min((challenge.progress.current / challenge.progress.total) * 100, 100) : 0;
-  return <Link href={routes.user.challengeDetail(challenge.id)} className={styles.largeCard}>
-    <ChallengeCardImage challenge={challenge} size="large" />
-    <div className={styles.cardShade} />
-    <div className={`${styles.cardOverlay} ${styles.largeOverlay}`}><span className={styles.cardBrand}>{challenge.brandName}</span><h2>{challenge.title}</h2><p className={styles.cardSummary}>{challenge.condition}</p>{challenge.progress ? <div className={styles.progressBlock}><div><span>Прогресс</span><strong>{challenge.progress.current}/{challenge.progress.total}</strong></div><i><span style={{ width: `${progressPercent}%` }} /></i></div> : <p className={styles.description}>{challenge.description}</p>}<strong className={styles.reward}>🪙 {challenge.coinsReward}</strong></div>
-  </Link>;
+function GoalIcon({ type }: { type: Challenge["type"] }) {
+  if (type === "steps") return <Footprints aria-hidden size={13} />;
+  if (type === "coins") return <ShoppingBag aria-hidden size={13} />;
+  if (type === "qr_visit" || type === "visit_series") return <MapPin aria-hidden size={13} />;
+  return <Target aria-hidden size={13} />;
 }
 
-function SmallChallengeCard({ challenge, size }: { challenge: Challenge; size: "tall" | "compact" }) {
-  return <Link href={routes.user.challengeDetail(challenge.id)} className={`${styles.smallCard} ${size === "tall" ? styles.smallTall : styles.smallCompact}`}>
-    <ChallengeCardImage challenge={challenge} size="small" />
-    <div className={styles.cardShade} />
-    <div className={`${styles.cardOverlay} ${styles.smallOverlay}`}><small className={styles.cardBrand}>{challenge.brandName}</small><h3>{challenge.title}</h3>{size === "tall" ? <p className={styles.cardSummary}>{challenge.condition}</p> : null}<strong className={styles.reward}>🪙 {challenge.coinsReward}</strong></div>
-  </Link>;
+function formatDaysLeft(daysLeft: number) {
+  const remainder = daysLeft % 100;
+  const lastDigit = daysLeft % 10;
+  const suffix = remainder >= 11 && remainder <= 14 ? "дней" : lastDigit === 1 ? "день" : lastDigit >= 2 && lastDigit <= 4 ? "дня" : "дней";
+  return `${daysLeft} ${suffix}`;
 }
 
-function StaggeredCards({ challenges }: { challenges: Challenge[] }) {
-  const [first, second, third, fourth] = challenges;
-  return <div className={styles.staggeredGrid}>
-    <div className={styles.staggeredColumn}>{first ? <SmallChallengeCard challenge={first} size="compact" /> : null}{third ? <SmallChallengeCard challenge={third} size="tall" /> : null}</div>
-    <div className={styles.staggeredColumn}>{second ? <SmallChallengeCard challenge={second} size="tall" /> : null}{fourth ? <SmallChallengeCard challenge={fourth} size="compact" /> : null}</div>
-  </div>;
+function ChallengeCard({ challenge }: { challenge: Challenge }) {
+  const goalLine = challenge.progress?.label ?? challenge.condition;
+  const description = challenge.shortDescription ?? challenge.description;
+
+  return (
+    <Link href={routes.user.challengeDetail(challenge.id)} className={styles.challengeCard}>
+      <ChallengeCardImage challenge={challenge} />
+      <div className={styles.cardShade} />
+      <div className={styles.cardOverlay}>
+        <span className={styles.cardBrand}>{challenge.brandName}</span>
+        <h2>{challenge.title}</h2>
+        <div className={styles.cardDetails}>
+          <p className={styles.cardDescription}>{description}</p>
+          <div className={styles.cardMetaRow}>
+            <div className={styles.cardMeta}>
+              <span><GoalIcon type={challenge.type} />{goalLine}</span>
+              <span><CalendarDays aria-hidden size={13} />{formatDaysLeft(challenge.daysLeft)}</span>
+            </div>
+            <span className={styles.reward}>
+              <Coins aria-hidden size={12} />
+              {challenge.coinsReward}
+            </span>
+          </div>
+        </div>
+      </div>
+    </Link>
+  );
 }
 
 function ChallengeGrid({ challenges }: { challenges: Challenge[] }) {
-  return <section className={styles.catalog} aria-label="Список челленджей">
-    {challenges[0] ? <LargeChallengeCard challenge={challenges[0]} /> : null}
-    <StaggeredCards challenges={challenges.slice(1, 5)} />
-    {challenges[5] ? <LargeChallengeCard challenge={challenges[5]} /> : null}
-    <StaggeredCards challenges={challenges.slice(6, 10)} />
-  </section>;
+  return (
+    <section className={styles.catalog} aria-label="Список челленджей">
+      {challenges.map((challenge) => <ChallengeCard key={challenge.id} challenge={challenge} />)}
+    </section>
+  );
 }
 
 export function UserChallengesClient({ challenges }: { challenges: Challenge[] }) {
@@ -95,15 +109,29 @@ export function UserChallengesClient({ challenges }: { challenges: Challenge[] }
   const [sort, setSort] = useState<SortValue | null>(null);
   const orderedChallenges = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase();
-    const filtered = challenges.map((challenge) => {
-      const state = states.find((item) => item.challengeId === challenge.id);
-      return { ...challenge, isActive: state?.isActive ?? false, progress: state?.isActive ? { current: state.progressCurrent, total: state.progressTotal, label: `${state.progressCurrent} из ${state.progressTotal}` } : undefined };
-    }).filter((challenge) => {
-      const matchesCategory = category === "Все" || (category === "Новые" ? !challenge.isActive : challenge.category === category);
-      const searchable = `${challenge.title} ${challenge.brandName} ${challenge.category}`.toLocaleLowerCase();
-      return matchesCategory && (!normalizedQuery || searchable.includes(normalizedQuery));
-    });
+    const filtered = challenges
+      .map((challenge) => {
+        const state = states.find((item) => item.challengeId === challenge.id);
+        return {
+          ...challenge,
+          isActive: state?.isActive ?? false,
+          progress: state?.isActive
+            ? {
+                current: state.progressCurrent,
+                total: state.progressTotal,
+                label: `${state.progressCurrent} из ${state.progressTotal}`,
+              }
+            : undefined,
+        };
+      })
+      .filter((challenge) => {
+        const matchesCategory = category === "Все" || (category === "Новые" ? !challenge.isActive : challenge.category === category);
+        const searchable = `${challenge.title} ${challenge.brandName} ${challenge.category}`.toLocaleLowerCase();
+        return matchesCategory && (!normalizedQuery || searchable.includes(normalizedQuery));
+      });
+
     if (!sort) return filtered;
+
     return [...filtered].sort((left, right) => {
       if (sort === "alphabet") return left.title.localeCompare(right.title, "ru");
       if (sort === "reward") return right.coinsReward - left.coinsReward;
@@ -114,18 +142,50 @@ export function UserChallengesClient({ challenges }: { challenges: Challenge[] }
   }, [category, challenges, query, sort, states]);
   const sortLabel = sortOptions.find((option) => option.value === sort)?.label;
 
-  return <main className={styles.catalogPage}>
-    <div className={styles.controlRow}>
-      <div className={sortStyles.sortWrap}>
-        <button type="button" className={styles.filterButton} aria-expanded={sortOpen} aria-haspopup="dialog" aria-label="Открыть сортировку" onClick={() => setSortOpen((value) => !value)}><SlidersHorizontal aria-hidden size={19} /></button>
-        {sortOpen ? <div className={sortStyles.sortPopover}><div className={sortStyles.sortTitle}>Сортировка</div><div className={sortStyles.sortOptions}>{sortOptions.map((option) => <label key={option.value} className={sortStyles.sortOption}><input type="radio" name="challenge-sort" checked={sort === option.value} onChange={() => { setSort(option.value); setSortOpen(false); }} /><span>{option.label}</span></label>)}</div><div className={sortStyles.sortActions}><button type="button" className={sortStyles.sortReset} onClick={() => { setSort(null); setSortOpen(false); }}>Сбросить</button></div></div> : null}
+  return (
+    <main className={styles.catalogPage}>
+      <header className={styles.pageHeader}>
+        <h1>Челленджи</h1>
+      </header>
+      <div className={styles.controlRow}>
+        <div className={sortStyles.sortWrap}>
+          <button
+            type="button"
+            className={styles.filterButton}
+            aria-expanded={sortOpen}
+            aria-haspopup="dialog"
+            aria-label="Открыть сортировку"
+            onClick={() => setSortOpen((value) => !value)}
+          >
+            <SlidersHorizontal aria-hidden size={19} />
+          </button>
+          {sortOpen ? (
+            <div className={sortStyles.sortPopover}>
+              <div className={sortStyles.sortTitle}>Сортировка</div>
+              <div className={sortStyles.sortOptions}>
+                {sortOptions.map((option) => (
+                  <label key={option.value} className={sortStyles.sortOption}>
+                    <input type="radio" name="challenge-sort" checked={sort === option.value} onChange={() => { setSort(option.value); setSortOpen(false); }} />
+                    <span>{option.label}</span>
+                  </label>
+                ))}
+              </div>
+              <div className={sortStyles.sortActions}>
+                <button type="button" className={sortStyles.sortReset} onClick={() => { setSort(null); setSortOpen(false); }}>Сбросить</button>
+              </div>
+            </div>
+          ) : null}
+        </div>
+        <label className={styles.searchField}>
+          <Search aria-hidden size={18} />
+          <input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Найти челлендж" aria-label="Поиск челленджей" />
+        </label>
       </div>
-      <label className={styles.searchField}><Search aria-hidden size={18} /><input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Найти челлендж" aria-label="Поиск челленджей" /></label>
-    </div>
-    <div className={styles.categories} aria-label="Категории челленджей">
-      {sort && sortLabel ? <button type="button" className={sortStyles.sortChip} onClick={() => setSort(null)}>Сортировка: {sortLabel}<X size={13} /></button> : null}
-      {categories.map((item) => <button type="button" key={item} className={item === category ? styles.categoryActive : styles.category} onClick={() => setCategory(item)}>{item}</button>)}
-    </div>
-    <ChallengeGrid challenges={orderedChallenges} />
-  </main>;
+      <div className={styles.categories} aria-label="Категории челленджей">
+        {sort && sortLabel ? <button type="button" className={sortStyles.sortChip} onClick={() => setSort(null)}>Сортировка: {sortLabel}<X size={13} /></button> : null}
+        {categories.map((item) => <button type="button" key={item} className={item === category ? styles.categoryActive : styles.category} onClick={() => setCategory(item)}>{item}</button>)}
+      </div>
+      <ChallengeGrid challenges={orderedChallenges} />
+    </main>
+  );
 }

@@ -1,11 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { useEffect, useRef, useState, type UIEvent } from "react";
 import type { Challenge } from "@/data/challenges";
 import { routes } from "@/lib/routes";
-import { glassPanelClasses } from "@/components/ui/glass";
 import styles from "./user-home.module.css";
 
 function formatDistance(distanceKm?: number) {
@@ -46,15 +46,10 @@ export function NearbyChallengeCarousel({ challenges }: { challenges: Challenge[
 
   return (
     <div>
-      <div
-        ref={carouselRef}
-        className={styles.nearbyCarousel}
-        onPointerDown={() => { pauseUntilRef.current = Date.now() + 7000; }}
-        onScroll={handleScroll}
-      >
+      <div ref={carouselRef} className={styles.nearbyCarousel} onPointerDown={() => { pauseUntilRef.current = Date.now() + 7000; }} onScroll={handleScroll}>
         {challenges.map((challenge) => (
-          <Link key={challenge.id} href={routes.user.challengeDetail(challenge.id)} className={`${styles.nearbyCard} ${glassPanelClasses}`}>
-            <div className={styles.nearbyVisual}><span>{challenge.emoji}</span></div>
+          <Link key={challenge.id} href={routes.user.challengeDetail(challenge.id)} className={styles.nearbyCard}>
+            <div className={styles.nearbyVisual}>{challenge.image ? <Image src={challenge.image} alt="" fill sizes="(max-width: 639px) 50vw, 220px" unoptimized={challenge.image.startsWith("blob:")} className={styles.nearbyImage} /> : <div className={styles.nearbyFallback} aria-hidden />}</div>
             <div className={styles.nearbyCopy}>
               <small>{challenge.brandName}</small>
               <h3>{challenge.title}</h3>

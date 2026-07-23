@@ -29,22 +29,20 @@ export function BrandLocationsList({ locations, userCity }: BrandLocationsListPr
   const visibleSource = shouldFilterByCity ? cityLocations : locations;
   const visibleLocations = visibleSource.slice(0, visibleCount);
 
-  function showMore() {
-    setVisibleCount((count) => count + 5);
-  }
+  const heading = (
+    <div className={styles.sectionHeading}>
+      <h2 id="brand-locations-title">Точки бренда</h2>
+    </div>
+  );
 
   if (!locations.length) {
     return (
-      <section className={styles.challengeList} aria-labelledby="brand-locations-title">
-        <div className={styles.sectionHeading}>
-          <div>
-            <h2 id="brand-locations-title">Точки бренда</h2>
-          </div>
-        </div>
+      <section className={styles.locationsSection} aria-labelledby="brand-locations-title">
+        {heading}
         <div className={styles.empty}>
           <div>
             <span className={styles.emptyIcon}><MapPin size={24} /></span>
-            <h2>У бренда пока нет добавленных точек</h2>
+            <h3>У бренда пока нет добавленных точек</h3>
           </div>
         </div>
       </section>
@@ -53,16 +51,12 @@ export function BrandLocationsList({ locations, userCity }: BrandLocationsListPr
 
   if (normalizedUserCity && !showOtherCities && !cityLocations.length) {
     return (
-      <section className={styles.challengeList} aria-labelledby="brand-locations-title">
-        <div className={styles.sectionHeading}>
-          <div>
-            <h2 id="brand-locations-title">Точки бренда</h2>
-          </div>
-        </div>
+      <section className={styles.locationsSection} aria-labelledby="brand-locations-title">
+        {heading}
         <div className={styles.empty}>
           <div>
             <span className={styles.emptyIcon}><MapPin size={24} /></span>
-            <h2>Нет точек в вашем городе</h2>
+            <h3>Нет точек в вашем городе</h3>
             <button className={styles.showMoreButton} type="button" onClick={() => { setShowOtherCities(true); setVisibleCount(5); }}>
               Показать точки в других городах
             </button>
@@ -73,52 +67,43 @@ export function BrandLocationsList({ locations, userCity }: BrandLocationsListPr
   }
 
   return (
-    <section className={styles.challengeList} aria-labelledby="brand-locations-title">
-      <div className={styles.sectionHeading}>
-        <div>
-          <h2 id="brand-locations-title">Точки бренда</h2>
-          {!normalizedUserCity ? <p>Выберите город в профиле, чтобы видеть ближайшие точки</p> : null}
-        </div>
-      </div>
+    <section className={styles.locationsSection} aria-labelledby="brand-locations-title">
+      {heading}
+      {!normalizedUserCity ? <p className={styles.locationsHint}>Выберите город в профиле, чтобы увидеть ближайшие точки.</p> : null}
 
-      {visibleLocations.map((item) => {
-        const title = formatBrandLocation(item.city, item.address);
+      {visibleLocations.map((location) => {
+        const address = (location.fullAddress || formatBrandLocation(location.city, location.address)).trim() || "Адрес уточняется";
+        const title = location.name ?? "Точка бренда";
+        const hasCoordinates = location.lat !== null && location.lng !== null;
+        const badge = location.isMain ? "Основная точка" : title;
         const content = (
           <>
-            <div className={styles.challengeTopline}>
-              <span className={styles.challengeType}>{item.name ?? "Точка бренда"}</span>
-              <span className={styles.locationBadges}>
-                {item.isMain ? <span className={styles.challengeStatus}>Основная</span> : null}
-                {item.lat !== null && item.lng !== null ? (
-                  <span className={styles.mapArrow} aria-hidden><ArrowRight size={14} /></span>
-                ) : (
-                  <span className={styles.challengeStatus}>Адрес без карты</span>
-                )}
-              </span>
+            <div className={styles.locationContent}>
+              <span className={styles.locationBadge}>{badge}</span>
+              <p className={styles.locationAddress}>{address}</p>
             </div>
-            <h3>{title}</h3>
-            {item.description ? <p>{item.description}</p> : null}
+            {hasCoordinates ? <span className={styles.locationArrow} aria-hidden><ArrowRight size={14} /></span> : null}
           </>
         );
 
-        return item.lat !== null && item.lng !== null ? (
+        return hasCoordinates ? (
           <Link
-            key={item.id}
-            className={`${styles.challengeCard} ${styles.locationCardLink}`}
-            href={`${routes.user.map}?locationId=${encodeURIComponent(item.id)}`}
-            aria-label={`Открыть точку на карте: ${title}`}
+            key={location.id}
+            className={styles.locationCard}
+            href={`${routes.user.map}?locationId=${encodeURIComponent(location.id)}`}
+            aria-label={`Открыть точку на карте: ${address}`}
           >
             {content}
           </Link>
         ) : (
-          <article key={item.id} className={`${styles.challengeCard} ${styles.locationCardMuted}`}>
+          <article key={location.id} className={styles.locationCardMuted}>
             {content}
           </article>
         );
       })}
 
       {visibleCount < visibleSource.length ? (
-        <button className={styles.showMoreButton} type="button" onClick={showMore}>
+        <button className={styles.showMoreButton} type="button" onClick={() => setVisibleCount((count) => count + 5)}>
           Показать ещё
         </button>
       ) : null}

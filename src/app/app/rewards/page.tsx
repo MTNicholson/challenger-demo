@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { rewards } from "@/data/rewards";
 import { getCurrentUser } from "@/lib/auth-server";
 import { prisma } from "@/lib/prisma";
 import { routes } from "@/lib/routes";
@@ -14,15 +13,15 @@ export default async function RewardsPage() {
     include: { participation: { include: { challenge: { include: { brand: true } } } } },
     orderBy: { createdAt: "desc" },
   }) : [];
-  const visibleRewards: UserRewardView[] = databaseRewards.length ? databaseRewards.map((reward) => ({
+  const visibleRewards: UserRewardView[] = databaseRewards.map((reward) => ({
     id: reward.id,
     title: reward.title,
     brandName: reward.participation.challenge.brand.name,
     description: reward.description ?? "Награда за завершённый челлендж.",
     status: reward.status === "available" ? "available" : "used",
     expiresAt: reward.expiresAt ? reward.expiresAt.toLocaleDateString("ru-RU") : "Без срока",
-    emoji: "🎃",
-  })) : rewards.map((reward) => ({ ...reward, description: reward.description, status: reward.status === "available" ? "available" : "used" }));
+    emoji: "🎁",
+  }));
 
   return <main className={styles.page}>
     <header className={styles.header}>

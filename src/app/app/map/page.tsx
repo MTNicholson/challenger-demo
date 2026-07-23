@@ -40,7 +40,7 @@ export default async function UserMapPage({ searchParams }: UserMapPageProps) {
   });
   const selectedLocation = locationId
     ? await prisma.brandLocation.findFirst({
-        where: { id: locationId, brand: { status: "approved", publicStatus: "ONLINE", archivedAt: null } },
+        where: { id: locationId, lat: { not: null }, lng: { not: null }, brand: { status: "approved", publicStatus: "ONLINE", archivedAt: null } },
         select: {
           id: true,
           name: true,

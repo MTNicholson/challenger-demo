@@ -38,6 +38,7 @@ export type Challenge = {
   isActive: boolean;
   isFeatured: boolean;
   image?: string;
+  heroImageUrl?: string | null;
   brandLogo?: string;
   startDate?: string;
   endDate?: string;

@@ -1,7 +1,8 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
-import { Flame, Sparkles } from "lucide-react";
+import { Coins, Flame, Sparkles } from "lucide-react";
 import type { Challenge } from "@/data/challenges";
 import { routes } from "@/lib/routes";
 import { useCurrentUser } from "@/lib/auth-client";
@@ -37,7 +38,7 @@ export function UserHomeClient({ challenges }: { challenges: Challenge[] }) {
       <section><div className={styles.sectionHeading}><h2>Рядом с тобой</h2></div>{nearbyChallenges.length ? <NearbyChallengeCarousel challenges={nearbyChallenges} /> : <EmptyChallenges />}</section>
       <section>
         <div className={styles.sectionHeading}><h2>Рекомендации</h2></div>
-        <div className={styles.recommendationList}>{recommendations.map((challenge) => <Link key={challenge.id} href={routes.user.challengeDetail(challenge.id)} className={`${styles.recommendationCard} ${glassPanelClasses}`}><div className={styles.recommendationVisual}><span>{challenge.emoji}</span></div><div className={styles.recommendationCopy}><small>{challenge.brandName}</small><h3>{challenge.title}</h3><p>{challenge.condition}</p><strong className={glassPillClasses}>🪙 {challenge.coinsReward}</strong></div></Link>)}</div>
+        <div className={styles.recommendationList}>{recommendations.map((challenge) => <Link key={challenge.id} href={routes.user.challengeDetail(challenge.id)} className={styles.recommendationCard}>{challenge.image ? <Image src={challenge.image} alt="" fill sizes="(max-width: 639px) 100vw, 440px" unoptimized={challenge.image.startsWith("blob:")} className={styles.recommendationImage} /> : <div className={styles.recommendationFallback} aria-hidden />}<div className={styles.recommendationGlass}><small>{challenge.brandName}</small><h3>{challenge.title}</h3><p>{challenge.shortDescription ?? challenge.description}</p><span>{challenge.daysLeft} дн. · {challenge.category}</span></div><strong className={styles.recommendationPoints}><Coins aria-hidden size={12} />{challenge.coinsReward}</strong></Link>)}</div>
         {!recommendations.length ? <EmptyChallenges /> : null}
       </section>
       <div className={styles.recommendationHint}><Sparkles size={18} />Чем больше челленджей закрываешь, тем точнее становятся рекомендации.</div>

@@ -38,12 +38,44 @@ export type PublicBrandChallenge = {
   description: string | null;
   status: string;
   type: string | null;
+  category: string | null;
+  heroImageUrl: string | null;
+  condition: string;
+  coinsReward: number;
+  daysLeft: number;
   reward: string | null;
   startsAt: string | null;
   endsAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
+
+function getChallengeCondition(challenge: BrandChallenge) {
+  const params = challenge.mechanicParams as Record<string, unknown> | null;
+
+  if (challenge.mechanicType === "qr_visit") return "1 QR-визит";
+  if (challenge.mechanicType?.includes("step")) {
+    const value = typeof params?.dailyStepsCount === "number" ? params.dailyStepsCount : params?.stepsCount;
+    return typeof value === "number" ? `${value.toLocaleString("ru-RU")} шагов` : "Активность в приложении";
+  }
+  if (challenge.mechanicType?.includes("purchase")) {
+    const value = params?.purchaseCount;
+    return typeof value === "number" ? `${value} покупка${value === 1 ? "" : "и"}` : "Покупка в точке бренда";
+  }
+
+  const visits = params?.visitsCount;
+  return typeof visits === "number" ? `${visits} визит${visits === 1 ? "" : "ов"}` : "Посетите точки бренда";
+}
+
+function getRewardPoints(challenge: BrandChallenge) {
+  const reward = challenge.rewardData as { points?: unknown } | null;
+  return typeof reward?.points === "number" ? reward.points : 0;
+}
+
+function getDaysLeft(endsAt: Date | null) {
+  if (!endsAt) return 14;
+  return Math.max(0, Math.ceil((endsAt.getTime() - Date.now()) / 86_400_000));
+}
 
 export type PublicBrandDetail = PublicBrandSummary & {
   challenges: PublicBrandChallenge[];
@@ -91,6 +123,11 @@ function serializeChallenge(challenge: BrandChallenge): PublicBrandChallenge {
     description: challenge.description,
     status: challenge.status,
     type: challenge.type,
+    category: challenge.category,
+    heroImageUrl: challenge.heroImageUrl,
+    condition: getChallengeCondition(challenge),
+    coinsReward: getRewardPoints(challenge),
+    daysLeft: getDaysLeft(challenge.endsAt),
     reward: challenge.reward,
     startsAt: challenge.startsAt?.toISOString() ?? null,
     endsAt: challenge.endsAt?.toISOString() ?? null,

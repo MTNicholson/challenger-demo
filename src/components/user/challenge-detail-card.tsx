@@ -55,10 +55,11 @@ export function ChallengeDetailCard({
     >
       <section className={styles.hero}>
         <Image
-          src={challenge.image ?? "/landing/challenges/coffee.webp"}
+          src={challenge.heroImageUrl || challenge.image || "/landing/challenges/coffee.webp"}
           alt={challenge.title}
           fill
           priority
+          unoptimized
           sizes="(max-width: 639px) 100vw, 390px"
           className={styles.heroImage}
         />

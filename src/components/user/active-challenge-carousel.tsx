@@ -1,11 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, useState, type UIEvent } from "react";
 import type { Challenge } from "@/data/challenges";
 import { routes } from "@/lib/routes";
-import { glassPanelClasses, glassPillClasses } from "@/components/ui/glass";
 import styles from "./user-home.module.css";
 
 export function ActiveChallengeCarousel({ challenges }: { challenges: Challenge[] }) {
@@ -32,18 +32,11 @@ export function ActiveChallengeCarousel({ challenges }: { challenges: Challenge[
         {challenges.map((challenge) => {
           const progress = challenge.progress ?? { current: 0, total: 1, label: "Можно начать" };
           const percent = Math.min(100, Math.round((progress.current / progress.total) * 100));
-          const href = routes.user.challengeDetail(challenge.id);
-          const visualTone =
-            challenge.category === "Кофе"
-              ? styles.visualCoffee
-              : challenge.category === "Фитнес"
-                ? styles.visualFitness
-                : styles.visualDefault;
+
           return (
-            <Link key={challenge.id} href={href} className={`${styles.activeCard} ${glassPanelClasses}`}>
-              <div className={`${styles.challengeVisual} ${visualTone} backdrop-blur-[14px] backdrop-saturate-[150%]`}>
-                <span>{challenge.emoji}</span>
-                <small>{challenge.category}</small>
+            <Link key={challenge.id} href={routes.user.challengeDetail(challenge.id)} className={styles.activeCard}>
+              <div className={styles.challengeVisual}>
+                {challenge.image ? <Image src={challenge.image} alt="" fill sizes="(max-width: 639px) 38vw, 160px" unoptimized={challenge.image.startsWith("blob:")} className={styles.challengeImage} /> : <div className={styles.challengeFallback} aria-hidden />}
               </div>
               <div className={styles.challengeInfo}>
                 <small className={styles.challengeBrand}>{challenge.brandName}</small>
@@ -51,7 +44,7 @@ export function ActiveChallengeCarousel({ challenges }: { challenges: Challenge[
                 <p>{challenge.condition}</p>
                 <div className={styles.progressMeta}><span>Прогресс</span><strong>{progress.current}/{progress.total}</strong></div>
                 <div className={styles.compactProgress}><i style={{ width: `${percent}%` }} /></div>
-                <div className={styles.cardFooter}><strong className={glassPillClasses}>🪙 {challenge.coinsReward}</strong></div>
+                <div className={styles.cardFooter}><strong>🪙 {challenge.coinsReward}</strong></div>
               </div>
             </Link>
           );
